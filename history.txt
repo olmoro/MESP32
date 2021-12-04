@@ -1,0 +1,5 @@
+.LOG
+
+20:00 04.12.2021
+После переустановки VS на Lenovo
+Папка проекта C:\Users\olmor\Documents\PlatformIO\Projects

@@ -1,0 +1,462 @@
+/*
+
+
+*/
+
+#include "modes/optionsfsm.h"
+#include "nvs.h"
+#include "mtools.h"
+#include "board/mboard.h"
+#include "board/mkeyboard.h"
+#include "display/mdisplay.h"
+#include <Arduino.h>
+#include <string>
+
+
+namespace OptionFsm
+{
+    static int mode = QULON;
+    char sName[ 15 ] = { 0 };   // Ограничение ESP32
+
+
+    // Состояние "Старт", инициализация выбранного режима работы.
+    MStart::MStart(MTools * Tools) : MState(Tools)
+    {
+        #ifdef DEBUG_OPTIONS
+            Serial.println("Options: Start");
+        #endif
+        // Индикация
+//        Display->showMode( (char*) "  OPTIONS SELECTED   " );
+        Display->showHelp( (char*) "  P-DEFINE   C-EXIT  " );
+    }
+    MState * MStart::fsm()
+    {
+        switch ( Keyboard->getKey() )
+        {
+        case MKeyboard::C_CLICK :
+            return new MExit(Tools);
+        case MKeyboard::P_CLICK :
+            // Продолжение выбора объекта настройки
+            return new MSetVoltageOffset(Tools);
+        case MKeyboard::B_CLICK :
+            return new MSetVoltageOffset(Tools);
+        default :;
+        }
+        return this;
+    };
+
+    MSetVoltageOffset::MSetVoltageOffset( MTools * Tools ) : MState(Tools)
+    {
+        // Смещение восстановлено из nvs при инициализации прибора
+        // Индикация помощи
+        Display->showMode( (char*) "VOLTAGE OFFSET" );
+        Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+    }
+    MState * MSetVoltageOffset::fsm()
+    {
+        switch( Keyboard->getKey() )
+        {
+        case MKeyboard::C_CLICK :
+            return new MExit(Tools);
+        case MKeyboard::P_CLICK :
+            return new MSetDCSupplyFactory(Tools);
+        case MKeyboard::UP_CLICK :
+            //Tools->incVoltageOffset( 0.01f, false );
+            Tools->voltageOffset = Tools->upfVal( Tools->voltageOffset, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 0.01f );
+            break;
+        case MKeyboard::DN_CLICK :
+            //Tools->decVoltageOffset( 0.01f, false );
+            Tools->voltageOffset = Tools->dnfVal( Tools->voltageOffset, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 0.01f );
+            break;
+        case MKeyboard::B_CLICK :
+            Tools->saveInt( MNvs::nQulon, MNvs::kQulonVoffset, Tools->voltageOffset );
+            // #ifdef DEBUG_OPTIONS
+            //     Serial.println(Tools->voltageOffset);
+            // #endif
+            return new MExit(Tools);
+        default :;
+        }
+        // Изменение смещения отображается на текущем значении 
+        Display->showVolt( Board->getRealVoltage(), 2 );
+        Display->showAmp( Board->getRealCurrent(), 1 );
+        return this;
+    };
+
+    MSetVoltageFactor::MSetVoltageFactor( MTools * Tools ) : MState(Tools)
+    {
+        // Смещение восстановлено из nvs при инициализации прибора
+        // Индикация помощи
+        Display->showMode( (char*) "VOLTAGE FACTOR" );
+        Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+    }
+    MState * MSetVoltageFactor::fsm()
+    {
+
+
+
+    };
+
+
+
+
+//     MSelectBattery::MSelectBattery(MTools * Tools) : MState(Tools)
+//     {
+//         // Индикация
+//         #ifdef OLED_1_3
+// //            Oled->showLine4Text("   Батарея   ");
+// //            Oled->showLine3Akb( Tools->getVoltageNom(), Tools->getCapacity() );          // example: "  12В  55Ач  "
+//             Tools->showUpDn();                  // " UP/DN, В-выбор "
+//         #endif
+//     }
+//     MState * MSelectBattery::fsm()
+//     {
+// //         if ( Keyboard->getKey(MKeyboard::C_CLICK)) { return new MExit(Tools); }    
+
+// //         if( Keyboard->getKey(MKeyboard::UP_CLICK)) { Tools->incBattery(); return this; }
+// //         if( Keyboard->getKey(MKeyboard::DN_CLICK)) { Tools->decBattery(); return this; } 
+
+// //         if( Keyboard->getKey(MKeyboard::B_CLICK))              // Завершить выбор батареи
+// //         {
+// // //            Tools->saveBattery( "qulon" );           // Уточнить: общий для всех режимов?
+// //         Tools->writeNvsInt( "qulon", "akbInd", Tools->getAkbInd() );
+
+// //             return new MSetPostpone(Tools);
+// //         }
+
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_LONG_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::UP_CLICK :
+//             Tools->incBattery();
+//             break;  //    return this; 
+//         case MKeyboard::DN_CLICK :
+//             Tools->decBattery();
+//             break;      // return this; } 
+//         case MKeyboard::P_CLICK :
+//             // Продолжение выбора объекта настройки
+//             return new MSetPostpone(Tools);
+
+//         case MKeyboard::B_CLICK :
+//             // Завершить выбор батареи
+//             Tools->writeNvsInt( "qulon", "akbInd", Tools->getAkbInd() );
+//             return new MSetPostpone(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     MSetPostpone::MSetPostpone(MTools * Tools) : MState(Tools) 
+//     {
+//         // Подсказка
+// //        Display->showMode( (char*) "  U/D-SET POSTPONE   " );
+//         Display->showHelp( (char*) "  P-DEFINE   C-EXIT  " );
+//     }
+//     MState * MSetPostpone::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_LONG_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetCurrentOffset(Tools);
+//         case MKeyboard::UP_CLICK :
+//         case MKeyboard::UP_AUTO_CLICK :
+//             Tools->postpone = Tools->upiVal( Tools->postpone, MOptConsts::ppone_l, MOptConsts::ppone_h, 1 );
+//             break;
+//         case MKeyboard::DN_CLICK :
+//         case MKeyboard::DN_AUTO_CLICK :
+//             Tools->postpone = Tools->dniVal( Tools->postpone, MOptConsts::ppone_l, MOptConsts::ppone_h, 1 );
+//             break;
+//         case MKeyboard::B_CLICK :
+//             Tools->saveInt( MNvs::nQulon, MNvs::kQulonPostpone, Tools->postpone );   // Выбор заносится в энергонезависимую память
+//             // #ifdef DEBUG_OPTIONS
+//             //     Serial.println(Tools->postpone);
+//             // #endif
+//             return new MSetCurrentOffset(Tools);
+//         default :;
+//         }
+
+//         Display->showDuration( Tools->postpone, MDisplay::HOUR );
+//         return this;
+//     };
+
+//     MSetCurrentOffset::MSetCurrentOffset( MTools * Tools ) : MState(Tools) 
+//     {
+//         // Смещение восстановлено из nvs при инициализации прибора
+//         // Индикация помощи
+// //        Display->showMode( (char*) " SET CURRENT OFFSET  " );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//         }
+//     MState * MSetCurrentOffset::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetVoltageOffset(Tools);
+//         case MKeyboard::UP_CLICK :
+//             //Tools->incCurrentOffset( 0.01f, false );
+//             Tools->currentOffset = Tools->upfVal( Tools->currentOffset, MOptConsts::c_offset_l, MOptConsts::c_offset_h, 0.01f );
+//             break;
+//         case MKeyboard::DN_CLICK :
+//             //Tools->decCurrentOffset( 0.01f, false );
+//             Tools->currentOffset = Tools->dnfVal( Tools->currentOffset, MOptConsts::c_offset_l, MOptConsts::c_offset_h, 0.01f );
+//             break;
+//         case MKeyboard::B_CLICK :
+//             Tools->saveInt( MNvs::nQulon, MNvs::kQulonIoffset, Tools->currentOffset );
+//             // #ifdef DEBUG_OPTIONS
+//             //     Serial.println(Tools->currentOffset);
+//             // #endif
+//             return new MSetVoltageOffset(Tools);
+//         default :;
+//         }
+//         // Изменение смещения отображается на текущем значении 
+//         Display->showVolt( Board->getRealVoltage(), 2 );
+//         Display->showAmp( Board->getRealCurrent(), 2 );
+// //        Display->showDuration( Tools->postpone, MDisplay::SEC );
+
+//         return this;
+//     };
+
+
+//     // Возврат к заводским настройкам режимов и прибора
+//     // Выбор имени в nvs 
+//     MNameSelection::MNameSelection(MTools * Tools) : MState(Tools)
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "SELECTED MODE" );
+//         Display->showHelp( (char*) " P-NEXT B-YES C-EXIT " );
+
+//     }
+//     MState * MNameSelection::fsm()
+//     {
+//         switch( mode )
+//             {
+//                 case TEMPLATE: Display->showMode( (char*)    "TEMPLATE?" ); 
+//                     sprintf( sName, "template" );
+//                 break;
+//                 case DCSUPPLY: Display->showMode( (char*)    "DC SUPPLY?" ); 
+//                     sprintf( sName, "s-power" );
+//                 break;
+//                 case PULSEGEN: Display->showMode( (char*)    "PULSEGEN?" ); 
+//                     sprintf( sName, "e-power" );
+//                 break;
+//                 case CCCVCHARGE: Display->showMode( (char*)  "    CC/CV CHARGE?    " ); 
+//                     sprintf( sName, "cccv" );
+//                 break;
+//                 case PULSECHARGE: Display->showMode( (char*) "    PULSE CHARGE?    " ); 
+//                     sprintf( sName, "e-charge" );
+//                 break;
+//                 case RECOVERY: Display->showMode( (char*)    "      RECOVERY?      " ); 
+//                     sprintf( sName, "recovery" );
+//                 break;
+//                 case STORAGE: Display->showMode( (char*)     "       STORAGE?      " ); 
+//                     sprintf( sName, "storage" );
+//                 break;
+//                 case DEVICE: Display->showMode( (char*)      "        DEVICE?      " ); 
+//                     sprintf( sName, "dc" ); 
+//                 break;
+//                 case SERVICE: Display->showMode( (char*)     "        SERVICE?     " ); 
+//                     sprintf( sName, "service" );
+//                 break;
+//                 case QULON: Display->showMode( (char*)       "        QULON?       " ); 
+//                     sprintf( sName, MNvs::nQulon );
+//                 break;
+    
+//             }
+
+//         return this;
+//     };
+
+
+//     MSetFactory::MSetFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "SELECTED MODE" );
+//         Display->showHelp( (char*) " P-NEXT B-YES C-EXIT " );
+//     }
+//     MState * MSetFactory::fsm()
+//     {
+//         // switch(mode)
+//         // {
+//         //     case OPTIONS:
+//         //         Display->showMode( (char*) "      DC SUPPLY?     " );
+//         //         //            sprintf( sHelp, "CALIBRATION,TIMER ETC" );
+//         //     break;
+//         // }
+
+
+
+
+
+//         return this;
+//     };
+
+
+// //***********
+//     // Возврат к заводским настройкам простого источника
+//     MSetDCSupplyFactory::MSetDCSupplyFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "DC_SUPP.FACTORY" );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MSetDCSupplyFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetQulonFactory(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys( MNvs::nDcPower );    // Выбор заносится в энергонезависимую память
+//             return new MSetQulonFactory(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     // Возврат к заводским настройкам CC/CV заряда
+//     MSetCcCvChargeFactory::MSetCcCvChargeFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) " SET CCCV CH.FACTORY " );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MSetCcCvChargeFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetExChargeFactory(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys( MNvs::nCcCv );    // Выбор заносится в энергонезависимую память
+//             return new MSetExChargeFactory(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     // Возврат к заводским настройкам расширенного заряда
+//     MSetExChargeFactory::MSetExChargeFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "EXT.CH. FACTORY" );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MSetExChargeFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetRecoveryFactory(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys( MNvs::nExChrg );    // Выбор заносится в энергонезависимую память
+//             return new MSetRecoveryFactory(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     // Возврат к заводским настройкам режима восстановления
+//     MSetRecoveryFactory::MSetRecoveryFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "RECOV. FACTORY" );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MSetRecoveryFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MServiceFactory(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys( MNvs::nRecBat );    // Выбор заносится в энергонезависимую память
+//             return new MServiceFactory(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     // Возврат к заводским настройкам режима сервиса АКБ 
+//     MServiceFactory::MServiceFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "SERVICE FACTORY" );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MServiceFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :
+//             return new MSetQulonFactory(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys( MNvs::nServBat );    // Выбор заносится в энергонезависимую память
+//             return new MSetQulonFactory(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+//     // Возврат к заводским настройкам прибора
+//     MSetQulonFactory::MSetQulonFactory(MTools * Tools) : MState(Tools) 
+//     {
+//         // Индикация помощи
+//         Display->showMode( (char*) "QULON FACTORY" );
+//         Display->showHelp( (char*) " B-YES  P-NO  C-EXIT " );
+//     }
+//     MState * MSetQulonFactory::fsm()
+//     {
+//         switch ( Keyboard->getKey() )
+//         {
+//         case MKeyboard::C_CLICK :
+//             return new MExit(Tools);
+//         case MKeyboard::P_CLICK :           // Так как последний в списке
+//             return new MExit(Tools);
+//         case MKeyboard::B_CLICK :
+//             Tools->clearAllKeys(MNvs::nQulon);    // Выбор заносится в энергонезависимую память
+//             return new MExit(Tools);
+//         default :;
+//         }
+//         return this;
+//     };
+
+
+//***********
+
+    // Завершение режима - до нажатия кнопки "С" удерживается индикация 
+    MExit::MExit(MTools * Tools) : MState(Tools)
+    {
+        // Индикация помощи
+        Display->showMode( (char*) "OPTIONS:" );
+        Display->showHelp( (char*) "  C-RETURN TO SELECT " );
+    }      
+    MState * MExit::fsm()
+    {
+        switch ( Keyboard->getKey() )
+        {
+            case MKeyboard::C_CLICK :
+                // Надо бы восстанавливать средствами диспетчера...
+                Display->showMode( (char*) "OPTIONS:" );
+                Display->showHelp( (char*) " U/D-OTHER  B-SELECT " );
+                return nullptr;                             // Возврат к выбору режима
+            default:;
+        }
+        return this;
+    };
+
+};
+
