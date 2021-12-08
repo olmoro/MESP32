@@ -22,6 +22,7 @@
 #include "board/mmeasure.h"
 #include "connect/connectfsm.h"
 #include <Arduino.h>
+  #include "project_config.h"
 
 static MBoard      * Board      = 0;
 //static MUpdate     * Update     = 0;
