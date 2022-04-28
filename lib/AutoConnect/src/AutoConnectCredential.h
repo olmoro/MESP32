@@ -22,7 +22,7 @@ struct station_config {
     uint8_t  password[64];
     uint8_t  bssid_set;
     uint8_t  bssid[6];
-    wifi_scan_threshold_t threshold; //wifi_fast_scan_threshold_t threshold;
+    wifi_fast_scan_threshold_t threshold;   // wifi_scan_threshold_t threshold; - заменить для Espressif 32 4.x
 };
 #endif
 
