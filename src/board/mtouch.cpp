@@ -1,7 +1,7 @@
 /*
  * Конечный автомат обработки данных емкостной клавиатуры
  * Бесконечно повторяющийся цикл.
- * Вариант  202105
+ * Вариант  202105 - не совместим с Espressif 32 4.x
  * pcb: eltr_v2.2
  */
 
@@ -41,7 +41,7 @@ namespace MTouchStates
   MButtonUp::MButtonUp(MTools * Tools) : MState(Tools) {}
   MState * MButtonUp::fsm()
   {
-    touch_pad_init();
+    touch_pad_init(); 
     touchValue = touchRead(MPins::touch_up_pin);
     if( touchValue < treshold_up)
     {

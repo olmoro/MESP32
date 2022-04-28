@@ -2,7 +2,7 @@
  *  Declaration of AutoConnectCredential class.
  *  @file AutoConnectCredential.h
  *  @author hieromon@gmail.com
- *  @version  0.9.6
+ *  @version  0.9.6 moro: L25 исправлено при переходе на 4.0
  *  @date 2018-09-27
  *  @copyright  MIT license.
  */
@@ -22,7 +22,7 @@ struct station_config {
     uint8_t  password[64];
     uint8_t  bssid_set;
     uint8_t  bssid[6];
-    wifi_fast_scan_threshold_t threshold;
+    wifi_scan_threshold_t threshold; //wifi_fast_scan_threshold_t threshold;
 };
 #endif
 
