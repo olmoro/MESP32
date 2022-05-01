@@ -71,16 +71,13 @@ void setup()
   // Обновление в любом случае должно полностью выполняться до запуска RTOS.
   //Update->doUpdate();
 
-  // Очередь отправки команд драйверу силового модуля
+  // Инициализация очереди отправки команд драйверу силового модуля
   queue = xQueueCreate(10, sizeof(int));
   if (queue == NULL) 
   {
     Serial.println("Error creating the queue");
   }
-  else
-  {
-    Serial.println("Creating the queue");
-  }
+  
 }
 
 void loop() 
