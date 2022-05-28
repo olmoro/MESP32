@@ -45,7 +45,8 @@ void MCommands::doCommand()
   // Очередь (в перспективе)
   cmd = Tools->getFromQueue();
   // Заменяется фоновой
-  Tools->setToQueue( MCmd::cmd_read_u_i );
+  //Tools->setToQueue( MCmd::cmd_read_u_i );
+  Tools->setToQueue( MCmd::cmd_get_ui );
     
   #ifdef DEBUG_QUEUE
     if( cmd != MCmd::cmd_read_u_i) { Serial.print("0x"); Serial.println(cmd, HEX); }
@@ -60,7 +61,12 @@ void MCommands::doCommand()
     switch( cmd )
     {
       //Команды управления процессами
-      case MCmd::cmd_read_u_i:                readUI();                   break; // 0x10;   +
+      case MCmd::cmd_read_u_i:                readUI();                   break;  // 0x10;   +
+      case MCmd::cmd_get_u:                   doGetU();                   break;  // 0x11 Чтение напряжения (мВ)
+      case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
+      case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
+      case MCmd::cmd_get_state:               doGetState();               break;  // 0x14 Чтение состояния
+      case MCmd::cmd_get_celsius:             doCelsius();                break;  // 0x15 Чтение температуры радиатора
 
         // Команды управления
       case MCmd::cmd_power_go:                doPowerGo();                break;  // 0x20   +
@@ -162,6 +168,66 @@ void MCommands::dataProcessing()
       }
       else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
+
+    // Ответ на команду чтения результата измерения напряжения (мВ)
+    // всего 3 байта, включая байт ошибки
+    case MCmd::cmd_get_u:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->setVoltageVolt(Wake->get16(1));
+        Tools->setProtErr(0);
+      }
+      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+    // Ответ на команду чтения результатов измерения тока (мА)
+    // всего 3 байта, включая байт ошибки
+    case MCmd::cmd_get_i:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->setCurrentAmper(Wake->get16(1));
+        Tools->setProtErr(0);
+      }
+      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+    // Ответ на команду чтения результатов измерения напряжения (мВ), тока (мА)
+    // всего 5 байт, включая байт ошибки
+    case MCmd::cmd_get_ui:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 5) )
+      {
+        Tools->setVoltageVolt(Wake->get16(1));
+        Tools->setCurrentAmper(Wake->get16(3));
+        Tools->setProtErr(0);
+      }
+      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+    // Ответ на команду чтения двух байт состояния драйвера (всего 3 байта, включая байт ошибки)
+    case MCmd::cmd_get_state:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->setState1(Wake->get08(1));
+        Tools->setState2(Wake->get08(2));
+        Tools->setProtErr(0);
+      }
+      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+    // Ответ на команду чтения результата преобразования данных датчика температуры
+    // всего 3 байтf, включая байт ошибки
+    case MCmd::cmd_get_celsius:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->setCelsius(Wake->get16(1));
+        Tools->setProtErr(0);
+      }
+      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+
+
+
 
       // Ответ на команду старта преобразователя с заданными максимальными U и I
       // (всего 1 байт, байт ошибки)
@@ -532,6 +598,45 @@ void MCommands::readUI()
 {        
   Wake->configAsk( 0, MCmd::cmd_read_u_i);
 }
+
+// 0x11 Чтение напряжения (мВ)
+// Ожидаемый ответ: целочисленное знаковое в милливольтах.
+void MCommands::doGetU()
+{
+  Wake->configAsk( 0, MCmd::cmd_get_u);
+}
+
+// 0x12 Чтение тока (мА)
+// Ожидаемый ответ: целочисленное знаковое в миллиамперах.
+void MCommands::doGetI()
+{
+  Wake->configAsk( 0, MCmd::cmd_get_i);
+}
+
+// 0x13 Чтение напряжения (мВ) и тока (мА)
+// Ожидаемый ответ: целочисленные знаковые в милливольтах и миллиамперах.
+void MCommands::doGetUI()
+{
+  Wake->configAsk( 0, MCmd::cmd_get_ui);
+}
+
+// 0x14 Чтение состояния
+// Ожидаемый ответ: два байта состояний.
+void MCommands::doGetState()
+{
+  Wake->configAsk( 0, MCmd::cmd_get_state);
+}
+
+// 0x15 Чтение температуры радиатора
+// Ожидаемый ответ: целочисленное знаковое ADC как есть.
+void MCommands::doCelsius()
+{
+  Wake->configAsk( 0, MCmd::cmd_get_celsius);
+}
+
+
+
+
 
 // Команда управления PID регулятором 0x20
 // Запрос: 0xC0, 0x20, 0x05, 0x12, 0x34, 0x56, 0x78, 0x01, 0x64       - ok

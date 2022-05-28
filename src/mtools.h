@@ -89,6 +89,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
   uint8_t getState1();
   void    setState2(uint8_t val);
   uint8_t getState2();
+  void    setCelsius(short val);
 
   void  setProtErr(uint8_t val);  // protocol error - или подтверждения исполнения команды 
 
@@ -380,6 +381,7 @@ private:
   float current     = 0.0f;    // Текущий измеренный ток, А
   uint8_t state1    = 0x00;
   uint8_t state2    = 0x00;
+  short celsius     = 0x0000;   // Температура радиатора в "попугаях" АЦП
 
 // Переменные будут здесь // это параноя //
     bool  localization = true ;     // LAT

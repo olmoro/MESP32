@@ -80,7 +80,14 @@ class MCommands
     // static constexpr uint16_t hz = 250;
 
       //Команды управления процессами
-    void readUI();                    // 0x10; 
+    void readUI();                    // 0x10 - старая, будет удалена
+
+    void doGetU();                    // 0x11 Чтение напряжения (мВ)
+    void doGetI();                    // 0x12 Чтение тока (мА)
+    void doGetUI();                   // 0x13 Чтение напряжения (мВ) и тока (мА)
+    void doGetState();                // 0x14 Чтение состояния
+    void doCelsius();                 // 0x15 Чтение температуры радиатора
+
 
       // Команды управления
     void doPowerGo();                 // 0x20   

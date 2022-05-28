@@ -11,7 +11,12 @@
 namespace MCmd
 {
     // Команды измерений
-  constexpr uint8_t cmd_read_u_i                  = 0x10; // читать текущее напряжение и ток (мВ и мА)
+  constexpr uint8_t cmd_read_u_i                  = 0x10; // Чтение напряжения(мВ), тока (мА) и состояния
+  constexpr uint8_t cmd_get_u                     = 0x11; // Чтение напряжения (мВ)
+  constexpr uint8_t cmd_get_i                     = 0x12; // Чтение тока (мА)
+  constexpr uint8_t cmd_get_ui                    = 0x13; // Чтение напряжения (мВ) и тока (мА)
+  constexpr uint8_t cmd_get_state                 = 0x14; // Чтение состояния
+  constexpr uint8_t cmd_get_celsius               = 0x15; // Чтение температуры радиатора
 
     // Команды управления
   constexpr uint8_t cmd_power_go                  = 0x20; // старт преобразователя с заданными максимальными U и I
