@@ -4,7 +4,7 @@
   pcb:          eltrD21v3.1 
   display:      1.8 дюймовый TFT ЖК-дисплей 128*160 полноцветный экран IPS. Driver IC: ST7735
   driver:       SAMD21 MINI
-  date:         2022 апрель
+  date:         2022 май
   VS:                1.66.2
   Espressif 32:      3.5.0 (с 4.0 не совместимо)
 */

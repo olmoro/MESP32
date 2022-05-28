@@ -56,7 +56,8 @@ char    txDat[frame];   // массив данных для передачи
 void MWake::wakeInit( uint8_t addr, long time )
 {
   #ifdef UART2
-    Serial2.begin(115200);            // это порт дрйвера
+    //Serial2.begin(115200);            // это порт дрйвера
+    Serial2.begin(230400);            // это порт дрйвера - май 2022
     Serial2.setTimeout( time );       // время тайм-аута для функции readBytes(), ms. 
   #endif
 
