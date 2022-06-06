@@ -21,8 +21,11 @@ class MTools
     Preferences * qPreferences = nullptr; // local
 
     // Буфер команд(ы) на исполнение, при необходимости будет очередь (queue) 
-    uint8_t commBuff = 0x00;
+    uint8_t commBuff  = 0x00;   
 
+    short error;              // Код ошибки обработки команды драйвером
+    void  setErr(short err);
+    short getErr();
 
     // Локализация
     bool getLocalization() const;
@@ -91,7 +94,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
   uint8_t getState2();
   void    setCelsius(short val);
 
-  void  setProtErr(uint8_t val);  // protocol error - или подтверждения исполнения команды 
+//  void  setProtErr(uint8_t val);  // protocol error - или подтверждения исполнения команды 
 
     // Номинальное напряжение батареи, В
     float getVoltageNom() const;
@@ -299,6 +302,9 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
     void shutdownCharge();
     void shutdownDC();
+    //2022
+    short powerGo();               // 0x20
+    short powerStop();             // 0x21
 
 
     void orderCmd(uint8_t cmd);

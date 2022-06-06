@@ -2,6 +2,7 @@
  * Работа с драйверов силовой платы
  * read  - чтение через драйвер
  * write - запись через драйвер
+ * 05.2022
  */
 
 #include "driver/mcommands.h"
@@ -24,7 +25,7 @@ MCommands::~MCommands()
   delete Wake;
 }
 // Имя устройства
-static constexpr char Info[] = {"Q920up Rev0.0\n\0"};   // Убрать для активного 
+static constexpr char Info[] = {" QMoro Rev0.0\n\0"};   // Убрать для активного 
 
 
 uint8_t cmd = MCmd::cmd_nop;
@@ -36,10 +37,6 @@ uint8_t cmd = MCmd::cmd_nop;
 void MCommands::writeCmd(uint8_t _cmd) { cmd = _cmd; }
 
 
-
-  // 
-  //
-  //
 void MCommands::doCommand()
 {
   // Очередь (в перспективе)
@@ -147,7 +144,8 @@ void MCommands::doCommand()
 }
 
   // Обработка принятого пакета
-void MCommands::dataProcessing()
+//void MCommands::dataProcessing()
+short MCommands::dataProcessing()
 {
   Wake->wakeRead();
   int cmd = Wake->getCommand();
@@ -164,9 +162,9 @@ void MCommands::dataProcessing()
         Tools->setCurrentAmper(Wake->get16(3));
         Tools->setState1(Wake->get08(5));
         Tools->setState2(Wake->get08(6));
-        Tools->setProtErr(0);
+        return 0; //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1; //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
     // Ответ на команду чтения результата измерения напряжения (мВ)
@@ -175,9 +173,9 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->setVoltageVolt(Wake->get16(1));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
     // Ответ на команду чтения результатов измерения тока (мА)
@@ -186,9 +184,9 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->setCurrentAmper(Wake->get16(1));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
     // Ответ на команду чтения результатов измерения напряжения (мВ), тока (мА)
@@ -198,9 +196,9 @@ void MCommands::dataProcessing()
       {
         Tools->setVoltageVolt(Wake->get16(1));
         Tools->setCurrentAmper(Wake->get16(3));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
     // Ответ на команду чтения двух байт состояния драйвера (всего 3 байта, включая байт ошибки)
@@ -209,9 +207,9 @@ void MCommands::dataProcessing()
       {
         Tools->setState1(Wake->get08(1));
         Tools->setState2(Wake->get08(2));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
     // Ответ на команду чтения результата преобразования данных датчика температуры
@@ -220,9 +218,9 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->setCelsius(Wake->get16(1));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
 
@@ -234,9 +232,9 @@ void MCommands::dataProcessing()
     case MCmd::cmd_power_go:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 5) )    // ??
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола - или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола - или нет подтверждения исполнения команды 
     break;
 
       // Ответ на команду отключения преобразователя и цепи разряда
@@ -244,9 +242,9 @@ void MCommands::dataProcessing()
     case MCmd::cmd_power_stop:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола - или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола - или нет подтверждения исполнения команды 
     break;
 
 
@@ -256,27 +254,27 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->factorV = Wake->get16(1);
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Запись множителя преобразования в милливольты           0x31
     case MCmd::cmd_write_factor_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Возврат к заводскому множителю                         0x32
     case MCmd::cmd_write_factor_default_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Чтение параметра сглаживания                           0x33
@@ -284,37 +282,37 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 2) )
       {
         Tools->smoothV = Wake->get08(1);
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Запись параметра сглаживания                           0x34
     case MCmd::cmd_write_smooth_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-      //  Чтение приборного смещение                            0x35
+      //  Чтение приборного смещения                            0x35
     case MCmd::cmd_read_offset_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->offsetV = (float)Wake->get16(1) / 1000;
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       //  Запись приборного смещения                            0x36
     case MCmd::cmd_write_offset_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // ========= Обработка ответов на команды работы с измерителем тока =========
@@ -323,27 +321,27 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->factorA = Wake->get16(1);
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Запись множителя преобразования в миллиамперы           0x39
     case MCmd::cmd_write_factor_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Возврат к заводскому множителю                         0x3A
     case MCmd::cmd_write_factor_default_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Чтение параметра сглаживания                           0x3B
@@ -351,18 +349,18 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 2) )
       {
         Tools->smoothA = Wake->get08(1);
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Запись параметра сглаживания                           0x3C
     case MCmd::cmd_write_smooth_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       //  Чтение приборного смещение                            0x3D
@@ -370,18 +368,18 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Tools->offsetA = Wake->get16(1);
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       //  Запись приборного смещения                            0x3E
     case MCmd::cmd_write_offset_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // ================ Команды работы с ПИД-регулятором =================
@@ -395,9 +393,9 @@ void MCommands::dataProcessing()
     case MCmd::cmd_pwm_configure:               // 0x47   + 03->01
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);             // Подтверждение
+        return 0;  //Tools->setProtErr(0);             // Подтверждение
       }
-      else  Tools->setProtErr(1);         // ошибка протокола  
+      else  return 1;  //Tools->setProtErr(1);         // ошибка протокола  
     break;
 
       // Чтение настроек ПИД-регулятора                            0x48
@@ -410,9 +408,9 @@ void MCommands::dataProcessing()
         Tools->kd       = Wake->get16(6);
         Tools->minOut   = Wake->get16(8);
         Tools->maxOut   = Wake->get16(10);
-        Tools->setProtErr(0);             // Подтверждение
+        return 0;  //Tools->setProtErr(0);             // Подтверждение
       }
-      else  Tools->setProtErr(1);         // ошибка
+      else  return 1;  //Tools->setProtErr(1);         // ошибка
     break;
 
       // //  case cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
@@ -426,9 +424,9 @@ void MCommands::dataProcessing()
         Board->setAdcI(Wake->get16(3));
         // состояние
         // состояние
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Запись смещения АЦП                               0x51   + 00->03
@@ -436,18 +434,18 @@ void MCommands::dataProcessing()
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
         Board->setAdcOffset(Wake->get16(1));
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Чтение смещения АЦП                                0x52   + 02->01
     case MCmd::cmd_adc_write_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
-        Tools->setProtErr(0);
+        return 0;  //Tools->setProtErr(0);
       }
-      else  Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
         // Команды задания порогов отключения
@@ -468,6 +466,7 @@ void MCommands::dataProcessing()
 
 
     default:
+    return 2;   // Нет такой команды
     break;
   }
 }

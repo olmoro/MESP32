@@ -18,7 +18,8 @@ class MCommands
     ~MCommands();
       
     void doCommand();
-    void dataProcessing();
+    //void dataProcessing();
+    short dataProcessing();
     void exeCommand(uint8_t);
 
     //void readUI();
@@ -90,8 +91,8 @@ class MCommands
 
 
       // Команды управления
-    void doPowerGo();                 // 0x20   
-    void doPowerStop();               // 0x21   
+    void doPowerGo();                // 0x20   
+    void doPowerStop();              // 0x21   
     //void doSetPid();                // 0x22 nu
 
       // Команды работы с измерителем напряжения 

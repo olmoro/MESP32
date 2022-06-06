@@ -8,6 +8,7 @@
   27.05.2019 
   23.03.2021 - под новый дисплей
   03.05.2021 - подключение  к драйверу силовой платы
+  06.05.2022 - обработка ошибки протокола при приеме ответа драйвера
 */
 
 #include "modes/cccvfsm.h"
@@ -23,6 +24,7 @@
 
 namespace CcCvFsm
 {
+
   // Состояние "Старт", инициализация выбранного режима работы (Заряд CCCV).
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
@@ -324,7 +326,7 @@ namespace CcCvFsm
     Display->showAh( Tools->getAhCharge() );
     
     return this;
-  };
+  };  //MUpCurrent
 
   // Вторая фаза заряда - достигнуто заданное максимальное напряжение.
   // При падении тока ниже заданного уровня - переход к третьей фазе.
@@ -418,16 +420,15 @@ namespace CcCvFsm
     Display->showAh( Tools->getAhCharge() );
 
     return this;
-  };
+  };  //MKeepVmin
 
   // Завершение режима заряда - до нажатия кнопки "С" удерживается индикация 
   // о продолжительности и отданном заряде.
   // Состояние: "Завершение заряда"
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
-    Tools->shutdownCharge();
-  
-    Tools->setToQueue(MCmd::cmd_power_stop);  // Отключить 
+    // Tools->shutdownCharge();
+    // Tools->setToQueue(MCmd::cmd_power_stop);  // Отключить 
 
     Display->showMode( (char*) "     POWER OFF    " );
     Display->showHelp( (char*) "      C-EXIT      " );
@@ -435,6 +436,20 @@ namespace CcCvFsm
   }    
   MState * MStop::fsm()
   {
+    if( Tools->getErr() != 0)
+    {
+      // Драйвер не отвечает
+      Display->showHelp( (char*) "      ERROR 1     " );
+      return new MExit(Tools);
+    }
+    else
+    {
+      Board->ledsRed();
+      Display->showHelp( (char*) "      C-EXIT      " );
+      return new MExit(Tools);
+    }
+  //}
+
     switch ( Keyboard->getKey() )
     {
       case MKeyboard::C_CLICK:  Board->buzzerOn();  
@@ -444,7 +459,7 @@ namespace CcCvFsm
 //Display->barOff();
     }
     return this;
-  };
+  };  //MStop
 
   // Процесс выхода из режима заряда - до нажатия кнопки "С" удерживается индикация о продолжительности и отданном заряде.
   // Состояние: "Индикация итогов и выход из режима заряда в меню диспетчера" 
@@ -474,6 +489,6 @@ namespace CcCvFsm
     return this;
   };
 
-};
+};  //MExit
 
 // !Конечный автомат режима простого заряда (CCCV).

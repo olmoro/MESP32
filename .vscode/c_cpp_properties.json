@@ -215,7 +215,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=60001",
+                "PLATFORMIO=60002",
                 "ARDUINO_ESP32_DEV",
                 "CORE_DEBUG_LEVEL=ARDUHAL_LOG_LEVEL_DEBUG",
                 "USER_SETUP_LOADED=1",

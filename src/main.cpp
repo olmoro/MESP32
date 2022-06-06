@@ -84,7 +84,8 @@ void loop()
 {
   if( Serial2.available() )    // В буфере приема есть принятые байты, не факт, что пакет полный
   {                            // Пока не принят весь пакет, время ожидания ограничено (пока 1с)
-    Commands->dataProcessing();
+    //MTools::error = Commands->dataProcessing();
+    Tools->setErr( Commands->dataProcessing() );
   }
 }
 

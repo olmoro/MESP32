@@ -108,11 +108,13 @@ void    MTools::setState2(uint8_t val)      { state2 = val; }
 uint8_t MTools::getState2()                 { return state2; }
 void    MTools::setCelsius(short val)       { celsius = val; }
 
-void  MTools::setProtErr(uint8_t val)  // protocol error - или подтверждения исполнения команды
-{
-  // Обработка зарезервирована
-}
+// void  MTools::setProtErr(uint8_t val)  // protocol error - или подтверждения исполнения команды
+// {
+//   // Обработка зарезервирована
+// }
 
+void  MTools::setErr(short err) { error = err; }
+short MTools::getErr()          { return error; }
 
 bool  MTools::getAP() { return false; }
 
@@ -540,6 +542,11 @@ void MTools::shutdownDC()           // Подумать об общей кома
     Board->swOff();
     Board->ledsOff();
 }
+
+// Вариант 2022
+short MTools::powerGo()     { setToQueue(MCmd::cmd_power_go);   return false; }      // 2022 0x20
+short MTools::powerStop()   { setToQueue(MCmd::cmd_power_stop); return false; }      // 2022 0x21
+
 
 
 void MTools::orderCmd( uint8_t cmd) {}
