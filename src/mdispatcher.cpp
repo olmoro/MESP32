@@ -1,3 +1,8 @@
+/*
+*
+*
+* июнь 2022
+*/
 #include "mdispatcher.h"
 #include "nvs.h"
 #include "mtools.h"
@@ -17,7 +22,8 @@ MDispatcher::MDispatcher(MTools * tools) :
 Tools(tools), Board(tools->Board), Display(tools->Display)
 {
   char sLabel[ MDisplay::MaxString ] = { 0 };
-  strcpy( sLabel, "FSM_BS4 v4.0" );
+  //strcpy( sLabel, "FSM_BS4 v4.0" );
+  strcpy( sLabel, " MESP32 v1.0" );
   Display->showLabel( sLabel );
 
   latrus = Tools->readNvsBool( MNvs::nQulon, MNvs::kQulonLocal, true );

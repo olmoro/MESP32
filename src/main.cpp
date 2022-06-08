@@ -4,9 +4,9 @@
   pcb:          eltrD21v3.1 
   display:      1.8 дюймовый TFT ЖК-дисплей 128*160 полноцветный экран IPS. Driver IC: ST7735
   driver:       SAMD21 MINI
-  date:         2022 май
-  VS:                1.66.2
-  Espressif 32:      3.5.0 (с 4.0 не совместимо)
+  date:         2022 июнь
+  VS:           1.67.2
+  Espressif 32: 3.5.0 (с 4.0 не совместимо)
 */
 
 #include "board/mboard.h"
@@ -94,7 +94,7 @@ void connectTask( void * )
 {
   while(true) {
   //unsigned long start = millis();   // Старт таймера 
-  Serial.print("*");
+  //Serial.print("*");
     Connect->run(); 
     // Период вызова задачи задается в TICK'ах, TICK по умолчанию равен 1мс.
     vTaskDelay( 10 / portTICK_PERIOD_MS );
