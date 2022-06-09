@@ -5,7 +5,7 @@
   display:      1.8 дюймовый TFT ЖК-дисплей 128*160 полноцветный экран IPS. Driver IC: ST7735
   driver:       SAMD21 MINI
   date:         2022 июнь
-  VS:           1.67.2
+  VS:           1.67.2 -> 1.68.0
   Espressif 32: 3.5.0 (с 4.0 не совместимо)
 */
 
@@ -15,6 +15,7 @@
 //#include "board/sd_update.h"
 //#include "board/mupdate.h"
 #include "driver/mcommands.h"
+  #include "driver/morder.h"
 #include "display/mdisplay.h"
 #include "mtools.h"
 #include "mdispatcher.h"
@@ -30,6 +31,7 @@ static MDisplay    * Display    = 0;
 static MTools      * Tools      = 0;
 static MCommands   * Commands   = 0;
 static MMeasure    * Measure    = 0;
+static MOrder      * Order      = 0;
 static MDispatcher * Dispatcher = 0;
 static MConnect    * Connect    = 0;
 static MTouch      * Touch      = 0;
@@ -42,7 +44,7 @@ void measureTask ( void * );
 void driverTask  ( void * );
 void touchTask   ( void * );
 
-QueueHandle_t queue;
+//QueueHandle_t queue;
 
 // setup() выполняется до запуска RTOS, а потому без обязательных требований
 //  по максимальному времени монопольного захвата ядра (13мс).
@@ -71,12 +73,12 @@ void setup()
   // Обновление в любом случае должно полностью выполняться до запуска RTOS.
   //Update->doUpdate();
 
-  // Инициализация очереди отправки команд драйверу силового модуля
-  queue = xQueueCreate(10, sizeof(int));
-  if (queue == NULL) 
-  {
-    Serial.println("Error creating the queue");
-  }
+  // // Инициализация очереди отправки команд драйверу силового модуля
+  // queue = xQueueCreate(10, sizeof(int));
+  // if (queue == NULL) 
+  // {
+  //   Serial.println("Error creating the queue");
+  // }
   
 }
 
@@ -190,6 +192,7 @@ void driverTask( void * )
   {
     //unsigned long start = micros();
     Commands->doCommand();
+    //Order->run();
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // 310µS max
     vTaskDelay( 75 / portTICK_PERIOD_MS );
