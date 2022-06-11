@@ -15,7 +15,6 @@
 //#include "board/sd_update.h"
 //#include "board/mupdate.h"
 #include "driver/mcommands.h"
-  #include "driver/morder.h"
 #include "display/mdisplay.h"
 #include "mtools.h"
 #include "mdispatcher.h"
@@ -31,7 +30,6 @@ static MDisplay    * Display    = 0;
 static MTools      * Tools      = 0;
 static MCommands   * Commands   = 0;
 static MMeasure    * Measure    = 0;
-static MOrder      * Order      = 0;
 static MDispatcher * Dispatcher = 0;
 static MConnect    * Connect    = 0;
 static MTouch      * Touch      = 0;
@@ -192,7 +190,6 @@ void driverTask( void * )
   {
     //unsigned long start = micros();
     Commands->doCommand();
-    //Order->run();
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // 310µS max
     vTaskDelay( 75 / portTICK_PERIOD_MS );

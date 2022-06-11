@@ -39,12 +39,33 @@ void MCommands::writeCmd(uint8_t _cmd) { cmd = _cmd; }
 
 void MCommands::doCommand()
 {
+#ifdef DO2022
+
+  static short cnt = 0;
+  cnt++;
+  if(cnt >= 9) cnt = 0;
+
+  switch (cnt)
+  {
+    case 1:  cmd = MCmd::cmd_get_u;        break;
+    case 3:  cmd = MCmd::cmd_get_i;        break;
+    case 5:  cmd = MCmd::cmd_get_celsius;  break;
+    case 7:  cmd = Tools->getBuffCmd();    break;
+    default: cmd = MCmd::cmd_get_state;    break;
+      
+  }
+
+#else
   // Очередь (в перспективе)
   cmd = Tools->getFromQueue();
   // Заменяется фоновой
   //Tools->setToQueue( MCmd::cmd_read_u_i );
   Tools->setToQueue( MCmd::cmd_get_ui );
-    
+#endif
+
+
+
+
   #ifdef DEBUG_QUEUE
     if( cmd != MCmd::cmd_read_u_i) { Serial.print("0x"); Serial.println(cmd, HEX); }
   #endif
@@ -1236,3 +1257,23 @@ void MCommands::doInfo()
 
 
 void MCommands::exeCommand(uint8_t _cmd) { cmd = _cmd; }
+
+// // Циклическая отправка команд драйверу
+// void MCommands::doRequest()
+// {
+//   static short cnt = 0;
+//   cnt++;
+//   if(cnt >= 9) cnt = 0;
+
+//   switch (cnt)
+//   {
+//     case 1:  exeCommand(MCmd::cmd_get_u);        break;
+//     case 3:  exeCommand(MCmd::cmd_get_i);        break;
+//     case 5:  exeCommand(MCmd::cmd_get_celsius);  break;
+//     case 7:  exeCommand(Tools->getBuffCmd());    break;
+//     default: exeCommand(MCmd::cmd_get_state);    break;
+      
+//   }
+
+
+// }

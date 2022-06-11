@@ -119,13 +119,13 @@ MState * MSetPostpone::fsm()
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       // Смещение по 10 мВ за шаг
       Tools->offsetV = Tools->upiVal( Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 10 );
-      Tools->setToQueue(MCmd::cmd_write_offset_u);
+//      Tools->setToQueue(MCmd::cmd_write_offset_u);
     break;
     
     case MKeyboard::DN_CLICK: Board->buzzerOn();
       // Смещение по 10 мВ за шаг
       Tools->offsetV = Tools->dniVal( Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 10 );
-      Tools->setToQueue(MCmd::cmd_write_offset_u);
+//      Tools->setToQueue(MCmd::cmd_write_offset_u);
     break;
     
     case MKeyboard::B_CLICK: Board->buzzerOn();

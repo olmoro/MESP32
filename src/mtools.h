@@ -303,11 +303,12 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void shutdownCharge();
     void shutdownDC();
     //2022
-    short powerGo();               // 0x20
-    short powerStop();             // 0x21
+    bool powerGo();               // 0x20
+    bool powerStop();             // 0x21
 
+    uint8_t getBuffCmd();
 
-    void orderCmd(uint8_t cmd);
+//    void orderCmd(uint8_t cmd);   // отменить
 
 
 //    void orderReadOffsetVoltage();
@@ -377,9 +378,10 @@ bool setPidCoefficients(float kp, float ki, float kd);
     const float current_increment_in_one_step = 0.50f; // / 0.20; // приращение тока за один шаг, А
 
 
-    void      setToQueue(uint8_t command);
-    uint8_t getFromQueue();
+//    void      setToQueue(uint8_t command);
+//    uint8_t getFromQueue();
 
+    //bool sendToDriver(uint8_t command);
 
 //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====
 private:

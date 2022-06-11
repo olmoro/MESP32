@@ -165,6 +165,8 @@ class MCommands
     void txU08(uint8_t id,  uint8_t value);
     void txU16(uint8_t id, uint16_t value);
     void txU32(uint8_t id, uint32_t value);
+
+//    void doRequest();             // Циклическая отправка команд драйверу
 };
 
 #endif  //!_MCOMMANDS_H_

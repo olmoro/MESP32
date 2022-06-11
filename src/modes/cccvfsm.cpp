@@ -28,7 +28,7 @@ namespace CcCvFsm
   // Состояние "Старт", инициализация выбранного режима работы (Заряд CCCV).
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
-    Tools->setToQueue(MCmd::cmd_power_stop);      // Отключить на всякий пожарный
+    //Tools->setToQueue(MCmd::cmd_power_stop);      // Отключить на всякий пожарный
 
     // Параметры заряда из энергонезависимой памяти, Занесенные в нее при предыдущих включениях, как и
     // выбранные ранее номинальные параметры батареи (напряжение, емкость).
@@ -295,7 +295,7 @@ namespace CcCvFsm
     Tools->setpointU = Tools->voltageMax * 1.05f;   // Voltage limit
     Tools->setpointI = Tools->currentMax;
     Tools->pidMode   = 0x0001;              // TEST
-    Tools->setToQueue(MCmd::cmd_power_go);    
+//    Tools->setToQueue(MCmd::cmd_power_go);    
   }     
   MUpCurrent::MState * MUpCurrent::fsm()
   {
@@ -436,19 +436,21 @@ namespace CcCvFsm
   }    
   MState * MStop::fsm()
   {
-    if( Tools->getErr() != 0)
+    // Команда драйверу отключить преобразователь (0x21) 
+    if(Tools->powerStop())             // 0x21
     {
-      // Драйвер не отвечает
-      Display->showHelp( (char*) "      ERROR 1     " );
-      return new MExit(Tools);
-    }
-    else
-    {
+      // Ответ драйвера о выполнении команды получен
       Board->ledsRed();
       Display->showHelp( (char*) "      C-EXIT      " );
       return new MExit(Tools);
     }
-  //}
+    else
+    {
+      // Драйвер не ответил или ответил ошибкой протокола
+      Display->showHelp( (char*) "      ERROR 1     " );
+      return new MExit(Tools);
+    }
+
 
     switch ( Keyboard->getKey() )
     {

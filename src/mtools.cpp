@@ -9,6 +9,7 @@
 
 #include "mtools.h"
 #include "mcmd.h"
+    #include "driver/mcommands.h"
 #include "board/mboard.h"
 #include "board/mkeyboard.h"
 #include "display/mdisplay.h"
@@ -543,31 +544,28 @@ void MTools::shutdownDC()           // Подумать об общей кома
     Board->ledsOff();
 }
 
-// Вариант 2022
-short MTools::powerGo()     { setToQueue(MCmd::cmd_power_go);   return false; }      // 2022 0x20
-short MTools::powerStop()   { setToQueue(MCmd::cmd_power_stop); return false; }      // 2022 0x21
+#ifdef DO2022
+    uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
+#else
+    uint8_t buffCmd = MCmd::cmd_read_u_i;        
+#endif
+
+uint8_t MTools::getBuffCmd() { return buffCmd; }
+
+// Вариант 2022 - не доделано
+// Здесь будет проверка ответа и задаваться число попыток связи с драйвером
+// с учетом времени на получение ответа (порядка 1,5 мс)
+// Буфер очищать: 0x00 - пустая команда
+bool MTools::powerGo()     { buffCmd = MCmd::cmd_power_go;   return true; }      // 2022 0x20
+bool MTools::powerStop()   { buffCmd = MCmd::cmd_power_stop; return true; }      // 2022 0x21
 
 
 
-void MTools::orderCmd( uint8_t cmd) {}
+//void MTools::orderCmd( uint8_t cmd) {}                                  // отменить
 
-// void MTools::orderReadOffsetVoltage()
-// {
-//     //Commands->writeCmd(0x35);
-//     Serial.println("#=0x35");
-// }
+//void MTools::setToQueue(uint8_t command) { buffCmd = command; }                     // отменить
 
-// void MTools::orderWriteOffsetVoltage()
-// {
-//     commBuff = 0x36;
-//     //setToQueue(cmd_read_offset_u);
-//     Serial.println("#=0x36");
-// }
-
-uint8_t buffCmd = MCmd::cmd_read_u_i;
-
-void MTools::setToQueue(uint8_t command) { buffCmd = command; }
-uint8_t MTools::getFromQueue() { return buffCmd; }
+//uint8_t MTools::getFromQueue() { return buffCmd; }                     // отменить
 
 
 
