@@ -18,7 +18,6 @@ class MCommands
     ~MCommands();
       
     void doCommand();
-    //void dataProcessing();
     short dataProcessing();
     void exeCommand(uint8_t);
 

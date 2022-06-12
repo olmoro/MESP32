@@ -148,7 +148,6 @@ void MCommands::doCommand()
 }
 
   // Обработка принятого пакета
-//void MCommands::dataProcessing()
 short MCommands::dataProcessing()
 {
   Wake->wakeRead();
@@ -1241,22 +1240,4 @@ void MCommands::doInfo()
 
 void MCommands::exeCommand(uint8_t _cmd) { cmd = _cmd; }
 
-// // Циклическая отправка команд драйверу
-// void MCommands::doRequest()
-// {
-//   static short cnt = 0;
-//   cnt++;
-//   if(cnt >= 9) cnt = 0;
 
-//   switch (cnt)
-//   {
-//     case 1:  exeCommand(MCmd::cmd_get_u);        break;
-//     case 3:  exeCommand(MCmd::cmd_get_i);        break;
-//     case 5:  exeCommand(MCmd::cmd_get_celsius);  break;
-//     case 7:  exeCommand(Tools->getBuffCmd());    break;
-//     default: exeCommand(MCmd::cmd_get_state);    break;
-      
-//   }
-
-
-// }

@@ -552,8 +552,8 @@ uint8_t MTools::getBuffCmd() { return buffCmd; }
 // Здесь будет проверка ответа и задаваться число попыток связи с драйвером
 // с учетом времени на получение ответа (порядка 1,5 мс)
 // Буфер очищать: 0x00 - пустая команда
-bool MTools::powerGo()     { buffCmd = MCmd::cmd_power_go;   return true; }      // 2022 0x20
-bool MTools::powerStop()   { buffCmd = MCmd::cmd_power_stop; return true; }      // 2022 0x21
+bool MTools::powerGo()     { buffCmd = MCmd::cmd_power_go;   buffCmd = MCmd::cmd_nop; return true; }      // 2022 0x20
+bool MTools::powerStop()   { buffCmd = MCmd::cmd_power_stop; buffCmd = MCmd::cmd_nop; return true; }      // 2022 0x21
 
 
 //================= Power =========================================

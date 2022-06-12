@@ -295,7 +295,8 @@ namespace CcCvFsm
     Tools->setpointU = Tools->voltageMax * 1.05f;   // Voltage limit
     Tools->setpointI = Tools->currentMax;
     Tools->pidMode   = 0x0001;              // TEST
-//    Tools->setToQueue(MCmd::cmd_power_go);    
+//    Tools->setToQueue(MCmd::cmd_power_go);  
+
   }     
   MUpCurrent::MState * MUpCurrent::fsm()
   {
@@ -314,6 +315,22 @@ namespace CcCvFsm
     if( Tools->getRealVoltage() >= Tools->getVoltageMax() )
     {
       //Tools->setToQueue(MCmd::cmd_.......); //
+
+        // Команда драйверу включить преобразователь (0x20) 
+      if(Tools->powerGo())             // 0x20
+      {
+        // Ответ драйвера о выполнении команды получен
+        Board->ledsRed();
+        Display->showHelp( (char*) "      C-STOP      " );
+        //return new MKeepVmax(Tools);
+      }
+      else
+      {
+        // Драйвер не ответил или ответил ошибкой протокола
+        Display->showHelp( (char*) "      ERROR 1     " );
+        return new MExit(Tools);
+      }
+
       return new MKeepVmax(Tools);
     }
 
