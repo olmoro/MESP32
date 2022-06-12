@@ -39,8 +39,6 @@ void MCommands::writeCmd(uint8_t _cmd) { cmd = _cmd; }
 
 void MCommands::doCommand()
 {
-#ifdef DO2022
-
   static short cnt = 0;
   cnt++;
   if(cnt >= 9) cnt = 0;
@@ -54,21 +52,6 @@ void MCommands::doCommand()
     default: cmd = MCmd::cmd_get_state;    break;
       
   }
-
-#else
-  // Очередь (в перспективе)
-  cmd = Tools->getFromQueue();
-  // Заменяется фоновой
-  //Tools->setToQueue( MCmd::cmd_read_u_i );
-  Tools->setToQueue( MCmd::cmd_get_ui );
-#endif
-
-
-
-
-  #ifdef DEBUG_QUEUE
-    if( cmd != MCmd::cmd_read_u_i) { Serial.print("0x"); Serial.println(cmd, HEX); }
-  #endif
 
   if( cmd != MCmd::cmd_nop)
   {

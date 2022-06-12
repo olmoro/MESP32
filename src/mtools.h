@@ -308,8 +308,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
     uint8_t getBuffCmd();
 
-//    void orderCmd(uint8_t cmd);   // отменить
-
 
 //    void orderReadOffsetVoltage();
 //    void orderWriteOffsetVoltage();
@@ -377,11 +375,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
     const float current_increment_in_one_step = 0.50f; // / 0.20; // приращение тока за один шаг, А
 
-
-//    void      setToQueue(uint8_t command);
-//    uint8_t getFromQueue();
-
-    //bool sendToDriver(uint8_t command);
 
 //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====
 private:

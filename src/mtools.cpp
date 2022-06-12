@@ -544,11 +544,7 @@ void MTools::shutdownDC()           // Подумать об общей кома
     Board->ledsOff();
 }
 
-#ifdef DO2022
     uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
-#else
-    uint8_t buffCmd = MCmd::cmd_read_u_i;        
-#endif
 
 uint8_t MTools::getBuffCmd() { return buffCmd; }
 
@@ -558,15 +554,6 @@ uint8_t MTools::getBuffCmd() { return buffCmd; }
 // Буфер очищать: 0x00 - пустая команда
 bool MTools::powerGo()     { buffCmd = MCmd::cmd_power_go;   return true; }      // 2022 0x20
 bool MTools::powerStop()   { buffCmd = MCmd::cmd_power_stop; return true; }      // 2022 0x21
-
-
-
-//void MTools::orderCmd( uint8_t cmd) {}                                  // отменить
-
-//void MTools::setToQueue(uint8_t command) { buffCmd = command; }                     // отменить
-
-//uint8_t MTools::getFromQueue() { return buffCmd; }                     // отменить
-
 
 
 //================= Power =========================================
