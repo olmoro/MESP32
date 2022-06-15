@@ -8,7 +8,6 @@
   27.05.2019 
   23.03.2021 - под новый дисплей
   03.05.2021 - подключение  к драйверу силовой платы
-  06.05.2022 - обработка ошибки протокола при приеме ответа драйвера
 */
 
 #include "modes/cccvfsm.h"
@@ -64,8 +63,8 @@ namespace CcCvFsm
                                             // начать с установки максимального тока
       default:;
     }
-    Display->showVolt( Tools->getRealVoltage(), 2 );
-    Display->showAmp( Tools->getRealCurrent(), 1 );
+    Display->showVolt( Tools->getRealVoltage(), 3 );    // 2
+    Display->showAmp( Tools->getRealCurrent(), 2 );     // 1
     return this;
   };
 

@@ -54,7 +54,7 @@ void MDispatcher::run()
 {
     // Индикация при инициализации процедуры выбора режима работы
   Display->showVolt( Tools->getRealVoltage(), 2 );
-  Display->showAmp( Tools->getRealCurrent(), 1 );
+  Display->showAmp( Tools->getRealCurrent(), 2 );   // 1
 
     // Выдерживается период запуска для вычисления амперчасов
   if (State)
