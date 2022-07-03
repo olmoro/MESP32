@@ -1,11 +1,11 @@
 /*
   project:      MESP32 (FSM-BS2) 
   pcb:          eltr_v2.2
-  pcb:          eltrD21v3.1 
+  pcb:          eltrD21v3.1 -> mcdm.v53
   display:      1.8 дюймовый TFT ЖК-дисплей 128*160 полноцветный экран IPS. Driver IC: ST7735
   driver:       SAMD21 MINI
-  date:         2022 июнь
-  VS:           1.67.2 -> 1.68.0
+  date:         2022 июль
+  VS:           1.67.2 -> 1.68.0 -> 1.68.1
   Espressif 32: 3.5.0 (с 4.0 не совместимо)
 */
 
@@ -110,14 +110,7 @@ void displayTask( void * )
 {
   while(true)
   {
-    Display->runDisplay( 
-          //  Board->getRealVoltage(), 
-          //  Board->getRealCurrent(), 
-              Board->getCelsius(),            // Board->Supervisor->getCelsius(),
-          //  Tools->getChargeTimeCounter(),
-          //  Tools->getAhCharge(),
-          //  Tools->getFulfill(), 
-                         Tools->getAP() );
+    Display->runDisplay(Board->getCelsius(), Tools->getAP());
     vTaskDelay( 250 / portTICK_PERIOD_MS );
   }
   vTaskDelete( NULL );

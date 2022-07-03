@@ -22,8 +22,7 @@ MDispatcher::MDispatcher(MTools * tools) :
 Tools(tools), Board(tools->Board), Display(tools->Display)
 {
   char sLabel[ MDisplay::MaxString ] = { 0 };
-  //strcpy( sLabel, "FSM_BS4 v4.0" );
-  strcpy( sLabel, " MESP32 v1.0" );
+  strcpy(sLabel, " MESP32 v0.1");
   Display->showLabel( sLabel );
 
   latrus = Tools->readNvsBool( MNvs::nQulon, MNvs::kQulonLocal, true );
@@ -53,8 +52,8 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
 void MDispatcher::run()
 {
     // Индикация при инициализации процедуры выбора режима работы
-  Display->showVolt( Tools->getRealVoltage(), 2 );
-  Display->showAmp( Tools->getRealCurrent(), 2 );   // 1
+  Display->showVolt(Tools->getRealVoltage(), 3);  // 2
+  Display->showAmp(Tools->getRealCurrent(), 3);   // 1
 
     // Выдерживается период запуска для вычисления амперчасов
   if (State)

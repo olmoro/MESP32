@@ -7,7 +7,7 @@
   График такого алгоритма заряда представлен на рисунке  http://www.balsat.ru/statia2.php
   27.05.2019 
   23.03.2021 - под новый дисплей
-  03.05.2021 - подключение  к драйверу силовой платы
+  03.07.2022 - подключение  к драйверу силовой платы
 */
 
 #include "modes/cccvfsm.h"
@@ -63,8 +63,8 @@ namespace CcCvFsm
                                             // начать с установки максимального тока
       default:;
     }
-    Display->showVolt( Tools->getRealVoltage(), 3 );    // 2
-    Display->showAmp( Tools->getRealCurrent(), 2 );     // 1
+    Display->showVolt(Tools->getRealVoltage(), 3);    // 2
+    Display->showAmp(Tools->getRealCurrent(), 3);     // 1
     return this;
   };
 
@@ -103,8 +103,8 @@ namespace CcCvFsm
       default:;
     }
     // Если не закончили ввод, то индикация введенного
-    Display->showVolt( Tools->getRealVoltage(), 2 );
-    Display->showAmp( Tools->getCurrentMax(), 1 );
+    Display->showVolt( Tools->getRealVoltage(), 3 );
+    Display->showAmp( Tools->getCurrentMax(), 2 );
     return this;        // и остаемся в том же состоянии
   };
 
@@ -142,8 +142,8 @@ namespace CcCvFsm
       default:;
     }
     // Индикация ввода
-    Display->showVolt( Tools->getVoltageMax(), 1 );
-    Display->showAmp( Tools->getRealCurrent(), 1 );
+    Display->showVolt( Tools->getVoltageMax(), 2 );
+    Display->showAmp( Tools->getRealCurrent(), 3 );
     return this;
   };
 
@@ -182,8 +182,8 @@ namespace CcCvFsm
       default:;
     }
     // Индикация ввода
-    Display->showVolt( Tools->getRealVoltage(), 2 );
-    Display->showAmp( Tools->getCurrentMin(), 1 );
+    Display->showVolt( Tools->getRealVoltage(), 3 );
+    Display->showAmp( Tools->getCurrentMin(), 2 );
     return this;
   };
 
@@ -221,8 +221,8 @@ namespace CcCvFsm
       default:;
     }
     // Индикация ввода
-    Display->showVolt( Tools->getVoltageMin(), 1 );
-    Display->showAmp( Tools->getRealCurrent(), 1 );
+    Display->showVolt( Tools->getVoltageMin(), 2 );
+    Display->showAmp( Tools->getRealCurrent(), 3 );
     return this;
   };
 
@@ -334,8 +334,8 @@ namespace CcCvFsm
     }
 
     // Индикация фазы подъема тока не выше заданного
-    Display->showVolt( Tools->getRealVoltage(), 2 );
-    Display->showAmp( Tools->getRealCurrent(), 1 );
+    Display->showVolt( Tools->getRealVoltage(), 3 );
+    Display->showAmp( Tools->getRealCurrent(), 3 );
 
     Display->initBar( TFT_GREEN );
     Display->showDuration( Tools->getChargeTimeCounter(), MDisplay::SEC );
