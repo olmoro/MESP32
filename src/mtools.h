@@ -303,8 +303,83 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void shutdownCharge();
     void shutdownDC();
     //2022
-    bool powerGo();               // 0x20
+    bool powerGo(short spU, short spI, uint8_t mode);  // 0x20
     bool powerStop();             // 0x21
+
+//======================
+//  // Команды работы с измерителем напряжения
+//   // Множитель преобразования в милливольты
+// const uint8_t cmd_get_factor_u              = 0x30; // Чтение
+// const uint8_t cmd_set_factor_u              = 0x31; // Запись
+// const uint8_t cmd_set_factor_default_u      = 0x32; // Возврат к заводскому
+//   // Параметр сглаживания
+// const uint8_t cmd_get_smooth_u              = 0x33; // Чтение
+// const uint8_t cmd_set_smooth_u              = 0x34; // Запись
+//   // Приборное смещение
+// const uint8_t cmd_get_offset_u              = 0x35; // Чтение
+// const uint8_t cmd_set_offset_u              = 0x36; // Запись
+
+
+
+//   // Команды работы с измерителем тока
+//   // Множитель преобразования в миллиамперы
+// const uint8_t cmd_get_factor_i              = 0x38; // Чтение
+// const uint8_t cmd_set_factor_i              = 0x39; // Запись
+// const uint8_t cmd_set_factor_default_i      = 0x3A; // Возврат
+//   // Параметр сглаживания
+// const uint8_t cmd_get_smooth_i              = 0x3B; // Чтение
+// const uint8_t cmd_set_smooth_i              = 0x3C; // Запись
+//   // Приборное смещение
+// const uint8_t cmd_get_offset_i              = 0x3D; // Чтение
+// const uint8_t cmd_set_offset_i              = 0x3E; // Запись
+
+
+  // // ПИД-регулятор
+  //   bool pidConfigure(uint8_t, float, float, float, uint16_t, uint16_t);     // 0x40 set mode, kp, ki, kd, min, max
+  //   bool pidCoefficients(uint8_t, float, float, float);                      // 0x41 set mode, kp, ki, kd
+  //   bool pidOutputRange(uint8_t, uint16_t, uint16_t);                        // 0x42 set mode, min, max
+  //   bool pidReconfigure(uint8_t, float, float, float, uint16_t, uint16_t);   // 0x43 set mode, kp, ki, kd, min, max w/o clear
+  //   bool pidClear();                                                         // 0x44 clear
+  //   // bool pidTest(uint8_t, int16_t, ???);                                  // 0x46 set mode, setpoint, sw
+  //   bool pidGetMult();                                                       // 0x47 Get param_mult
+  //   bool pidGetConfigure(uint8_t, float, float, float, uint16_t, uint16_t);  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
+  //   //bool pidMaxSum(???64);                                                 // 0x49 Задает максимальный интеграл при вычислении шага рег
+  //   //bool pid      ()                                                       // 0x4A reserved
+
+    bool setCooler(uint16_t);                                                // 0x4F Задать скорость вентилятора
+
+//   // АЦП - настройки
+// const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
+// const uint8_t cmd_adc_get_offset            = 0x51; // Чтение смещение АЦП
+// const uint8_t cmd_adc_set_offset            = 0x52; // Запись смещения АЦП
+
+//   // Команды тестовые
+// const uint8_t cmd_set_switch_pin            = 0x54; // sw_pin D4 PA14
+
+// const uint8_t cmd_set_power                 = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
+// const uint8_t cmd_set_discharge             = 0x57; // не проверена
+// const uint8_t cmd_set_voltage               = 0x58; // старая, не проверена
+// const uint8_t cmd_set_current               = 0x59; // старая, не проверена 
+// const uint8_t cmd_set_discurrent            = 0x5A; // старая, не проверена
+// const uint8_t cmd_set_surge_compensation    = 0x5B; // параметры подавления всплеска напряжения na
+// const uint8_t cmd_set_idle_load             = 0x5C; // параметры доп.нагрузки ХХ
+
+//   // Команды задания порогов отключения
+// const uint8_t cmd_get_win_less_u            = 0x60; // 
+// const uint8_t cmd_set_win_less_u            = 0x61; // 
+// const uint8_t cmd_set_win_less_default_u    = 0x62; // 
+// const uint8_t cmd_get_win_up_u              = 0x63; // 
+// const uint8_t cmd_set_win_up_u              = 0x64; // 
+// const uint8_t cmd_set_win_up_default_u      = 0x65; // 
+
+// const uint8_t cmd_get_win_less_i            = 0x68; // 
+// const uint8_t cmd_set_win_less_i            = 0x69; // 
+// const uint8_t cmd_set_win_less_default_i    = 0x6A; // 
+// const uint8_t cmd_get_win_up_i              = 0x6B; // 
+// const uint8_t cmd_set_win_up_i              = 0x6C; // 
+// const uint8_t cmd_set_win_up_default_i      = 0x6D; // 
+
+//======================
 
     uint8_t getBuffCmd();
 

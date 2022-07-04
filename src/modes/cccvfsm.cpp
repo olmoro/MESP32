@@ -316,7 +316,7 @@ namespace CcCvFsm
       //Tools->setToQueue(MCmd::cmd_.......); //
 
         // Команда драйверу включить преобразователь (0x20) 
-      if(Tools->powerGo())             // 0x20
+      if(Tools->powerGo(Tools->setpointU, Tools->setpointI, 1))             // 0x20
       {
         // Ответ драйвера о выполнении команды получен
         Board->ledsRed();
