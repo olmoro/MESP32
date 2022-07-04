@@ -307,8 +307,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
     bool powerStop();             // 0x21
 
 //======================
-//  // Команды работы с измерителем напряжения
-//   // Множитель преобразования в милливольты
+// Команды работы с измерителем напряжения
+  // Множитель преобразования в милливольты
 // const uint8_t cmd_get_factor_u              = 0x30; // Чтение
 // const uint8_t cmd_set_factor_u              = 0x31; // Запись
 // const uint8_t cmd_set_factor_default_u      = 0x32; // Возврат к заводскому
@@ -319,7 +319,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_get_offset_u              = 0x35; // Чтение
 // const uint8_t cmd_set_offset_u              = 0x36; // Запись
 
-
+ 
 
 //   // Команды работы с измерителем тока
 //   // Множитель преобразования в миллиамперы
@@ -352,6 +352,10 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
 // const uint8_t cmd_adc_get_offset            = 0x51; // Чтение смещение АЦП
 // const uint8_t cmd_adc_set_offset            = 0x52; // Запись смещения АЦП
+  bool adcUpOffset();                         // 0x51
+  bool adcDnOffset();                         // 0x52
+  bool adcFbOffset();                         // 0x53
+
 
 //   // Команды тестовые
 // const uint8_t cmd_set_switch_pin            = 0x54; // sw_pin D4 PA14

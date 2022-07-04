@@ -61,8 +61,11 @@ namespace MCmd
 
     // АЦП - настройки
   constexpr uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
-  constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
-  constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
+  //constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
+  //constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
+const uint8_t cmd_adc_up_offset            = 0x51; // + смещение АЦП
+const uint8_t cmd_adc_dn_offset            = 0x52; // - смещение АЦП
+const uint8_t cmd_adc_fb_offset            = 0x53; // заводское смещение АЦП
 
     // Команды тестовые
   constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D4 PA14 ???

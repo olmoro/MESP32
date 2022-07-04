@@ -566,6 +566,12 @@ bool MTools::powerGo(short spU, short spI, uint8_t mode)
 bool MTools::powerStop()   { buffCmd = MCmd::cmd_power_stop; buffCmd = MCmd::cmd_nop; return true; }      // 2022 0x21
 
 
+
+
+  bool adcUpOffset() {buffCmd = MCmd::cmd_adc_up_offset; return true;}                         // 0x51
+  bool adcDnOffset() {buffCmd = MCmd::cmd_adc_dn_offset; return true;}                         // 0x52
+  bool adcFbOffset() {buffCmd = MCmd::cmd_adc_fb_offset; return true;}                         // 0x53
+
 //================= Power =========================================
 
 void MTools::savePowInd(const char * name) { writeNvsInt( name, "powInd", powInd ); }

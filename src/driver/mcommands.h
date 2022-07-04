@@ -125,8 +125,11 @@ class MCommands
 
       // Команды работы с АЦП
     void doReadProbes();             // 0x50   
-    void doAdcGetOffset();           // 0x51   
-    void doAdcSetOffset();           // 0x52   
+    //void doAdcGetOffset();           // 0x51   
+    //void doAdcSetOffset();           // 0x52   
+    void doAdcUpOffset();           // 0x51   
+    void doAdcDnOffset();           // 0x52   
+    void doAdcFbOffset();           // 0x53   
 
       // Команды управления портами управления (в основном тестовые)
     void doSwPin();                  // 0x54   
