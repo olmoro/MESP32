@@ -18,6 +18,10 @@ namespace OptionFsm
     static constexpr int ppone_l =  0;
     static constexpr int ppone_h = 24;
 
+    // смещение АЦП
+    static constexpr short offset_adc_h = 0 + 100;
+    static constexpr short offset_adc_l = 0 - 100;
+
     // смещение показаний по напряжению
     static constexpr short offset_v_h = 0 + 100;
     static constexpr short offset_v_l = 0 - 100;
@@ -64,6 +68,14 @@ namespace OptionFsm
   {       
     public:
       MSetPostpone(MTools * Tools);
+      MState * fsm() override;
+  };
+
+  // ===================== Пользовательские настройки АЦП =====================
+  class MUpDnAdcOffset : public MState
+  {
+    public:
+      MUpDnAdcOffset(MTools * Tools);
       MState * fsm() override;
   };
 

@@ -106,11 +106,11 @@ void MCommands::doCommand()
 
         // Команды работы с АЦП
       case MCmd::cmd_adc_read_probes:           doReadProbes();             break;  // 0x50   + 00->07
-  //case MCmd::cmd_adc_read_offset:           doAdcGetOffset();           break;  // 0x51   + 00->03
-  //case MCmd::cmd_adc_write_offset:          doAdcSetOffset();           break;  // 0x52   + 02->01
-case MCmd::cmd_adc_up_offset:           doAdcUpOffset();           break;  // 0x51
-case MCmd::cmd_adc_dn_offset:           doAdcDnOffset();           break;  // 0x52
-case MCmd::cmd_adc_fb_offset:           doAdcFbOffset();           break;  // 0x52
+      case MCmd::cmd_adc_read_offset:           doAdcGetOffset();           break;  // 0x51   + 00->03
+      case MCmd::cmd_adc_write_offset:          doAdcSetOffset();           break;  // 0x52   + 02->01
+//case MCmd::cmd_adc_up_offset:           doAdcUpOffset();           break;  // 0x51
+//case MCmd::cmd_adc_dn_offset:           doAdcDnOffset();           break;  // 0x52
+//case MCmd::cmd_adc_fb_offset:           doAdcFbOffset();           break;  // 0x52
 
 
         // Команды управления портами управления (в основном тестовые)
@@ -436,27 +436,18 @@ short MCommands::dataProcessing()
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-    //   // Запись смещения АЦП                               0x51   + 00->03
-    // case MCmd::cmd_adc_read_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
-    //   {
-    //     Board->setAdcOffset(Wake->get16(1));
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
-
-      // 0x51
-    case MCmd::cmd_adc_up_offset:
-      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+      // Запись смещения АЦП                               0x51   + 00->03
+    case MCmd::cmd_adc_read_offset:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
+        Board->setAdcOffset(Wake->get16(1));
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-    //   // Чтение смещения АЦП                                0x52   + 02->01
-    // case MCmd::cmd_adc_write_offset:
+    //   // 0x51
+    // case MCmd::cmd_adc_up_offset:
     //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
     //   {
     //     return 0;  //Tools->setProtErr(0);
@@ -464,8 +455,8 @@ short MCommands::dataProcessing()
     //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     // break;
 
-      // 0x52
-    case MCmd::cmd_adc_dn_offset:
+      // Чтение смещения АЦП                                0x52   + 02->01
+    case MCmd::cmd_adc_write_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
         return 0;  //Tools->setProtErr(0);
@@ -473,14 +464,23 @@ short MCommands::dataProcessing()
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-      // 0x53
-    case MCmd::cmd_adc_fb_offset:
-      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-      {
-        return 0;  //Tools->setProtErr(0);
-      }
-      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    break;
+    //   // 0x52
+    // case MCmd::cmd_adc_dn_offset:
+    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+    //   {
+    //     return 0;  //Tools->setProtErr(0);
+    //   }
+    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    // break;
+
+    //   // 0x53
+    // case MCmd::cmd_adc_fb_offset:
+    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+    //   {
+    //     return 0;  //Tools->setProtErr(0);
+    //   }
+    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    // break;
 
         // Команды задания порогов отключения
       // case cmd_read_win_less_u:             doGetWinLtU();              break;  // 0x60;     00->03
@@ -1005,42 +1005,42 @@ void MCommands::doReadProbes()
 // Запрос: 0xC0, 0x51, 0x00, 0x0D                           - ok
 // Ответ:  0xC0, 0x51, 0x03, 0x00, 0x12, 0x34, 0x3A         - ok
 
-// void MCommands::doAdcGetOffset()
+void MCommands::doAdcGetOffset()
+{
+  Wake->configAsk( 0, MCmd::cmd_adc_read_offset);
+  // ...
+}
+
+//            // 0x51
+// void MCommands::doAdcUpOffset()
 // {
-//   Wake->configAsk( 0, MCmd::cmd_adc_read_offset);
-//   // ...
+//   Wake->configAsk( 0, MCmd::cmd_adc_up_offset);
 // }
 
-           // 0x51
-void MCommands::doAdcUpOffset()
+
+
+
+// Команда записи смещения АЦП  0x52 (0x1234) 
+// Запрос: 0xC0, 0x52, 0x02, 0x12, 0x34, 0xEC               - ok
+// Ответ:  0xC0, 0x52, 0x01, 0x00, 0xDD                     - ok
+void MCommands::doAdcSetOffset()
 {
-  Wake->configAsk( 0, MCmd::cmd_adc_up_offset);
-}
+  int id = 0;
+  id = Wake->replyU16( id, Board->readAdcOffset() );
+  Wake->configAsk( id, MCmd::cmd_adc_write_offset);
+}  
 
-
-
-
-// // Команда записи смещения АЦП  0x52 (0x1234) 
-// // Запрос: 0xC0, 0x52, 0x02, 0x12, 0x34, 0xEC               - ok
-// // Ответ:  0xC0, 0x52, 0x01, 0x00, 0xDD                     - ok
-// void MCommands::doAdcSetOffset()
+//            // 0x52
+// void MCommands::doAdcDnOffset()
 // {
-//   int id = 0;
-//   id = Wake->replyU16( id, Board->readAdcOffset() );
-//   Wake->configAsk( id, MCmd::cmd_adc_write_offset);
-// }  
+//   Wake->configAsk( 0, MCmd::cmd_adc_dn_offset);
+// }
 
-           // 0x52
-void MCommands::doAdcDnOffset()
-{
-  Wake->configAsk( 0, MCmd::cmd_adc_dn_offset);
-}
-
-           // 0x53
-void MCommands::doAdcFbOffset()
-{
-  Wake->configAsk( 0, MCmd::cmd_adc_fb_offset);
-}
+//            // 0x53
+// void MCommands::doAdcFbOffset()
+// {
+//   Wake->configAsk( 0, MCmd::cmd_adc_fb_offset);
+// }
 
 
 

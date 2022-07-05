@@ -83,7 +83,7 @@ MState * MSetPostpone::fsm()
         // #ifdef DEBUG_OPTIONS
         //     Serial.println(Tools->postpone);
         // #endif
-    return new MSetVoltageOffset(Tools);
+    return new MUpDnAdcOffset(Tools);
     
     default:;
     }
@@ -92,9 +92,49 @@ MState * MSetPostpone::fsm()
     return this;
 };
 
+  MUpDnAdcOffset::MUpDnAdcOffset(MTools * Tools) : MState(Tools)
+  {
+    // Смещение восстановлено из nvs при инициализации прибора
 
+    Display->showMode( (char*) " ADC OFFSET UP/DN " );
+    Display->showHelp( (char*) " B-Y P-NEX C-STOP " );
 
+        Board->ledsGreen();
+  }
+  MState * MUpDnAdcOffset::fsm()
+  {
+    switch( Keyboard->getKey() )
+    {
+    case MKeyboard::C_CLICK: Board->buzzerOn();   return new MStop(Tools);
+    
+    case MKeyboard::P_CLICK: Board->buzzerOn();   return new MSetVoltageOffset(Tools);
+    
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      // Смещение по 1 за шаг
+      Tools->offsetAdc = Tools->upiVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
+      Tools->setAdcOffset();             // 0x21  //      Tools->setToQueue(MCmd::cmd_write_offset_adc);
+    break;
+    
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      // Смещение по 1 за шаг
+      Tools->offsetAdc = Tools->dniVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
+      Tools->setAdcOffset();             // 0x21          //      Tools->setToQueue(MCmd::cmd_write_offset_adc);
+    break;
+    
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt( MNvs::nQulon, MNvs::kOffsetV, Tools->offsetV );
+        // #ifdef DEBUG_OPTIONS
+        //     Serial.println(MTools::offsetAdc);
+        // #endif
+      return new MSetVoltageOffset(Tools);
 
+    default:;  
+    }
+    // Изменение смещения отображается на текущем значении (спорно)
+    Display->showVolt( Tools->getRealVoltage(), 3 );
+    Display->showAmp( Tools->getRealCurrent(), 3 );
+    return this;
+  };
 
 
 
