@@ -55,18 +55,18 @@ namespace OptionFsm
 MSetPostpone::MSetPostpone(MTools * Tools) : MState(Tools) 
 {
     // Подсказка
-    Display->showMode( (char*) "  U/D-SET POSTPONE   " );
-    Display->showHelp( (char*) "  P-DEFINE   C-EXIT  " );
+    Display->showMode((char*) "  U/D-SET POSTPONE   ");
+    Display->showHelp((char*) "  P-DEFINE   C-EXIT  ");
 }
 MState * MSetPostpone::fsm()
 {
-    switch ( Keyboard->getKey() )
+    switch (Keyboard->getKey())
     {
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();
     return new MExit(Tools);
 
     case MKeyboard::P_CLICK: Board->buzzerOn();
-    return new MSetVoltageOffset(Tools);
+    return new MUpDnAdcOffset(Tools);
 
     case MKeyboard::UP_CLICK:
     case MKeyboard::UP_AUTO_CLICK: Board->buzzerOn();
@@ -94,134 +94,154 @@ MState * MSetPostpone::fsm()
 
   MUpDnAdcOffset::MUpDnAdcOffset(MTools * Tools) : MState(Tools)
   {
-    // Смещение восстановлено из nvs при инициализации прибора
+    // Значение восстановлено из nvs при инициализации прибора
 
-    Display->showMode( (char*) " ADC OFFSET UP/DN " );
-    Display->showHelp( (char*) " B-Y P-NEX C-STOP " );
+    Display->showMode((char*) " ADC OFFSET UP/DN ");
+    Display->showHelp((char*) " B-Y P-NEXY C-STOP");
 
         Board->ledsGreen();
   }
   MState * MUpDnAdcOffset::fsm()
   {
-    switch( Keyboard->getKey() )
+    switch(Keyboard->getKey())
     {
-    case MKeyboard::C_CLICK: Board->buzzerOn();   return new MStop(Tools);
-    
-    case MKeyboard::P_CLICK: Board->buzzerOn();   return new MSetVoltageOffset(Tools);
-    
-    case MKeyboard::UP_CLICK: Board->buzzerOn();
-      // Смещение по 1 за шаг
+    case MKeyboard::C_CLICK: Board->buzzerOn();                         return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                         return new MSetVoltageOffset(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();                                              // Смещение по 1 за шаг
       Tools->offsetAdc = Tools->upiVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
-      Tools->setAdcOffset();             // 0x21  //      Tools->setToQueue(MCmd::cmd_write_offset_adc);
+      Tools->setAdcOffset();                      // 0x21  Команда драйверу
     break;
     
-    case MKeyboard::DN_CLICK: Board->buzzerOn();
-      // Смещение по 1 за шаг
+    case MKeyboard::DN_CLICK: Board->buzzerOn();                                              // Смещение по 1 за шаг
       Tools->offsetAdc = Tools->dniVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
-      Tools->setAdcOffset();             // 0x21          //      Tools->setToQueue(MCmd::cmd_write_offset_adc);
+      Tools->setAdcOffset();                      // 0x21  Команда драйверу
     break;
     
-    case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt( MNvs::nQulon, MNvs::kOffsetV, Tools->offsetV );
-        // #ifdef DEBUG_OPTIONS
-        //     Serial.println(MTools::offsetAdc);
-        // #endif
-      return new MSetVoltageOffset(Tools);
-
+    case MKeyboard::B_CLICK: Board->buzzerOn();                                               // Сохранить
+      Tools->saveInt(MNvs::nQulon, MNvs::kOffsetAdc, Tools->offsetAdc); return new MSetVoltageOffset(Tools);
     default:;  
     }
     // Изменение смещения отображается на текущем значении (спорно)
-    Display->showVolt( Tools->getRealVoltage(), 3 );
-    Display->showAmp( Tools->getRealCurrent(), 3 );
-    return this;
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
   };
 
 
 
-  MSetVoltageOffset::MSetVoltageOffset( MTools * Tools ) : MState(Tools)
+  MSetVoltageOffset::MSetVoltageOffset(MTools * Tools) : MState(Tools)
   {
-    // Смещение восстановлено из nvs при инициализации прибора
+    // Значение восстановлено из nvs при инициализации прибора
     // Индикация помощи
-    Display->showMode( (char*) "  VOLTAGE OFFSET  " );
-    Display->showHelp( (char*) " B-Y P-NEX C-STOP " );
+    Display->showMode((char*) "  V OFFSET UP/DN  ");
+    Display->showHelp((char*) " B-Y P-NEXT C-STOP");
         Board->ledsGreen();
   }
   MState * MSetVoltageOffset::fsm()
   {
-    switch( Keyboard->getKey() )
+    switch(Keyboard->getKey())
     {
-    case MKeyboard::C_CLICK: Board->buzzerOn();
-    return new MStop(Tools);
-    
-    case MKeyboard::P_CLICK: Board->buzzerOn();
-    return new MSetVoltageFactor(Tools);
-    
-    case MKeyboard::UP_CLICK: Board->buzzerOn();
-      // Смещение по 10 мВ за шаг
-      Tools->offsetV = Tools->upiVal( Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 10 );
-//      Tools->setToQueue(MCmd::cmd_write_offset_u);
+    case MKeyboard::C_CLICK: Board->buzzerOn();                         return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                         return new MSetVoltageFactor(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
+      Tools->offsetV = Tools->upiVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
+      Tools->setOffsetU();                      // 0x36  Команда драйверу
     break;
     
-    case MKeyboard::DN_CLICK: Board->buzzerOn();
-      // Смещение по 10 мВ за шаг
-      Tools->offsetV = Tools->dniVal( Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 10 );
-//      Tools->setToQueue(MCmd::cmd_write_offset_u);
+    case MKeyboard::DN_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
+      Tools->offsetV = Tools->dniVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
+      Tools->setOffsetU();                      // 0x36  Команда драйверу
     break;
     
-    case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt( MNvs::nQulon, MNvs::kOffsetV, Tools->offsetV );
-        // #ifdef DEBUG_OPTIONS
-        //     Serial.println(MTools::offsetV);
-        // #endif
-    return this;      //return new MStop(Tools);
+    case MKeyboard::B_CLICK: Board->buzzerOn();                                       // Сохранить
+      Tools->saveInt(MNvs::nQulon, MNvs::kOffsetV, Tools->offsetV);     return new MSetVoltageFactor(Tools);
 
     default:;
     }
     // Изменение смещения отображается на текущем значении (спорно)
-    Display->showVolt( Tools->getRealVoltage(), 2 );
-    Display->showAmp( Tools->getRealCurrent(), 1 );
-    return this;
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
   };
 
-  MSetVoltageFactor::MSetVoltageFactor( MTools * Tools ) : MState(Tools)
+  MSetVoltageFactor::MSetVoltageFactor(MTools * Tools) : MState(Tools)
   {
-      // Смещение восстановлено из nvs при инициализации прибора
+      // Значение восстановлено из nvs при инициализации прибора
       // Индикация помощи
-      Display->showMode( (char*) "  VOLTAGE FACTOR  " );
-      Display->showHelp( (char*) " B-YES P-NO C-EX  " );
+      Display->showMode((char*) "  V FACTOR UP/DN  ");
+      Display->showHelp((char*) " B-YES P-NO C-EX  ");
   }
   MState * MSetVoltageFactor::fsm()
   {
-    switch( Keyboard->getKey() )
+    switch(Keyboard->getKey())
     {
-    case MKeyboard::C_CLICK : Board->buzzerOn();
-    return new MStop(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();                        return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                        return new MSetVoltageSmooth(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      Tools->upiVal(Tools->factorV, MOptConsts::factor_v_l, MOptConsts::factor_v_h, 1);
+      Tools->setFactorU();                      // 0x31  Команда драйверу
+    break;
     
-    // case MKeyboard::P_CLICK : Board->buzzerOn();
-    // return new MSetVoltageSmooth(Tools);
+    case MKeyboard::DN_CLICK : Board->buzzerOn();
+      Tools->dniVal(Tools->factorV, MOptConsts::factor_v_l, MOptConsts::factor_v_h, 1);
+      Tools->setFactorU();                      // 0x31  Команда драйверу
+    break;
     
-    // case MKeyboard::UP_CLICK : Board->buzzerOn();
-    //   //Tools->incVoltageOffset( 0.01f, false );
-    //   MTools::offsetV = Tools->upfVal( MTools::offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 0.01f );
-    // break;
-    
-    // case MKeyboard::DN_CLICK : Board->buzzerOn();
-    //   //Tools->decVoltageOffset( 0.01f, false );
-    //   MTools::offsetV = Tools->dnfVal( MTools::offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 0.01f );
-    // break;
-    
-    // case MKeyboard::B_CLICK : Board->buzzerOn();
-    //   Tools->saveInt( MNvs::nQulon, MNvs::kOffsetV, MTools::offsetV );
-    //     // #ifdef DEBUG_OPTIONS
-    //     //     Serial.println(MTools::offsetV);
-    //     // #endif
-    //  return new MStop(Tools);
+    case MKeyboard::B_CLICK : Board->buzzerOn();
+      Tools->saveInt( MNvs::nQulon, MNvs::kFactorV, Tools->factorV);  return new MSetVoltageSmooth(Tools);
     default :;
     }
-
-
-    return this;
+    // Изменение смещения отображается на текущем значении (спорно)
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
   };
+
+
+  MSetVoltageSmooth::MSetVoltageSmooth(MTools * Tools) : MState(Tools)
+  {
+      // Значение восстановлено из nvs при инициализации прибора
+      // Индикация помощи
+      Display->showMode((char*) "  V SMOOTH UP/DN  ");
+      Display->showHelp((char*) " B-YES P-NO C-EX  ");
+  }
+  MState * MSetVoltageSmooth::fsm()
+  {
+    switch(Keyboard->getKey())
+    {
+    case MKeyboard::C_CLICK: Board->buzzerOn();                        return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                        return new          MSetVoltageSmooth(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      Tools->upiVal(Tools->smoothV, MOptConsts::smooth_v_l, MOptConsts::smooth_v_h, 1);
+      Tools->setSmoothU();                      // 0x34  Команда драйверу
+    break;
+    
+    case MKeyboard::DN_CLICK : Board->buzzerOn();
+      Tools->dniVal(Tools->smoothV, MOptConsts::smooth_v_l, MOptConsts::smooth_v_h, 1);
+      Tools->setSmoothU();                      // 0x34  Команда драйверу
+    break;
+    
+    case MKeyboard::B_CLICK : Board->buzzerOn();
+      Tools->saveInt( MNvs::nQulon, MNvs::kSmoothV, Tools->smoothV);    return new MSetVoltageSmooth(Tools);
+    default:;
+    }
+    // Изменение смещения отображается на текущем значении (спорно)
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
+  };
+
+// ============ Пользовательские настройки измерителя тока ============
+  MSetCurrentOffset::MSetCurrentOffset(MTools * Tools) : MState(Tools)
+  {
+      // Значение восстановлено из nvs при инициализации прибора
+      // Индикация помощи
+      Display->showMode((char*) "  I OFFSET UP/DN  ");
+      Display->showHelp((char*) " B-YES P-NO C-EX  ");
+  }
+  MState * MSetCurrentOffset::fsm()
+  {
+
+
+            return new MStop(Tools);
+  };
+
 
 
 

@@ -16,10 +16,13 @@ class MCommands
   public:
     MCommands(MTools * tools);
     ~MCommands();
-      
-    void doCommand();
+
+    //void dataExchange();
+
+    //void doSyncing();                     // Процесс синхронизации данных между контроллерами
+    void doCommand();                     // 
     short dataProcessing();
-    void exeCommand(uint8_t);
+    //void exeCommand(uint8_t);
 
     //void readUI();
     
@@ -72,12 +75,14 @@ class MCommands
     void writeCmd(uint8_t cmd);
   
   private:
-    // static constexpr uint8_t param_shift =  8;
+    // static constexpr uint8_t param_shift = 12;
     // static constexpr uint8_t param_bits  = 16;
     // static constexpr uint16_t param_max  = (((0x1 << param_bits)-1) >> param_shift); 
     // static constexpr uint16_t param_mult = (((0x1 << param_bits)) >> (param_bits - param_shift));
 
-    // static constexpr uint16_t hz = 250;
+    // static constexpr uint16_t hz = 10;
+
+    //bool sync = true;                 // Флаг синхронизации данных между контроллерами
 
       //Команды управления процессами
     void readUI();                    // 0x10 - старая, будет удалена

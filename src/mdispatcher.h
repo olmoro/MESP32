@@ -12,19 +12,22 @@ class MDispatcher
   public:
     enum MODES
     {
-      OPTIONS = 0,            // режим ввода настроек (не отключаемый)
+      BOOT = 0,            // режим синхронизации
+      OPTIONS,                // режим ввода настроек
       TEMPLATE,               // шаблон режима 
       DCSUPPLY,               // режим источника постоянного тока
       CCCVCHARGE,             // режим заряда "постоянный ток / постоянное напряжение"
       DEVICE,                 // режим заводских регулировок
     };
 
+    //short modeSelection = OPTIONS;     // перенесен в MTools как short modeSelection ---
+
   public:
     MDispatcher(MTools * tools);
 
     void run();
     void delegateWork();
-    void textMode(int mode);
+    void textMode(short modeSelection);
 
   private:
     MTools    * Tools;
@@ -34,7 +37,8 @@ class MDispatcher
       MSupervisor * Supervisor;
 
     bool latrus;
-    int mode;
+    //short modeSelection = SYNCING;    // Начать с синхронизации параметров
+    short modeSelection = CCCVCHARGE;    // 
 };
 
 #endif //_DISPATCHER_H_

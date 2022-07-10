@@ -563,11 +563,49 @@ bool MTools::powerGo(short spU, short spI, uint8_t mode)
 }      // 2022 0x20
 
 
-bool MTools::powerStop()    {buffCmd = MCmd::cmd_power_stop; buffCmd = MCmd::cmd_nop;   return true;}   // 2022 0x21
+bool MTools::powerStop()    {buffCmd = MCmd::cmd_power_stop; buffCmd = MCmd::cmd_nop; return true;}    // 2022 0x21
+
+    // Множитель преобразования в милливольты
+bool MTools::getFactorU()           {buffCmd = MCmd::cmd_read_factor_u;               return true;}    // 0x30 Чтение
+bool MTools::setFactorU()           {buffCmd = MCmd::cmd_write_factor_u;              return true;}    // 0x31 Запись
+bool MTools::setFactorDefaultU()    {buffCmd = MCmd::cmd_write_factor_default_u;      return true;}    // 0x32 Возврат к заводскому
+    // Параметр сглаживания
+bool MTools::getSmoothU()           {buffCmd = MCmd::cmd_read_smooth_u;               return true;}    // 0x33 Чтение
+bool MTools::setSmoothU()           {buffCmd = MCmd::cmd_write_smooth_u;              return true;}    // 0x34 Запись
+    // Приборное смещение
+bool MTools::getOffsetU()           {buffCmd = MCmd::cmd_read_offset_u;               return true;}    // 0x35 Чтение
+bool MTools::setOffsetU()           {buffCmd = MCmd::cmd_write_offset_u;              return true;}    // 0x36 Запись
+
+    // Множитель преобразования в миллиамперы
+bool MTools::getFactorI()           {buffCmd = MCmd::cmd_read_factor_i;               return true;}    // 0x38 Чтение
+bool MTools::setFactorI()           {buffCmd = MCmd::cmd_write_factor_i;              return true;}    // 0x39 Запись
+bool MTools::setFactorDefaultI()    {buffCmd = MCmd::cmd_write_factor_default_i;      return true;}    // 0x3A Возврат к заводскому
+    // Параметр сглаживания
+bool MTools::getSmoothI()           {buffCmd = MCmd::cmd_read_smooth_i;               return true;}    // 0x3B Чтение
+bool MTools::setSmoothI()           {buffCmd = MCmd::cmd_write_smooth_i;              return true;}    // 0x3C Запись
+    // Приборное смещение
+bool MTools::getOffsetI()           {buffCmd = MCmd::cmd_read_offset_i;               return true;}    // 0x3D Чтение
+bool MTools::setOffsetI()           {buffCmd = MCmd::cmd_write_offset_i;              return true;}    // 0x3E Запись
+
+      // параметры простого заряда (передавать целочисленное)
+bool MTools::setVoltMax() { return true;}                      // 0x..  Команда драйверу  
+bool MTools::setVoltMin() { return true;}                      // 0x..  Команда драйверу  
+bool MTools::setCurrMax() { return true;}                      // 0x..  Команда драйверу
+bool MTools::setCurrMin() { return true;}                      // 0x..  Команда драйверу
 
 
-bool MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;                       return true;}   // 0x51
-bool MTools::setAdcOffset() {buffCmd = MCmd::cmd_adc_write_offset;                      return true;}   // 0x52
+
+
+    // Смещение АЦП
+bool MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;                     return true;}    // 0x51
+bool MTools::setAdcOffset() {buffCmd = MCmd::cmd_adc_write_offset; 
+return true;}    // 0x52
+
+
+
+
+
+
 //================= Power =========================================
 
 void MTools::savePowInd(const char * name) { writeNvsInt( name, "powInd", powInd ); }

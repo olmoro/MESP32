@@ -12,8 +12,6 @@
 #include "board/mboard.h"
 #include "board/msupervisor.h"
 #include "board/mtouch.h"
-//#include "board/sd_update.h"
-//#include "board/mupdate.h"
 #include "driver/mcommands.h"
 #include "display/mdisplay.h"
 #include "mtools.h"
@@ -25,7 +23,6 @@
   #include "project_config.h"
 
 static MBoard      * Board      = 0;
-//static MUpdate     * Update     = 0;
 static MDisplay    * Display    = 0;
 static MTools      * Tools      = 0;
 static MCommands   * Commands   = 0;
@@ -42,7 +39,6 @@ void measureTask ( void * );
 void driverTask  ( void * );
 void touchTask   ( void * );
 
-//QueueHandle_t queue;
 
 // setup() выполняется до запуска RTOS, а потому без обязательных требований
 //  по максимальному времени монопольного захвата ядра (13мс).
@@ -50,7 +46,6 @@ void setup()
 {
   Display    = new MDisplay();
   Board      = new MBoard();
-  //Update     = new MUpdate();
   Tools      = new MTools(Board, Display);
   Commands   = new MCommands(Tools);
   Measure    = new MMeasure(Tools);
@@ -67,17 +62,6 @@ void setup()
   xTaskCreatePinnedToCore ( measureTask, "Measure",  5000, NULL, 2, NULL, 1 );
   xTaskCreatePinnedToCore ( driverTask,  "Driver",   5000, NULL, 2, NULL, 1 );
   xTaskCreatePinnedToCore ( touchTask,   "Touch",    5000, NULL, 2, NULL, 1 );
-
-  // Обновление в любом случае должно полностью выполняться до запуска RTOS.
-  //Update->doUpdate();
-
-  // // Инициализация очереди отправки команд драйверу силового модуля
-  // queue = xQueueCreate(10, sizeof(int));
-  // if (queue == NULL) 
-  // {
-  //   Serial.println("Error creating the queue");
-  // }
-  
 }
 
 void loop() 
@@ -124,15 +108,6 @@ void coolTask( void * )
   {
     //unsigned long start = millis();
     Board->Supervisor->runCool();
-
-
-      //Board->runTouchKeys();    // test емкостной клавиатуры
- //Tools->setVoltageVolt( Board->getKeyInput() * 10 );  // test 
-// Tools->setVoltageVolt( Board->getSmoothU() * 10 );  // test 
- //Board->ledROn();
- //Board->ledsOn();
- //Board->buzzerOn();
- //Board->ledGOn();
     //Serial.print("Cool: Core "); Serial.print(xPortGetCoreID()); Serial.print(" Time = "); Serial.print(millis() - start); Serial.println(" mS");
     // Core 1, 0 mS
     vTaskDelay( 200 / portTICK_PERIOD_MS );
@@ -159,9 +134,7 @@ void mainTask ( void * )
   vTaskDelete( NULL );
 }
 
-// Задача управления измерениями напряжения с выбором диапазона, тока, температуры, 
-// напряжения с кнопок - всё с фильтрацией, линеаризацией и преобразованием в       нет
-// физические величины. Задача шустрая, потому таймер микросекундный. 
+// Задача управления измерениями напряжения источника питания и датчика температуры, 
 void measureTask( void * )
 {
   while (true)

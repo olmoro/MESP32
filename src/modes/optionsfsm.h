@@ -19,24 +19,32 @@ namespace OptionFsm
     static constexpr int ppone_h = 24;
 
     // смещение АЦП
-    static constexpr short offset_adc_h = 0 + 100;
-    static constexpr short offset_adc_l = 0 - 100;
+    static constexpr short offset_adc_h =  100;
+    static constexpr short offset_adc_l = -100;
 
     // смещение показаний по напряжению
-    static constexpr short offset_v_h = 0 + 100;
-    static constexpr short offset_v_l = 0 - 100;
+    static constexpr short offset_v_h =  100;
+    static constexpr short offset_v_l = -100;
 
     // Коэффициент преобразования в милливольты
-    static constexpr short factor_v_h = 0x2DA0 + 0x0100;
-    static constexpr short factor_v_l = 0x2DA0 - 0x0100;    
+    static constexpr short factor_v_h = 11600 + 200;
+    static constexpr short factor_v_l = 11600 - 200;    
 
     // Показатель сглаживания по напряжению
     static constexpr short smooth_v_h = 3 + 2;
-    static constexpr short smooth_v_l = 3 - 2;    
+    static constexpr short smooth_v_l = 3 - 2;
 
     // смещение показаний по току
-    static constexpr short offset_a_h = 0 + 100;
-    static constexpr short offset_a_l = 0 - 100;
+    static constexpr short offset_i_h =  100;
+    static constexpr short offset_i_l = -100;
+
+    // Коэффициент преобразования в миллиамперы
+    static constexpr short factor_i_h = 780 + 20;
+    static constexpr short factor_i_l = 780 - 20;
+
+    // Показатель сглаживания по току
+    static constexpr short smooth_i_h = 3 + 2;
+    static constexpr short smooth_i_l = 3 - 2;
 
 
     //...

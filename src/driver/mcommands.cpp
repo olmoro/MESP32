@@ -2,10 +2,11 @@
  * Работа с драйверов силовой платы
  * read  - чтение через драйвер
  * write - запись через драйвер
- * 05.2022
+ * 07.2022
  */
 
 #include "driver/mcommands.h"
+  #include "nvs.h"
 #include "board/mboard.h"
 #include "mtools.h"
 #include "mcmd.h"
@@ -33,6 +34,87 @@ uint8_t cmd = MCmd::cmd_nop;
 //uint8_t state1 = 0b00000000;
 //uint8_t state2 = 0b00000000;
 
+// void MCommands::dataExchange()
+// {
+//   //doSyncing();
+//   doCommand();
+// }
+
+
+//   // Процесс синхронизации данных между контроллерами
+// void MCommands::doSyncing()
+// {
+//   if(sync)
+//   {
+//     static short cnt = 0;
+//     cnt++;
+
+//     switch (cnt)
+//     {
+//       case 1:
+//         Tools->postpone  = Tools->readNvsInt(MNvs::nQulon, MNvs::kQulonPostpone, 3);
+
+//       break;
+//       case 2:
+//         Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);  // Смещение ЦАП
+//         Tools->setAdcOffset();                    // 0x21  Команда драйверу
+//       break;
+//       case 3:
+//         Tools->factorV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorV, 0x2DA0);  // Множитель преобразования
+//         Tools->setFactorU();                      // 0x31  Команда драйверу
+//       break;
+//       case 4:  
+//         Tools->smoothV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothV, 0x0003);  // Коэффициент фильтрации
+//         Tools->setSmoothU();                      // 0x34  Команда драйверу
+//       break;
+//       case 5:
+//         Tools->offsetV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetV, 0x0000);  // Смещение в милливольтах
+//         Tools->setOffsetU();                      // 0x36  Команда драйверу
+//       break;
+//       case 6:
+//         Tools->factorA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorA, 0x030C);  // Множитель преобразования
+//         Tools->setFactorI();                      // 0x39  Команда драйверу
+//       break;
+//       case 7:
+//         Tools->smoothA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothA, 0x0003);  // Коэффициент фильтрации
+//         Tools->setSmoothI();                      // 0x3C  Команда драйверу
+//       break;
+//       case 8:
+//         Tools->offsetA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetA, 0x0000);  // Смещение в миллиамперах
+//         Tools->setOffsetI();                      // 0x3E  Команда драйверу
+//       break;
+
+
+//       case 10:
+//         Tools->voltageMax  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvVmax, 14.5f); // Заданное максимальное напряжение заряда, В
+//         // Tools->setVoltMax();                      // 0x..  Команда драйверу  
+//       break;
+//       case 11:
+//         Tools->voltageMin  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvVmin, 13.2f); // Заданное минимальное напряжение заряда, В
+//         // Tools->setVoltMin();                      // 0x..  Команда драйверу  
+//       break;
+//       case 12:
+//         Tools->currentMax  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvImax,  5.0f); // Заданный максимальный ток заряда, А
+//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
+//       break;
+//       case 13:
+//         Tools->currentMin  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvImin,  0.5f); // Заданный минимальный ток заряда, А
+//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
+//       break;
+
+//         // Tools->setVoltMax();                      // 0x..  Команда драйверу  
+//         // Tools->setVoltMin();                      // 0x..  Команда драйверу  
+//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
+//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
+
+
+//       default:
+//       break;
+//     }
+//   }
+//   sync = false;
+// }
+
 
 void MCommands::writeCmd(uint8_t _cmd) { cmd = _cmd; }
 
@@ -43,15 +125,18 @@ void MCommands::doCommand()
   cnt++;
   if(cnt >= 9) cnt = 0;
 
-  switch (cnt)
-  {
-    case 1:  cmd = MCmd::cmd_get_u;        break;
-    case 3:  cmd = MCmd::cmd_get_i;        break;
-    case 5:  cmd = MCmd::cmd_get_celsius;  break;
-    case 7:  cmd = Tools->getBuffCmd();    break;
-    default: cmd = MCmd::cmd_get_state;    break;
+  // switch (cnt)
+  // {
+  //   //case 1:  cmd = MCmd::cmd_get_u;        break;
+  //   case 1:  cmd = MCmd::cmd_read_u_i;        break;
+  //   case 3:  cmd = MCmd::cmd_get_i;        break;
+  //   case 5:  cmd = MCmd::cmd_get_celsius;  break;
+  //   case 7:  cmd = Tools->getBuffCmd();    break;
+  //   default: cmd = MCmd::cmd_get_state;    break;
       
-  }
+  // }
+
+  cmd = MCmd::cmd_read_u_i;
 
   if( cmd != MCmd::cmd_nop)
   {
@@ -155,7 +240,7 @@ void MCommands::doCommand()
 short MCommands::dataProcessing()
 {
   Wake->wakeRead();
-  int cmd = Wake->getCommand();
+  int cmd = Wake->getCommand();                         // Код команды в ответе
 //  Serial.print("cmd=0x");   Serial.println( cmd, HEX );
 
   switch(cmd)
@@ -436,7 +521,7 @@ short MCommands::dataProcessing()
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-      // Запись смещения АЦП                               0x51   + 00->03
+      // Чтение смещения АЦП                               0x51   + 00->03
     case MCmd::cmd_adc_read_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
@@ -455,7 +540,7 @@ short MCommands::dataProcessing()
     //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     // break;
 
-      // Чтение смещения АЦП                                0x52   + 02->01
+      // Запись смещения АЦП                                0x52   + 02->01
     case MCmd::cmd_adc_write_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
@@ -1011,15 +1096,6 @@ void MCommands::doAdcGetOffset()
   // ...
 }
 
-//            // 0x51
-// void MCommands::doAdcUpOffset()
-// {
-//   Wake->configAsk( 0, MCmd::cmd_adc_up_offset);
-// }
-
-
-
-
 // Команда записи смещения АЦП  0x52 (0x1234) 
 // Запрос: 0xC0, 0x52, 0x02, 0x12, 0x34, 0xEC               - ok
 // Ответ:  0xC0, 0x52, 0x01, 0x00, 0xDD                     - ok
@@ -1029,19 +1105,6 @@ void MCommands::doAdcSetOffset()
   id = Wake->replyU16( id, Board->readAdcOffset() );
   Wake->configAsk( id, MCmd::cmd_adc_write_offset);
 }  
-
-//            // 0x52
-// void MCommands::doAdcDnOffset()
-// {
-//   Wake->configAsk( 0, MCmd::cmd_adc_dn_offset);
-// }
-
-//            // 0x53
-// void MCommands::doAdcFbOffset()
-// {
-//   Wake->configAsk( 0, MCmd::cmd_adc_fb_offset);
-// }
-
 
 
 // ================= Команды тестирования =================
@@ -1289,6 +1352,6 @@ void MCommands::doInfo()
 
 
 
-void MCommands::exeCommand(uint8_t _cmd) { cmd = _cmd; }
+//void MCommands::exeCommand(uint8_t _cmd) { cmd = _cmd; }
 
 

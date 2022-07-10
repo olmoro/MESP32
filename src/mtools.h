@@ -304,35 +304,51 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void shutdownDC();
     //2022
     bool powerGo(short spU, short spI, uint8_t mode);  // 0x20
-    bool powerStop();             // 0x21
+    bool powerStop();                                   // 0x21
 
 //======================
-// Команды работы с измерителем напряжения
-  // Множитель преобразования в милливольты
+      // Команды работы с измерителем напряжения
+      // Множитель преобразования в милливольты
 // const uint8_t cmd_get_factor_u              = 0x30; // Чтение
 // const uint8_t cmd_set_factor_u              = 0x31; // Запись
 // const uint8_t cmd_set_factor_default_u      = 0x32; // Возврат к заводскому
-//   // Параметр сглаживания
+    bool getFactorU();                                  // 0x30 Чтение
+    bool setFactorU();                                  // 0x31 Запись
+    bool setFactorDefaultU();                           // 0x32 Возврат к заводскому
+      // Параметр сглаживания
 // const uint8_t cmd_get_smooth_u              = 0x33; // Чтение
 // const uint8_t cmd_set_smooth_u              = 0x34; // Запись
-//   // Приборное смещение
+    bool getSmoothU();                                  // 0x33 Чтение
+    bool setSmoothU();                                  // 0x34 Запись
+      // Приборное смещение
 // const uint8_t cmd_get_offset_u              = 0x35; // Чтение
 // const uint8_t cmd_set_offset_u              = 0x36; // Запись
+    bool getOffsetU();                                  // 0x35 Чтение
+    bool setOffsetU();                                  // 0x36 Запись
 
- 
-
-//   // Команды работы с измерителем тока
-//   // Множитель преобразования в миллиамперы
+      // Команды работы с измерителем тока
+      // Множитель преобразования в миллиамперы
 // const uint8_t cmd_get_factor_i              = 0x38; // Чтение
 // const uint8_t cmd_set_factor_i              = 0x39; // Запись
 // const uint8_t cmd_set_factor_default_i      = 0x3A; // Возврат
-//   // Параметр сглаживания
+    bool getFactorI();                                  // 0x38 Чтение
+    bool setFactorI();                                  // 0x39 Запись
+    bool setFactorDefaultI();                           // 0x3A Возврат к заводскому
+      // Параметр сглаживания
+    bool getSmoothI();                                  // 0x3B Чтение
+    bool setSmoothI();                                  // 0x3C Запись
 // const uint8_t cmd_get_smooth_i              = 0x3B; // Чтение
 // const uint8_t cmd_set_smooth_i              = 0x3C; // Запись
-//   // Приборное смещение
+      // Приборное смещение
 // const uint8_t cmd_get_offset_i              = 0x3D; // Чтение
 // const uint8_t cmd_set_offset_i              = 0x3E; // Запись
-
+    bool getOffsetI();                                  // 0x3D Чтение
+    bool setOffsetI();                                  // 0x3E Запись
+      // параметры простого заряда
+    bool setVoltMax();                      // 0x..  Команда драйверу  
+    bool setVoltMin();                      // 0x..  Команда драйверу  
+    bool setCurrMax();                      // 0x..  Команда драйверу
+    bool setCurrMin();                      // 0x..  Команда драйверу
 
   // // ПИД-регулятор
   //   bool pidConfigure(uint8_t, float, float, float, uint16_t, uint16_t);     // 0x40 set mode, kp, ki, kd, min, max
@@ -353,6 +369,10 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
     bool getAdcOffset();                      // 0x51
     bool setAdcOffset();                      // 0x52
+
+
+
+
 
 //   // Команды тестовые
 // const uint8_t cmd_set_switch_pin            = 0x54; // sw_pin D4 PA14

@@ -42,6 +42,7 @@ namespace CcCvFsm
     Display->showHelp( (char*) "    P-ADJ   C-GO  " );  // Активные кнопки
     Display->barOff();
     Board->ledsOn();              // Подтверждение входа в настройки заряда белым свечением светодиода
+  Tools->setAdcOffset();                    // 0x52  Команда драйверу  test
   }
   MState * MStart::fsm()
   {
