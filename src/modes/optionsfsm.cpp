@@ -144,12 +144,12 @@ MState * MSetPostpone::fsm()
     case MKeyboard::P_CLICK: Board->buzzerOn();                         return new MSetVoltageFactor(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
       Tools->offsetV = Tools->upiVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
-      Tools->setOffsetU();                      // 0x36  Команда драйверу
+      Tools->setShiftU();                      // 0x36  Команда драйверу
     break;
     
     case MKeyboard::DN_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
       Tools->offsetV = Tools->dniVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
-      Tools->setOffsetU();                      // 0x36  Команда драйверу
+      Tools->setShiftU();                      // 0x36  Команда драйверу
     break;
     
     case MKeyboard::B_CLICK: Board->buzzerOn();                                       // Сохранить

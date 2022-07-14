@@ -546,7 +546,8 @@ void MTools::shutdownDC()           // Подумать об общей кома
 
     uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
 
-uint8_t MTools::getBuffCmd() { return buffCmd; }
+uint8_t MTools::getBuffCmd()            {return buffCmd;}
+void    MTools::setBuffCmd(uint8_t cmd) {buffCmd = cmd;}
 
 // Вариант 2022 - не доделано
 // Здесь будет проверка ответа и задаваться число попыток связи с драйвером
@@ -573,8 +574,8 @@ bool MTools::setFactorDefaultU()    {buffCmd = MCmd::cmd_write_factor_default_u;
 bool MTools::getSmoothU()           {buffCmd = MCmd::cmd_read_smooth_u;               return true;}    // 0x33 Чтение
 bool MTools::setSmoothU()           {buffCmd = MCmd::cmd_write_smooth_u;              return true;}    // 0x34 Запись
     // Приборное смещение
-bool MTools::getOffsetU()           {buffCmd = MCmd::cmd_read_offset_u;               return true;}    // 0x35 Чтение
-bool MTools::setOffsetU()           {buffCmd = MCmd::cmd_write_offset_u;              return true;}    // 0x36 Запись
+bool MTools::getShiftU()            {buffCmd = MCmd::cmd_read_offset_u;               return true;}    // 0x35 Чтение
+bool MTools::setShiftU()            {buffCmd = MCmd::cmd_write_offset_u;              return true;}    // 0x36 Запись
 
     // Множитель преобразования в миллиамперы
 bool MTools::getFactorI()           {buffCmd = MCmd::cmd_read_factor_i;               return true;}    // 0x38 Чтение
@@ -584,8 +585,8 @@ bool MTools::setFactorDefaultI()    {buffCmd = MCmd::cmd_write_factor_default_i;
 bool MTools::getSmoothI()           {buffCmd = MCmd::cmd_read_smooth_i;               return true;}    // 0x3B Чтение
 bool MTools::setSmoothI()           {buffCmd = MCmd::cmd_write_smooth_i;              return true;}    // 0x3C Запись
     // Приборное смещение
-bool MTools::getOffsetI()           {buffCmd = MCmd::cmd_read_offset_i;               return true;}    // 0x3D Чтение
-bool MTools::setOffsetI()           {buffCmd = MCmd::cmd_write_offset_i;              return true;}    // 0x3E Запись
+bool MTools::getShiftI()           {buffCmd = MCmd::cmd_read_offset_i;               return true;}    // 0x3D Чтение
+bool MTools::setShiftI()           {buffCmd = MCmd::cmd_write_offset_i;              return true;}    // 0x3E Запись
 
       // параметры простого заряда (передавать целочисленное)
 bool MTools::setVoltMax() { return true;}                      // 0x..  Команда драйверу  
@@ -597,11 +598,15 @@ bool MTools::setCurrMin() { return true;}                      // 0x..  Кома
 
 
     // Смещение АЦП
-bool MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;                     return true;}    // 0x51
-bool MTools::setAdcOffset() {buffCmd = MCmd::cmd_adc_write_offset; 
-return true;}    // 0x52
+void MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset; }    // 0x51
 
+void MTools::setAdcOffset() 
+{
+    buffCmd = MCmd::cmd_adc_write_offset;    // 0x52 Код команды в буфере для передачи
+    Serial.print("bcmd="); Serial.println(buffCmd, HEX);
+}
 
+    // Tools->setCmd(MCmd::cmd_adc_write_offset);
 
 
 

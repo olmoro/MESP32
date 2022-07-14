@@ -56,7 +56,8 @@ namespace CcCvFsm
         Tools->setVoltageMin( MChConsts::voltageMinFactor * Tools->getVoltageNom() );
         Tools->setCurrentMax( MChConsts::currentMaxFactor * Tools->getCapacity() );
         Tools->setCurrentMin( MChConsts::currentMinFactor * Tools->getCapacity() );
-
+//Tools->getAdcOffset();             // 0x51
+Tools->setAdcOffset();             // 0x52
       return new MPostpone(Tools);
 
       case MKeyboard::P_CLICK: Board->buzzerOn();

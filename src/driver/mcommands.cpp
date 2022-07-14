@@ -123,20 +123,37 @@ void MCommands::doCommand()
 {
   static short cnt = 0;
   cnt++;
-  if(cnt >= 9) cnt = 0;
+  if(cnt >= 7) cnt = 0;
 
-  // switch (cnt)
+  //Tools->setBuffCmd(MCmd::cmd_adc_write_offset);    // Test
+  //Tools->setBuffCmd(MCmd::cmd_nop);    // Test
+
+
+  switch (cnt)
+  {
+  case 6:
+    cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
+    Tools->setBuffCmd(MCmd::cmd_get_uis);   // Фоновая команда в буфер  
+    break;
+  default:
+    cmd = MCmd::cmd_get_uis;                // Фоновая команда на исполнение
+    break;
+  }
+
+  // cmd = MCmd::cmd_get_uis;
+  // cmd = MCmd::cmd_adc_write_offset;
+  // if((cmd == MCmd::cmd_nop) && (Tools->getBuffCmd()) == MCmd::cmd_nop)
   // {
-  //   //case 1:  cmd = MCmd::cmd_get_u;        break;
-  //   case 1:  cmd = MCmd::cmd_read_u_i;        break;
-  //   case 3:  cmd = MCmd::cmd_get_i;        break;
-  //   case 5:  cmd = MCmd::cmd_get_celsius;  break;
-  //   case 7:  cmd = Tools->getBuffCmd();    break;
-  //   default: cmd = MCmd::cmd_get_state;    break;
-      
+  //   cmd = MCmd::cmd_get_uis;
+  // }
+  // else
+  // {
+  //   cmd = Tools->getBuffCmd();
+  // Serial.print("buff_cmd="); Serial.println(cmd, HEX);
+  //   Tools->setBuffCmd(MCmd::cmd_nop);
   // }
 
-  cmd = MCmd::cmd_read_u_i;
+
 
   if( cmd != MCmd::cmd_nop)
   {
@@ -147,7 +164,7 @@ void MCommands::doCommand()
     switch( cmd )
     {
       //Команды управления процессами
-      case MCmd::cmd_read_u_i:                readUI();                   break;  // 0x10;   +
+      case MCmd::cmd_get_uis:                readUI();                   break;  // 0x10;   +
       case MCmd::cmd_get_u:                   doGetU();                   break;  // 0x11 Чтение напряжения (мВ)
       case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
       case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
@@ -247,7 +264,7 @@ short MCommands::dataProcessing()
   {
     // Ответ на команду чтения результатов измерения напряжения (мВ), тока (мА)
     // и двух байт состояния драйвера (всего 7 байт, включая байт ошибки)
-    case MCmd::cmd_read_u_i:
+    case MCmd::cmd_get_uis:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
       {
         Tools->setVoltageVolt(Wake->get16(1));
@@ -714,7 +731,7 @@ void MCommands::txU32(uint8_t id, uint32_t value)
 // Ответ:  0xC0, 0x10, 0x07, 0x00, 0xFC, 0xEE, 0x00, 0x21, 0x00, 0x00, 0xDE - ok,  t = 0.95ms
 void MCommands::readUI()
 {        
-  Wake->configAsk( 0, MCmd::cmd_read_u_i);
+  Wake->configAsk( 0, MCmd::cmd_get_uis);
 }
 
 // 0x11 Чтение напряжения (мВ)

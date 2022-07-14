@@ -320,11 +320,11 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_set_smooth_u              = 0x34; // Запись
     bool getSmoothU();                                  // 0x33 Чтение
     bool setSmoothU();                                  // 0x34 Запись
-      // Приборное смещение
+      // Приборный сдвиг
 // const uint8_t cmd_get_offset_u              = 0x35; // Чтение
 // const uint8_t cmd_set_offset_u              = 0x36; // Запись
-    bool getOffsetU();                                  // 0x35 Чтение
-    bool setOffsetU();                                  // 0x36 Запись
+    bool getShiftU();                                  // 0x35 Чтение
+    bool setShiftU();                                  // 0x36 Запись
 
       // Команды работы с измерителем тока
       // Множитель преобразования в миллиамперы
@@ -339,11 +339,11 @@ bool setPidCoefficients(float kp, float ki, float kd);
     bool setSmoothI();                                  // 0x3C Запись
 // const uint8_t cmd_get_smooth_i              = 0x3B; // Чтение
 // const uint8_t cmd_set_smooth_i              = 0x3C; // Запись
-      // Приборное смещение
+      // Приборный сдвиг
 // const uint8_t cmd_get_offset_i              = 0x3D; // Чтение
 // const uint8_t cmd_set_offset_i              = 0x3E; // Запись
-    bool getOffsetI();                                  // 0x3D Чтение
-    bool setOffsetI();                                  // 0x3E Запись
+    bool getShiftI();                                  // 0x3D Чтение
+    bool setShiftI();                                  // 0x3E Запись
       // параметры простого заряда
     bool setVoltMax();                      // 0x..  Команда драйверу  
     bool setVoltMin();                      // 0x..  Команда драйверу  
@@ -367,11 +367,11 @@ bool setPidCoefficients(float kp, float ki, float kd);
 //   // АЦП - настройки
 // const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
 
-    bool getAdcOffset();                      // 0x51
-    bool setAdcOffset();                      // 0x52
+    void getAdcOffset();                      // 0x51
+    void setAdcOffset();                      // 0x52
 
-
-
+    // Tools->setCmd(MCmd::cmd_adc_write_offset);
+    //void setCmd(uint8_t cmd);
 
 
 //   // Команды тестовые
@@ -403,7 +403,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
 //======================
 
     uint8_t getBuffCmd();
-
+    void    setBuffCmd(uint8_t cmd);
 
 //    void orderReadOffsetVoltage();
 //    void orderWriteOffsetVoltage();

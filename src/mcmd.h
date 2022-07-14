@@ -11,7 +11,7 @@
 namespace MCmd
 {
     // Команды измерений
-  constexpr uint8_t cmd_read_u_i                  = 0x10; // Чтение напряжения(мВ), тока (мА) и состояния
+  constexpr uint8_t cmd_get_uis                  = 0x10; // Чтение напряжения(мВ), тока (мА) и состояния
   constexpr uint8_t cmd_get_u                     = 0x11; // Чтение напряжения (мВ)
   constexpr uint8_t cmd_get_i                     = 0x12; // Чтение тока (мА)
   constexpr uint8_t cmd_get_ui                    = 0x13; // Чтение напряжения (мВ) и тока (мА)

@@ -33,10 +33,10 @@ namespace Bootfsm
       MState * fsm() override;
   };
 
-  class MSetOffsetU : public MState
+  class MSetShiftU : public MState
   {
     public:   
-      MSetOffsetU(MTools * Tools);
+      MSetShiftU(MTools * Tools);
       MState * fsm() override;
   };
 
@@ -54,10 +54,10 @@ namespace Bootfsm
       MState * fsm() override;
   };
   
-  class MSetOffsetI : public MState
+  class MSetShiftI : public MState
   {
     public:   
-      MSetOffsetI(MTools * Tools);
+      MSetShiftI(MTools * Tools);
       MState * fsm() override;
   };
 

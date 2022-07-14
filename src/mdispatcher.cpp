@@ -27,8 +27,7 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
   Display->showLabel( sLabel );
 
   latrus = Tools->readNvsBool( MNvs::nQulon, MNvs::kQulonLocal, true );
-  //modeSelection   = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, 0 );   // Индекс массива
-  modeSelection   = BOOT;                      // Начинать всегда с синхронизации данных контроллеров
+  modeSelection = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, 0 );   // Индекс массива
 
   textMode( modeSelection );
   Tools->powInd = Tools->readNvsInt  ( MNvs::nQulon, MNvs::kQulonPowInd, 3); // 3 - дефолтный индекс массива
@@ -38,7 +37,7 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
 
   Tools->postpone = Tools->readNvsInt( MNvs::nQulon, MNvs::kQulonPostpone,  3 );
 
-  // Настройки АЦП и ниже - вынесены в syncingfsm 20220710 
+  // Настройки АЦП и ниже - вынесены в bootfsm 20220710 
 // Tools->offsetAdc = Tools->readNvsInt( MNvs::nQulon, MNvs::kOffsetAdc, 0x0000 );  // Смещение ЦАП
 
   // Настройки измерителей (для ввода драйверу)
@@ -49,32 +48,33 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
 //  Tools->factorA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kFactorA, 0x030C );  // Множитель преобразования
 //  Tools->smoothA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kSmoothA, 0x0003 );  // Коэффициент фильтрации
 //  Tools->offsetA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kOffsetA, 0x0000 );  // Смещение в миллиамперах
+
 }
 
 void MDispatcher::run()
 {
     // Индикация при инициализации процедуры выбора режима работы
-  Display->showVolt(Tools->getRealVoltage(), 3);  // 2
-  Display->showAmp (Tools->getRealCurrent(), 3);   // 1
+  Display->showVolt(Tools->getRealVoltage(), 3);
+  Display->showAmp (Tools->getRealCurrent(), 3);
 
-    // Выдерживается период запуска для вычисления амперчасов
+    // Выдерживается период запуска 100мс для вычисления амперчасов
   if (State)
   {
-    // rabotaem so state mashinoj
+    // Работаем с FSM
     MState * newState = State->fsm();      
-    if (newState != State)                  //state changed!
+    if (newState != State)                  // State изменён!
     {
       delete State;
       State = newState;
     } 
-    //esli budet 0, na sledujushem cikle uvidim
+    // Если будет 0, на следующем цикле увидим
   }
-  else //state ne opredelen (0) - vybiraem ili pokazyvaem rezgim
+  else // State не определён (0) - выбираем или показываем режим
   {
     if (Tools->Keyboard->getKey(MKeyboard::UP_CLICK))
     { 
       Board->buzzerOn();
-      if (modeSelection == (int)DEVICE) modeSelection = OPTIONS;
+      if (modeSelection == (int)DEVICE) modeSelection = OPTIONS;  // Исключена возможность выбора BOOT'а
       else modeSelection++;
       textMode( modeSelection );
     }
@@ -82,55 +82,34 @@ void MDispatcher::run()
     if (Tools->Keyboard->getKey(MKeyboard::DN_CLICK))
     {
       Board->buzzerOn();
-      if (modeSelection == (int)OPTIONS) modeSelection = DEVICE;
+      if (modeSelection == (int)OPTIONS) modeSelection = DEVICE;  // Исключена возможность выбора BOOT'а
       else modeSelection--;
       textMode( modeSelection );
     }
 
-    if(modeSelection != BOOT)
+    if (Tools->Keyboard->getKey(MKeyboard::B_CLICK) || sync)
     {
-      if (Tools->Keyboard->getKey(MKeyboard::B_CLICK))
+      Board->buzzerOn();
+      
+      if(!sync)
       {
-        Board->buzzerOn();
+        Tools->writeNvsInt( MNvs::nQulon, "mode", modeSelection );  // Запомнить крайний выбор режима
+      } 
+      sync = false;
+        // Serial.print("Available heap: "); Serial.println(ESP.getFreeHeap());
+        // Serial.print("Core ID: ");        Serial.println(xPortGetCoreID());
 
-          // Запомнить крайний выбор режима
-        Tools->writeNvsInt( MNvs::nQulon, "mode", modeSelection );
-          //Tools->writeNvsInt( MNvs::nQulon, MNvs::kQulonMode );
-
-          // Serial.print("Available heap: "); Serial.println(ESP.getFreeHeap());
-          // Serial.print("Core ID: ");        Serial.println(xPortGetCoreID());
-
-        switch (modeSelection)
-        {
-        case OPTIONS:
-            State = new OptionFsm::MStart(Tools);
-          break;
-
-        case TEMPLATE:
-            State = new TemplateFsm::MStart(Tools);
-          break;
-
-        case DCSUPPLY:
-            State = new DcSupplyFsm::MStart(Tools);
-          break; 
-
-        case CCCVCHARGE:
-            State = new CcCvFsm::MStart(Tools);
-          break;
-
-        case DEVICE:
-            State = new DeviceFsm::MStart(Tools);
-          break;
-
-        default:
-          break;
-        }
-      } // !B_CLICK
-    }
-    else
-    {
-      State = new Bootfsm::MStart(Tools);
-    }
+      switch (modeSelection)
+      {
+        case BOOT:        State = new Bootfsm::MStart(Tools);     break;
+        case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
+        case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
+        case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
+        case CCCVCHARGE:  State = new CcCvFsm::MStart(Tools);     break;
+        case DEVICE:      State = new DeviceFsm::MStart(Tools);   break;
+        default:                                                  break;
+      }
+    } // !B_CLICK
   }
 }
 
@@ -142,8 +121,8 @@ void MDispatcher::textMode(short modeSelection)
   switch(modeSelection)
   {
     case BOOT:
-      sprintf( sMode, "      BOOT:       " );
-      sprintf( sHelp, " -----START------ " );
+      sprintf( sMode, "       BOOT:      " );   // Только 18 знакомест для этого дисплея
+      sprintf( sHelp, "    ...WAIT...    " );
     break;
 
     case OPTIONS:

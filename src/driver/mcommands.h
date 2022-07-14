@@ -73,6 +73,7 @@ class MCommands
 
 
     void writeCmd(uint8_t cmd);
+    
   
   private:
     // static constexpr uint8_t param_shift = 12;

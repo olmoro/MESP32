@@ -22,6 +22,8 @@
 #include <Arduino.h>
   #include "project_config.h"
 
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
 static MBoard      * Board      = 0;
 static MDisplay    * Display    = 0;
 static MTools      * Tools      = 0;
@@ -67,9 +69,10 @@ void setup()
 void loop() 
 {
   if( Serial2.available() )    // В буфере приема есть принятые байты, не факт, что пакет полный
-  {                            // Пока не принят весь пакет, время ожидания ограничено (пока 1с)
-    //MTools::error = Commands->dataProcessing();
-    Tools->setErr( Commands->dataProcessing() );
+  {                            // Пока не принят весь пакет, время ожидания ограничено 5мс
+    vTaskEnterCritical(&timerMux);
+      Tools->setErr( Commands->dataProcessing() );
+    vTaskExitCritical(&timerMux);
   }
 }
 
@@ -155,7 +158,10 @@ void driverTask( void * )
   while (true)
   {
     //unsigned long start = micros();
-    Commands->doCommand();
+    vTaskEnterCritical(&timerMux);
+      Commands->doCommand();
+    vTaskExitCritical(&timerMux);
+
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // 310µS max
     vTaskDelay( 75 / portTICK_PERIOD_MS );
