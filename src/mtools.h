@@ -30,6 +30,10 @@ class MTools
     // Локализация
     bool getLocalization() const;
     void setLocalization(bool);
+    
+    // Флаг блокировки обмена с драйвером на время его рестарта
+    bool getBlocking();
+    void setBlocking(bool);
 
     // перенесенные из privat
 
@@ -300,50 +304,43 @@ bool setPidCoefficients(float kp, float ki, float kd);
     float calcCurrentAvr();
 
 
-    void shutdownCharge();
-    void shutdownDC();
+    // void shutdownCharge();
+    // void shutdownDC();
     //2022
-    bool powerGo(short spU, short spI, uint8_t mode);  // 0x20
-    bool powerStop();                                   // 0x21
+    void powerGo(float spU, float spI, uint8_t mode);  // 0x20
+    void powerStop();                                   // 0x21
 
 //======================
       // Команды работы с измерителем напряжения
       // Множитель преобразования в милливольты
-// const uint8_t cmd_get_factor_u              = 0x30; // Чтение
-// const uint8_t cmd_set_factor_u              = 0x31; // Запись
-// const uint8_t cmd_set_factor_default_u      = 0x32; // Возврат к заводскому
-    bool getFactorU();                                  // 0x30 Чтение
-    bool setFactorU();                                  // 0x31 Запись
-    bool setFactorDefaultU();                           // 0x32 Возврат к заводскому
+    void getFactorU();                                  // 0x30 Чтение
+    void setFactorU();                                  // 0x31 Запись
+    void setFactorDefaultU();                           // 0x32 Возврат к заводскому
       // Параметр сглаживания
-// const uint8_t cmd_get_smooth_u              = 0x33; // Чтение
-// const uint8_t cmd_set_smooth_u              = 0x34; // Запись
-    bool getSmoothU();                                  // 0x33 Чтение
-    bool setSmoothU();                                  // 0x34 Запись
+    void getSmoothU();                                  // 0x33 Чтение
+    void setSmoothU();                                  // 0x34 Запись
       // Приборный сдвиг
-// const uint8_t cmd_get_offset_u              = 0x35; // Чтение
-// const uint8_t cmd_set_offset_u              = 0x36; // Запись
-    bool getShiftU();                                  // 0x35 Чтение
-    bool setShiftU();                                  // 0x36 Запись
+    void getShiftU();                                   // 0x35 Чтение
+    void setShiftU();                                   // 0x36 Запись
 
       // Команды работы с измерителем тока
       // Множитель преобразования в миллиамперы
-// const uint8_t cmd_get_factor_i              = 0x38; // Чтение
-// const uint8_t cmd_set_factor_i              = 0x39; // Запись
-// const uint8_t cmd_set_factor_default_i      = 0x3A; // Возврат
-    bool getFactorI();                                  // 0x38 Чтение
-    bool setFactorI();                                  // 0x39 Запись
-    bool setFactorDefaultI();                           // 0x3A Возврат к заводскому
+    void getFactorI();                                  // 0x38 Чтение
+    void setFactorI();                                  // 0x39 Запись
+    void setFactorDefaultI();                           // 0x3A Возврат к заводскому
       // Параметр сглаживания
-    bool getSmoothI();                                  // 0x3B Чтение
-    bool setSmoothI();                                  // 0x3C Запись
-// const uint8_t cmd_get_smooth_i              = 0x3B; // Чтение
-// const uint8_t cmd_set_smooth_i              = 0x3C; // Запись
+    void getSmoothI();                                  // 0x3B Чтение
+    void setSmoothI();                                  // 0x3C Запись
       // Приборный сдвиг
-// const uint8_t cmd_get_offset_i              = 0x3D; // Чтение
-// const uint8_t cmd_set_offset_i              = 0x3E; // Запись
-    bool getShiftI();                                  // 0x3D Чтение
-    bool setShiftI();                                  // 0x3E Запись
+    void getShiftI();                                   // 0x3D Чтение
+    void setShiftI();                                   // 0x3E Запись
+
+      // Команды работы с ПИД-регулятором
+    void setPidCoeffU(float kp, float ki, float kd);    // 0x41 Запись
+    void setPidCoeffI(float kp, float ki, float kd);    // 0x41 Запись
+    void setPidCoeffD(float kp, float ki, float kd);    // 0x41 Запись
+
+
       // параметры простого заряда
     bool setVoltMax();                      // 0x..  Команда драйверу  
     bool setVoltMin();                      // 0x..  Команда драйверу  
@@ -401,6 +398,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_set_win_up_default_i      = 0x6D; // 
 
 //======================
+
 
     uint8_t getBuffCmd();
     void    setBuffCmd(uint8_t cmd);
@@ -584,14 +582,21 @@ private:
   // ========================== FastPID ==========================
       /* Прототип: A fixed point PID controller with a 32-bit internal calculation pipeline.
       https://github.com/mike-matera/FastPID/tree/master/examples/VoltageRegulator
-      Константы должны быть синхронизированы с ведомым контроллером.
+      Константы синхронизированы с ведомым контроллером (20220715)
     */  
-    static constexpr uint8_t param_shift =  0;    //0;    //4; //8;
-    static constexpr uint8_t param_bits  = 16;    //12;    //16;
-    static constexpr uint16_t param_max  = (((0x1 << param_bits)-1) >> param_shift); 
-    static constexpr uint16_t param_mult = (((0x1 << param_bits)) >> (param_bits - param_shift));
+  // static constexpr int32_t  integ_max   = (INT32_MAX);         // 0x7FFFFFFF
+  // static constexpr int32_t  integ_min   = (INT32_MIN);         // 0x80000000
+  // static constexpr int16_t  deriv_max   = (INT16_MAX);         // 0x7FFF
+  // static constexpr int16_t  deriv_min   = (INT16_MIN);         // 0x8000
 
-    static constexpr uint16_t hz = 250;
+  static constexpr uint8_t  param_shift = 12;
+  static constexpr uint8_t  param_bits  = 16;
+  static constexpr uint16_t param_max   = (((0x1ULL << param_bits)-1) >> param_shift);              // 0x000F
+  static constexpr uint16_t param_mult  = (((0x1ULL << param_bits)) >> (param_bits - param_shift)); // 0x1000
+  static constexpr uint16_t hz = 10;
+
+
+
 
   // Configuration
   uint32_t _p, _i, _d;
@@ -602,7 +607,7 @@ private:
   void setCfgErr(); 
 
 
-
+  bool blocking;    // 
 
 };
 

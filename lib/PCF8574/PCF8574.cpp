@@ -42,7 +42,6 @@
 
 #include <Wire.h>
 
-
 PCF8574::PCF8574(const uint8_t deviceAddress)
 {
     _address = deviceAddress;

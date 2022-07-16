@@ -82,7 +82,7 @@ namespace DeviceFsm
         Tools->showUpDn();                          // Подсказка " UP/DN, В-выбор "
 
         // Выключение преобразователя и коммутатора, обнуление задающих величин PWM.
-        Tools->shutdownDC();
+        //Tools->shutdownDC();
     }
     MState * MSetVoltagePwmDelta::fsm()
     {
@@ -270,7 +270,7 @@ namespace DeviceFsm
 //        Oled->showLine3Num( currentDeltaPwm );
         Tools->showUpDn();
         // Выключение преобразователя и коммутатора.
-        Tools->shutdownDC();
+        //Tools->shutdownDC();
     }
     MState * MSetCurrentPwmDelta::fsm()
     {
@@ -447,7 +447,7 @@ namespace DeviceFsm
         Tools->showUpDn(); // " UP/DN, В-выбор "
 
         //Board->powOff();     Board->swOff();          // Выключение преобразователя и коммутатора.
-        Tools->shutdownDC();
+        //Tools->shutdownDC();
 
     }
     MState * MSetDischargePwmDelta::fsm()
@@ -622,7 +622,7 @@ namespace DeviceFsm
     // Процесс выхода из режима регулировок DC
     MStop::MStop(MTools * Tools) : MState(Tools)
     {
-        Tools->shutdownDC();                 
+        //Tools->shutdownDC();                 
 //        Oled->showLine4RealVoltage();
 //        Oled->showLine3RealCurrent();
 

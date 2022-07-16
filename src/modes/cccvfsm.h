@@ -3,15 +3,15 @@
 
 #include "state/mstate.h"
 
-namespace CcCvFsm
+namespace Cccv
 {
-  struct MChConsts
+  struct MConst
   {
-    // Пределы регулирования
+    // Пределы регулирования min/max токов и напряжений
     static constexpr float i_l =  0.2f;
-    static constexpr float i_h = 12.2f;
+    static constexpr float i_h =  6.0f;
     static constexpr float v_l = 10.0f;
-    static constexpr float v_h = 16.0f;
+    static constexpr float v_h = 16.2f;
 
 
     // Параметры условий заряда (здесь – для батарей типа AGM)
@@ -21,26 +21,53 @@ namespace CcCvFsm
     static constexpr float currentMinFactor     = 0.050f;    // 55ah * 0.05  = 2.75A
   };
 
-  //pid settings and gains
-  struct MPidConstants
-  {
-    // Параметры регулирования
-    static constexpr float outputMin            = 0.0f;
-    static constexpr float outputMaxFactor      = 1.05f;     // factor for current limit
-    static constexpr float bangMin              = 20.0f;     // За пределами, - отключить
-    static constexpr float bangMax              = 20.0f;
-    static constexpr unsigned long timeStep     = 100;
-    // Подобранные значения для ПИД, фаза подъёма тока и далее, если в последующих фазах эти настройки будут устраивать
-    static constexpr float k_p                  = 0.13f;
-    static constexpr float k_i                  = 0.10f;
-    static constexpr float k_d                  = 0.04f;
-  };
+  // //pid settings and gains
+  // struct MPidConstants
+  // {
+  //   // Параметры регулирования
+  //   static constexpr float outputMin            = 0.0f;
+  //   static constexpr float outputMaxFactor      = 1.05f;     // factor for current limit
+  //   static constexpr float bangMin              = 20.0f;     // За пределами, - отключить
+  //   static constexpr float bangMax              = 20.0f;
+  //   static constexpr unsigned long timeStep     = 100;
+  //   // Подобранные значения для ПИД, фаза подъёма тока и далее, если в последующих фазах эти настройки будут устраивать
+  //   static constexpr float k_p                  = 0.13f;
+  //   static constexpr float k_i                  = 0.10f;
+  //   static constexpr float k_d                  = 0.04f;
+  // };
 
   class MStart : public MState
   {       
     public:
       MStart(MTools * Tools);
       MState * fsm() override;
+  };
+
+  class MSetPidCoeffU : public MState
+  {
+    public:   
+      MSetPidCoeffU(MTools * Tools);
+      MState * fsm() override;
+    private:
+      float kpU, kiU, kdU;
+  };
+
+  class MSetPidCoeffI : public MState
+  {
+    public:   
+      MSetPidCoeffI(MTools * Tools);
+      MState * fsm() override;
+    private:
+     float kpI, kiI, kdI;
+  };
+
+  class MSetPidCoeffD : public MState
+  {
+    public:   
+      MSetPidCoeffD(MTools * Tools);
+      MState * fsm() override;
+    private:
+      float kpD, kiD, kdD;
   };
 
   class MSetCurrentMax : public MState

@@ -24,12 +24,29 @@
 
 namespace Bootfsm
 {
-  // Состояние "Старт", инициализация выбранного режима работы.
-  // Подтверждение входа синим свечением светодиода
-  MStart::MStart(MTools * Tools) : MState(Tools) {Board->ledsRed();}
-  MState * MStart::fsm() {return new MSetAdcOffset(Tools);};
+  // Старт и инициализация выбранного режима работы.
+  MStart::MStart(MTools * Tools) : MState(Tools) 
+  {
+    Board->ledsBlue();                              // Подтверждение входа синим свечением светодиода как и любую загрузку
+    Tools->Keyboard->getKey(MKeyboard::UP_CLICK);
+    //cnt = duration;
+  }
+  MState * MStart::fsm()
+  {
+  //  if(--cnt <= 0)  {return new MSetAdcOffset(Tools);}         // Безусловный выход через 3 секунды
+  //  else            {return this;}
+//     // Флаг блокировки обмена с драйвером на время его рестарта
+// bool MTools::getBlocking() {return blocking;}
+// void MTools::setBlocking(bool bl) {blocking = bl;}
+    Tools->setBlocking(true);                                                       // Блокировать обмен
+Serial.println(); Serial.print("Заблокировано"); Serial.println(millis());    
+    vTaskDelay(2500/portTICK_PERIOD_MS);                                            // Не беспокоим драйвер 3 секунды после рестарта 
+    Tools->setBlocking(false);                                                      // Разблокировать обмен
+Serial.println(); Serial.print("Разблокировано"); Serial.println(millis());
+    return new MSetAdcOffset(Tools);                                                // Перейти к следующему параметру
+  };
 
-  // Состояние "Восстановление пользовательской (или заводской) настройки смещения АЦП".
+  // Восстановление пользовательской (или заводской) настройки смещения АЦП.
   MSetAdcOffset::MSetAdcOffset(MTools * Tools) : MState(Tools) {}
   MState * MSetAdcOffset::fsm()
   {
@@ -38,16 +55,16 @@ namespace Bootfsm
     return new MSetsetFactorU(Tools);                                               // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательского (или заводского) коэфициента преобразования в милливольты."
+  // Восстановление пользовательского (или заводского) коэфициента преобразования в милливольты.
   MSetsetFactorU::MSetsetFactorU(MTools * Tools) : MState(Tools) {}
   MState * MSetsetFactorU::fsm()
   {
     Tools->factorV = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorV, 0x2DA0);       // Взять сохраненное из ЭНОЗУ.
-    Tools->setFactorU();                                                            // 0x32  Команда драйверу
+    Tools->setFactorU();                                                            // 0x31  Команда драйверу
     return new MSetSmoothU(Tools);                                                  // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательского (или заводского) коэффициента фильтрации по напряжению."
+  // Восстановление пользовательского (или заводского) коэффициента фильтрации по напряжению.
   MSetSmoothU::MSetSmoothU(MTools * Tools) : MState(Tools) {}
   MState * MSetSmoothU::fsm()
   {
@@ -56,7 +73,7 @@ namespace Bootfsm
     return new MSetShiftU(Tools);                                                   // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательской (или заводской) настройки сдвига по напряжению." shift
+  // Восстановление пользовательской (или заводской) настройки сдвига по напряжению.
   MSetShiftU::MSetShiftU(MTools * Tools) : MState(Tools) {}
   MState * MSetShiftU::fsm()
   {
@@ -65,7 +82,7 @@ namespace Bootfsm
     return new MSetFactorI(Tools);                                                  // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательского (или заводского) коэфициента преобразования в миллиамперы."
+  // Восстановление пользовательского (или заводского) коэфициента преобразования в миллиамперы.
   MSetFactorI::MSetFactorI(MTools * Tools) : MState(Tools) {}
   MState * MSetFactorI::fsm()
   {
@@ -74,16 +91,16 @@ namespace Bootfsm
     return new MSetSmoothI(Tools);                                                  // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательского (или заводского) коэффициента фильтрации по току."
+  // Восстановление пользовательского (или заводского) коэффициента фильтрации по току.
   MSetSmoothI::MSetSmoothI(MTools * Tools) : MState(Tools) {}
   MState * MSetSmoothI::fsm()
   {
     Tools->smoothA = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothA, 0x0003);       // Взять сохраненное из ЭНОЗУ.
     Tools->setSmoothI();                                                            // 0x3C  Команда драйверу
-    return new MSetShiftI(Tools);                                                  // Перейти к следующему параметру
+    return new MSetShiftI(Tools);                                                   // Перейти к следующему параметру
   };
 
-  // Состояние "Восстановление пользовательской (или заводской) настройки сдвига по току."
+  // Восстановление пользовательской (или заводской) настройки сдвига по току.
   MSetShiftI::MSetShiftI(MTools * Tools) : MState(Tools) {}
   MState * MSetShiftI::fsm()
   {
@@ -120,9 +137,11 @@ namespace Bootfsm
   MState * MExit::fsm()
   {
 //static constexpr const char* kQulonMode      = "mode";     // 
+    Board->ledsOff();
     Display->showVolt(Tools->getRealVoltage(), 3);
     Display->showAmp (Tools->getRealCurrent(), 3);
-    //modeSelection   = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, CCCVCHARGE );   // Индекс массива
+    //modeSelection = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, CCCVCHARGE );   // Индекс массива
+    //modeSelection = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, 0 );   // Индекс массива
 
     return nullptr;                                                             // Возврат к выбору режима
   }

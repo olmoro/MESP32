@@ -10,6 +10,10 @@ namespace Bootfsm
     public:
       MStart(MTools * Tools);
       MState * fsm() override;
+    private:
+      // Не беспокоим драйвер 3 секунды после рестарта 
+      //int cnt;
+      //const int duration = 10 * 3;   // По 10 вызовов за секунду = 3 секунды.
   };
 
   class MSetAdcOffset : public MState
@@ -61,54 +65,54 @@ namespace Bootfsm
       MState * fsm() override;
   };
 
-  class MSetPidConfigure : public MState
-  {
-    public:   
-      MSetPidConfigure(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidConfigure : public MState
+  // {
+  //   public:   
+  //     MSetPidConfigure(MTools * Tools);
+  //     MState * fsm() override;
+  // };
   
-  class MSetPidCoefficients : public MState
-  {
-    public:   
-      MSetPidCoefficients(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidCoefficients : public MState
+  // {
+  //   public:   
+  //     MSetPidCoefficients(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
-  class MSetPidOutputRange : public MState
-  {
-    public:   
-      MSetPidOutputRange(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidOutputRange : public MState
+  // {
+  //   public:   
+  //     MSetPidOutputRange(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
-  class MSetPidReconfigure : public MState
-  {
-    public:   
-      MSetPidReconfigure(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidReconfigure : public MState
+  // {
+  //   public:   
+  //     MSetPidReconfigure(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
-  class MSetPidClear : public MState
-  {
-    public:   
-      MSetPidClear(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidClear : public MState
+  // {
+  //   public:   
+  //     MSetPidClear(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
-  class MSetPidTest : public MState
-  {
-    public:   
-      MSetPidTest(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MSetPidTest : public MState
+  // {
+  //   public:   
+  //     MSetPidTest(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
-  class MGetPidConfigure : public MState
-  {
-    public:   
-      MGetPidConfigure(MTools * Tools);
-      MState * fsm() override;
-  };
+  // class MGetPidConfigure : public MState
+  // {
+  //   public:   
+  //     MGetPidConfigure(MTools * Tools);
+  //     MState * fsm() override;
+  // };
 
 
 

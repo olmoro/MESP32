@@ -27,7 +27,13 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
   Display->showLabel( sLabel );
 
   latrus = Tools->readNvsBool( MNvs::nQulon, MNvs::kQulonLocal, true );
-  modeSelection = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, 0 );   // Индекс массива
+  //modeSelection = Tools->readNvsInt ( MNvs::nQulon, MNvs::kQulonMode, 0 );   // Индекс массива
+modeSelection = BOOT;
+sync = true;
+
+//   // Флаг блокировки обмена с драйвером на время его рестарта
+// bool MTools::getBlocking() {return blocking;}
+// void MTools::setBlocking(bool bl) {blocking = bl;}
 
   textMode( modeSelection );
   Tools->powInd = Tools->readNvsInt  ( MNvs::nQulon, MNvs::kQulonPowInd, 3); // 3 - дефолтный индекс массива
@@ -51,13 +57,13 @@ Tools(tools), Board(tools->Board), Display(tools->Display)
 
 }
 
+  // Выдерживается период запуска 100мс для вычисления амперчасов
 void MDispatcher::run()
 {
     // Индикация при инициализации процедуры выбора режима работы
   Display->showVolt(Tools->getRealVoltage(), 3);
   Display->showAmp (Tools->getRealCurrent(), 3);
 
-    // Выдерживается период запуска 100мс для вычисления амперчасов
   if (State)
   {
     // Работаем с FSM
@@ -71,45 +77,64 @@ void MDispatcher::run()
   }
   else // State не определён (0) - выбираем или показываем режим
   {
-    if (Tools->Keyboard->getKey(MKeyboard::UP_CLICK))
-    { 
-      Board->buzzerOn();
-      if (modeSelection == (int)DEVICE) modeSelection = OPTIONS;  // Исключена возможность выбора BOOT'а
-      else modeSelection++;
-      textMode( modeSelection );
-    }
 
-    if (Tools->Keyboard->getKey(MKeyboard::DN_CLICK))
+//    Serial.print("Status ne opredelen. State="); Serial.print((int)State);
+//    Serial.print("  sync="); Serial.println((int)sync);
+
+    if (sync)
     {
       Board->buzzerOn();
-      if (modeSelection == (int)OPTIONS) modeSelection = DEVICE;  // Исключена возможность выбора BOOT'а
-      else modeSelection--;
-      textMode( modeSelection );
-    }
 
-    if (Tools->Keyboard->getKey(MKeyboard::B_CLICK) || sync)
+//    Serial.print("sync"); Serial.println((int)sync);
+
+      State = new Bootfsm::MStart(Tools);
+      sync = false;
+    }
+      //if(!sync)
+    else  
     {
-      Board->buzzerOn();
-      
-      if(!sync)
+      if (Tools->Keyboard->getKey(MKeyboard::B_CLICK))
       {
         Tools->writeNvsInt( MNvs::nQulon, "mode", modeSelection );  // Запомнить крайний выбор режима
-      } 
-      sync = false;
+ 
+      //sync = false;
         // Serial.print("Available heap: "); Serial.println(ESP.getFreeHeap());
         // Serial.print("Core ID: ");        Serial.println(xPortGetCoreID());
 
-      switch (modeSelection)
-      {
-        case BOOT:        State = new Bootfsm::MStart(Tools);     break;
-        case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
-        case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
-        case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
-        case CCCVCHARGE:  State = new CcCvFsm::MStart(Tools);     break;
-        case DEVICE:      State = new DeviceFsm::MStart(Tools);   break;
-        default:                                                  break;
+        switch (modeSelection)
+        {
+          case BOOT:        State = new Bootfsm::MStart(Tools);     break;
+          case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
+          case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
+          case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
+          case CCCVCHARGE:  State = new Cccv::MStart(Tools);     break;
+          case DEVICE:      State = new DeviceFsm::MStart(Tools);   break;
+          default:                                                  break;
+        }
+      } // !B_CLICK
+
+      if (Tools->Keyboard->getKey(MKeyboard::UP_CLICK))
+      { 
+        Board->buzzerOn();
+
+            Serial.print("UP_CLICK"); Serial.println();
+
+        if (modeSelection == (int)DEVICE) modeSelection = OPTIONS;  // Исключена возможность выбора BOOT'а
+        else modeSelection++;
+        textMode( modeSelection );
       }
-    } // !B_CLICK
+
+      if (Tools->Keyboard->getKey(MKeyboard::DN_CLICK))
+      {
+        Board->buzzerOn();
+
+            Serial.print("DN_CLICK"); Serial.println();
+
+        if (modeSelection == (int)OPTIONS) modeSelection = DEVICE;  // Исключена возможность выбора BOOT'а
+        else modeSelection--;
+        textMode( modeSelection );
+      }
+    }
   }
 }
 

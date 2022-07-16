@@ -42,6 +42,9 @@ MTools::~MTools()
 bool MTools::getLocalization() const { return localization; }
 void MTools::setLocalization( bool _localization ) { localization = _localization; }
 
+  // Флаг блокировки обмена с драйвером на время его рестарта
+bool MTools::getBlocking() {return blocking;}
+void MTools::setBlocking(bool bl) {blocking = bl;}
   // ========================== FastPID ==========================
 bool MTools::setPidCoefficients(float kp, float ki, float kd)
 {
@@ -274,13 +277,11 @@ void MTools::saveFloat( const char * name, const char * key, const float fvalue 
 
 void MTools::showUpDn() 
 { 
-//    Oled->showLine2Text(" UP/DN, В-выбор "); 
 }
 
 
 void MTools::activateExit(const char * s)
 {
-    // Oled->showLine1Heap(ESP.getFreeHeap());
     Board->ledsOff(); 
 }
 
@@ -292,7 +293,6 @@ void MTools::incBattery()
     else { akbInd--; } 
     voltageNom  = akb[akbInd][0];
     capacity = akb[akbInd][1];
-//    Oled->showLine3Akb( voltageNom, capacity );
 }
 
 void MTools::decBattery()
@@ -301,51 +301,42 @@ void MTools::decBattery()
     else { akbInd++; } 
     voltageNom  = akb[akbInd][0];
     capacity = akb[akbInd][1];
-//    Oled->showLine3Akb( voltageNom, capacity );
 }
 
 void MTools::incCapacity( float delta, bool way )
 {
     capacity = incfValue( capacity, capacity_l, capacity_h, delta, way );
-//    Oled->showLine3Capacity( capacity ); 
 }
 void MTools::decCapacity( float delta, bool way )
 {
     capacity = decfValue( capacity, capacity_l, capacity_h, delta, way );
-//    Oled->showLine3Capacity( capacity ); 
 }
 
 void MTools::incCurrentMax( float delta, bool way )
 {
     currentMax = incfValue( currentMax, curr_max_l, curr_max_h, delta, way );
-//    Oled->showLine3MaxI( currentMax );
 }
 void MTools::decCurrentMax( float delta, bool way )
 {
     currentMax = decfValue( currentMax, curr_max_l, curr_max_h, delta, way );
-//    Oled->showLine3MaxI( currentMax );
 }
 
 void MTools::incCurrentMin( float delta, bool way )
 {
     currentMin = incfValue( currentMin, curr_max_l, curr_max_h, delta, way );   // пределы уточнить
-//    Oled->showLine3MaxI( currentMin );
 }
 void MTools::decCurrentMin( float delta, bool way )
 {
     currentMin = decfValue( currentMin, curr_max_l, curr_max_h, delta, way );   // пределы уточнить
-//    Oled->showLine3MaxI( currentMin );
 }
 
 // void MTools::incCurrentDis( float delta, bool way )
 // {
 //     currentDis = incfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );   // пределы уточнить
-//     Oled->showLine3MaxI( currentDis );
 // }
 // void MTools::deccurrentDis( float delta, bool way )
 // {
 //     currentDis = decfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );   // пределы уточнить
-//     Oled->showLine3MaxI( currentDis );
 // }
 
 
@@ -354,134 +345,110 @@ void MTools::decCurrentMin( float delta, bool way )
 void MTools::incVoltageMax( float delta, bool way )
 {
     voltageMax = incfValue( voltageMax, volt_end_l, volt_end_h, delta, way );
-//    Oled->showLine3MaxU( voltageMax );
 }
 void MTools::decVoltageMax( float delta, bool way )
 {
     voltageMax = decfValue( voltageMax, volt_end_l, volt_end_h, delta, way );
-//    Oled->showLine3MaxU(voltageMax);
 }
 
 void MTools::incVoltageMin( float delta, bool way )
 {
     voltageMin = incfValue( voltageMin, volt_end_l, volt_end_h, delta, way );   // пределы уточнить
-//    Oled->showLine3MaxU( voltageMin );
 }
 // void MTools::decVoltageMin( float delta, bool way )
 // {
 //     voltageMin = decfValue( voltageMin, volt_end_l, volt_end_h, delta, way );   // пределы уточнить
-// //    Oled->showLine3MaxU(voltageMin);
 // }
 
 void MTools::incDurationOn( bool way )
 {
     durationOn = incfValue ( durationOn, duration_on_l, duration_on_h, 0.5, way );
-//    Oled->showLine3Sec(durationOn); 
 }
 void MTools::decDurationOn( bool way )
 {
     durationOn = decfValue ( durationOn, duration_on_l, duration_on_h, 0.5, way );
-//    Oled->showLine3Sec(durationOn); 
 }
 
 void MTools::incDurationOff( bool way)
 {
     durationOff = incfValue ( durationOff, duration_off_l, duration_off_h, 0.5, way );
-//    Oled->showLine3Sec(durationOff); 
 }
 void MTools::decDurationOff( bool way )
 {
     durationOff = decfValue ( durationOff, duration_off_l, duration_off_h, 0.5, way );
-//    Oled->showLine3Sec(durationOff); 
 }
 
 // void MTools::incPostpone( int delta )
 // {
 //     postpone = inciValue( postpone, postpone_l, postpone_h, delta );
-// //    Oled->showLine3Delay( postpone );
 // }
 // void MTools::decPostpone( int delta )
 // {
 //     postpone = deciValue( postpone, postpone_l, postpone_h, delta );
-// //    Oled->showLine3Delay( postpone );
 // }
 
 void MTools::incVoltagePre( float delta, bool way )
 {
     voltagePre = incfValue( voltagePre, volt_pre_l, volt_pre_h, delta, way );
-//    Oled->showLine3MaxU( voltagePre );
 }
 void MTools::decVoltagePre( float delta, bool way )
 {
     voltagePre = decfValue( voltagePre, volt_pre_l, volt_pre_h, delta, way );
-//    Oled->showLine3MaxU( voltagePre );
 }
 
 void MTools::incCurrentPre( float delta, bool way )
 {
     currentPre = incfValue( currentPre, curr_pre_l, curr_pre_h, delta, way );
-//    Oled->showLine3MaxI( currentPre );
 }
 void MTools::decCurrentPre( float delta, bool way )
 {
     currentPre = decfValue( currentPre, curr_pre_l, curr_pre_h, delta, way );
-//    Oled->showLine3MaxI( currentPre );
 }
 
 
 void MTools::incVoltagePow( float delta, bool way )
 {
     voltageMax = incfValue( voltageMax, volt_l, volt_h, delta, way );
-//    Oled->showLine3MaxU( voltageMax );
 }
 void MTools::decVoltagePow( float delta, bool way )
 {
     voltageMax = decfValue( voltageMax, volt_l, volt_h, delta, way );
-//    Oled->showLine3MaxU(voltageMax);
 }
 
 void MTools::incCycles()
 {
     numCycles = inciValue ( numCycles, num_cycl_l, num_cycl_h, 1 );
-//    Oled->showLine3Num(numCycles); 
 }
 void MTools::decCycles()
 {
     numCycles = deciValue ( numCycles, num_cycl_l, num_cycl_h, 1 );
-//    Oled->showLine3Num(numCycles); 
 }
 
 void MTools::incCurrentDis( float delta, bool way )
 {
     currentDis = incfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );
-//    Oled->showLine3MaxI( currentDis );
 }
 void MTools::decCurrentDis( float delta, bool way )
 {
     currentDis = decfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );
-//    Oled->showLine3MaxI( currentDis );
 }
 
 void MTools::incVoltageDis( float delta, bool way )
 {
     voltageDis = incfValue( voltageDis, volt_min_l, volt_min_h, delta, way );
-//    Oled->showLine3MaxU( voltageDis );
 }
 void MTools::decVoltageDis( float delta, bool way )
 {
     voltageDis = decfValue( voltageDis, volt_min_l, volt_min_h, delta, way );
-//    Oled->showLine3MaxU(voltageDis);
 }
 
 void MTools::incPause()
 {
     pause = inciValue( pause, pause_l, pause_h, 1 ); 
-//    Oled->showLine3Delay( pause ); 
 }
 void MTools::decPause()
 {
     pause = deciValue( pause, pause_l, pause_h, 1 ); 
-//    Oled->showLine3Delay( pause ); 
 }
 
 int MTools::incNum( int v, int h, int d )
@@ -528,21 +495,21 @@ void MTools::setTimeCounter( int ivalue ) { timeCounter = ivalue; }
 
 
 
-void MTools::shutdownCharge() 
-{
-//    output = 0.0;
+// void MTools::shutdownCharge() 
+// {
+// //    output = 0.0;
 
-    shutdownDC();
-    // cmd = cmd_power_stop;            // doPowerStop()    0x21
-    Board->ledsRed();
-}
+//     shutdownDC();
+//     // cmd = cmd_power_stop;            // doPowerStop()    0x21
+//     Board->ledsRed();
+// }
 
-void MTools::shutdownDC()           // Подумать об общей команде
-{
-    //Board->powOff();
-    Board->swOff();
-    Board->ledsOff();
-}
+// void MTools::shutdownDC()           // Подумать об общей команде
+// {
+//     //Board->powOff();
+//     Board->swOff();
+//     Board->ledsOff();
+// }
 
     uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
 
@@ -550,43 +517,68 @@ uint8_t MTools::getBuffCmd()            {return buffCmd;}
 void    MTools::setBuffCmd(uint8_t cmd) {buffCmd = cmd;}
 
 // Вариант 2022 - не доделано
-// Здесь будет проверка ответа и задаваться число попыток связи с драйвером
-// с учетом времени на получение ответа (порядка 1,5 мс)
-// Буфер очищать: 0x00 - пустая команда
-bool MTools::powerGo(short spU, short spI, uint8_t mode)
+void MTools::powerGo(float spU, float spI, uint8_t mode)
 {
-    setpointU = spU;
-    setpointI = spI;
+    setpointU = (short)(spU * 1000);
+    setpointI = (short)(spI * 1000);
     pidMode   = mode;
     buffCmd = MCmd::cmd_power_go;
-    buffCmd = MCmd::cmd_nop;
-    return true;
 }      // 2022 0x20
 
 
-bool MTools::powerStop()    {buffCmd = MCmd::cmd_power_stop; buffCmd = MCmd::cmd_nop; return true;}    // 2022 0x21
+void MTools::powerStop()            {buffCmd = MCmd::cmd_power_stop;}               // 0x21
 
     // Множитель преобразования в милливольты
-bool MTools::getFactorU()           {buffCmd = MCmd::cmd_read_factor_u;               return true;}    // 0x30 Чтение
-bool MTools::setFactorU()           {buffCmd = MCmd::cmd_write_factor_u;              return true;}    // 0x31 Запись
-bool MTools::setFactorDefaultU()    {buffCmd = MCmd::cmd_write_factor_default_u;      return true;}    // 0x32 Возврат к заводскому
+void MTools::getFactorU()           {buffCmd = MCmd::cmd_read_factor_u;}            // 0x30 Чтение
+void MTools::setFactorU()           {buffCmd = MCmd::cmd_write_factor_u;}           // 0x31 Запись
+void MTools::setFactorDefaultU()    {buffCmd = MCmd::cmd_write_factor_default_u;}   // 0x32 Возврат к заводскому
     // Параметр сглаживания
-bool MTools::getSmoothU()           {buffCmd = MCmd::cmd_read_smooth_u;               return true;}    // 0x33 Чтение
-bool MTools::setSmoothU()           {buffCmd = MCmd::cmd_write_smooth_u;              return true;}    // 0x34 Запись
+void MTools::getSmoothU()           {buffCmd = MCmd::cmd_read_smooth_u;}            // 0x33 Чтение
+void MTools::setSmoothU()           {buffCmd = MCmd::cmd_write_smooth_u;}           // 0x34 Запись
     // Приборное смещение
-bool MTools::getShiftU()            {buffCmd = MCmd::cmd_read_offset_u;               return true;}    // 0x35 Чтение
-bool MTools::setShiftU()            {buffCmd = MCmd::cmd_write_offset_u;              return true;}    // 0x36 Запись
+void MTools::getShiftU()            {buffCmd = MCmd::cmd_read_offset_u;}            // 0x35 Чтение
+void MTools::setShiftU()            {buffCmd = MCmd::cmd_write_offset_u;}           // 0x36 Запись
 
     // Множитель преобразования в миллиамперы
-bool MTools::getFactorI()           {buffCmd = MCmd::cmd_read_factor_i;               return true;}    // 0x38 Чтение
-bool MTools::setFactorI()           {buffCmd = MCmd::cmd_write_factor_i;              return true;}    // 0x39 Запись
-bool MTools::setFactorDefaultI()    {buffCmd = MCmd::cmd_write_factor_default_i;      return true;}    // 0x3A Возврат к заводскому
+void MTools::getFactorI()           {buffCmd = MCmd::cmd_read_factor_i;}            // 0x38 Чтение
+void MTools::setFactorI()           {buffCmd = MCmd::cmd_write_factor_i;}           // 0x39 Запись
+void MTools::setFactorDefaultI()    {buffCmd = MCmd::cmd_write_factor_default_i;}   // 0x3A Возврат к заводскому
     // Параметр сглаживания
-bool MTools::getSmoothI()           {buffCmd = MCmd::cmd_read_smooth_i;               return true;}    // 0x3B Чтение
-bool MTools::setSmoothI()           {buffCmd = MCmd::cmd_write_smooth_i;              return true;}    // 0x3C Запись
+void MTools::getSmoothI()           {buffCmd = MCmd::cmd_read_smooth_i;}            // 0x3B Чтение
+void MTools::setSmoothI()           {buffCmd = MCmd::cmd_write_smooth_i;}           // 0x3C Запись
     // Приборное смещение
-bool MTools::getShiftI()           {buffCmd = MCmd::cmd_read_offset_i;               return true;}    // 0x3D Чтение
-bool MTools::setShiftI()           {buffCmd = MCmd::cmd_write_offset_i;              return true;}    // 0x3E Запись
+void MTools::getShiftI()           {buffCmd = MCmd::cmd_read_offset_i;}             // 0x3D Чтение
+void MTools::setShiftI()           {buffCmd = MCmd::cmd_write_offset_i;}            // 0x3E Запись
+
+  // Команды работы с ПИД-регулятором (пока без проверки диапазона)
+void MTools::setPidCoeffU(float _kp, float _ki, float _kd)
+{
+    pidMode = 1;
+    kp = (short)(_kp * param_mult);
+    ki = (short)((_ki * param_mult) * hz);
+    kd = (short)((_kd * param_mult) / hz);
+    buffCmd = MCmd::cmd_pid_write_coefficients;                                     // 0x41 Запись
+}
+
+void MTools::setPidCoeffI(float _kp, float _ki, float _kd)
+{
+    pidMode = 2;
+    kp = (short)(_kp * param_mult);
+    ki = (short)((_ki * param_mult) * hz);
+    kd = (short)((_kd * param_mult) / hz);
+    buffCmd = MCmd::cmd_pid_write_coefficients;                                     // 0x41 Запись
+}
+
+void MTools::setPidCoeffD(float _kp, float _ki, float _kd)
+{
+    pidMode = 3;
+    kp = (short)(_kp * param_mult);
+    ki = (short)((_ki * param_mult) * hz);
+    kd = (short)((_kd * param_mult) / hz);
+    buffCmd = MCmd::cmd_pid_write_coefficients;                                     // 0x41 Запись
+}
+
+
 
       // параметры простого заряда (передавать целочисленное)
 bool MTools::setVoltMax() { return true;}                      // 0x..  Команда драйверу  
@@ -598,12 +590,12 @@ bool MTools::setCurrMin() { return true;}                      // 0x..  Кома
 
 
     // Смещение АЦП
-void MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset; }    // 0x51
+void MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;}    // 0x51
 
 void MTools::setAdcOffset() 
 {
     buffCmd = MCmd::cmd_adc_write_offset;    // 0x52 Код команды в буфере для передачи
-    Serial.print("bcmd="); Serial.println(buffCmd, HEX);
+    //Serial.print("bcmd="); Serial.println(buffCmd, HEX);
 }
 
     // Tools->setCmd(MCmd::cmd_adc_write_offset);

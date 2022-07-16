@@ -30,18 +30,20 @@ namespace MNvs
     static constexpr const char* kSmoothA       = "smoothA";  // Коэффициент фильтрации
     static constexpr const char* kOffsetA       = "offsetA";  // Смещение в миллиамперах
 
-    static constexpr const char* kKpU       = "kpU";  // PID kPU
-    static constexpr const char* kKiU       = "kiU";  // PID kiU
-    static constexpr const char* kKdU       = "kdU";  // PID kdU
 
-    static constexpr const char* kKpI       = "kpI";  // PID kPI
-    static constexpr const char* kKiI       = "kiI";  // PID kiI
-    static constexpr const char* kKdI       = "kdI";  // PID kdI
+// старые, будут отменены --------------------------------------
+    // static constexpr const char* kKpU       = "kpU";  // PID kPU
+    // static constexpr const char* kKiU       = "kiU";  // PID kiU
+    // static constexpr const char* kKdU       = "kdU";  // PID kdU
 
-    static constexpr const char* kKpD       = "kpD";  // PID kPD
-    static constexpr const char* kKiD       = "kiD";  // PID kiD
-    static constexpr const char* kKdD       = "kdD";  // PID kdD
+    // static constexpr const char* kKpI       = "kpI";  // PID kPI
+    // static constexpr const char* kKiI       = "kiI";  // PID kiI
+    // static constexpr const char* kKdI       = "kdI";  // PID kdI
 
+    // static constexpr const char* kKpD       = "kpD";  // PID kPD
+    // static constexpr const char* kKiD       = "kiD";  // PID kiD
+    // static constexpr const char* kKdD       = "kdD";  // PID kdD
+//--------------------------------------------------------------
 
     static constexpr const char* kQulonAkbU      = "akbU";     //  
     static constexpr const char* kQulonAkbAh     = "akbAh";    //  
@@ -54,11 +56,33 @@ namespace MNvs
     static constexpr const char* kDcVmax         = "voltMax";  //
     static constexpr const char* kDcImax         = "currMax";  //
 
-  static constexpr const char* nCcCv           = "cccv";     // Простой заряд
-    static constexpr const char* kCcCvVmax       = "voltMax";
-    static constexpr const char* kCcCvVmin       = "voltMin";
-    static constexpr const char* kCcCvImax       = "currMax";
-    static constexpr const char* kCcCvImin       = "currMin";
+  static constexpr const char* nCcCv          = "cccv";     // Заряд CC/CV
+    static constexpr const char* kKpU         = "kpU";  // PID kPU
+    static constexpr const char* kKiU         = "kiU";  // PID kiU
+    static constexpr const char* kKdU         = "kdU";  // PID kdU
+
+    static constexpr const char* kKpI         = "kpI";  // PID kPI
+    static constexpr const char* kKiI         = "kiI";  // PID kiI
+    static constexpr const char* kKdI         = "kdI";  // PID kdI
+
+    static constexpr const char* kKpD         = "kpD";  // PID kPD
+    static constexpr const char* kKiD         = "kiD";  // PID kiD
+    static constexpr const char* kKdD         = "kdD";  // PID kdD
+
+// старые, будут отменены --------------------------------------
+    // static constexpr const char* kMaxU        = "maxU";
+    // static constexpr const char* kMinU        = "minU";
+//--------------------------------------------------------------
+
+    static constexpr const char* kMaxV        = "maxV";
+    static constexpr const char* kMinV        = "minV";
+    static constexpr const char* kMaxI        = "maxI";
+    static constexpr const char* kMinI        = "minI";
+
+
+
+
+
 
   static constexpr const char* nExChrg         = "e-charge"; // Расширенный заряд
 

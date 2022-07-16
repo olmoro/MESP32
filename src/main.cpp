@@ -62,7 +62,7 @@ void setup()
   xTaskCreatePinnedToCore ( displayTask, "Display",  5000, NULL, 2, NULL, 1 );
   xTaskCreatePinnedToCore ( coolTask,    "Cool",     1000, NULL, 2, NULL, 1 );
   xTaskCreatePinnedToCore ( measureTask, "Measure",  5000, NULL, 2, NULL, 1 );
-  xTaskCreatePinnedToCore ( driverTask,  "Driver",   5000, NULL, 2, NULL, 1 );
+  xTaskCreatePinnedToCore ( driverTask,  "Driver",   5000, NULL, 3, NULL, 1 );
   xTaskCreatePinnedToCore ( touchTask,   "Touch",    5000, NULL, 2, NULL, 1 );
 }
 
@@ -144,7 +144,6 @@ void measureTask( void * )
   {
     //unsigned long start = micros();
     Measure->run();
-
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // Core 1, 32 260 mkS
     //vTaskDelay( 10 / portTICK_PERIOD_MS );
@@ -161,7 +160,6 @@ void driverTask( void * )
     vTaskEnterCritical(&timerMux);
       Commands->doCommand();
     vTaskExitCritical(&timerMux);
-
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // 310µS max
     vTaskDelay( 75 / portTICK_PERIOD_MS );

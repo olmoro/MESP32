@@ -256,7 +256,7 @@ MState * MSetPostpone::fsm()
   // Состояние: "Завершение "
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
-    Tools->shutdownCharge();
+    //Tools->shutdownCharge();
 
     Display->showMode( (char*) "     OPTIONS:     " );
     Display->showHelp( (char*) "      C-STOP      " );

@@ -128,17 +128,47 @@ void MCommands::doCommand()
   //Tools->setBuffCmd(MCmd::cmd_adc_write_offset);    // Test
   //Tools->setBuffCmd(MCmd::cmd_nop);    // Test
 
+  if(Tools->getBlocking())
+  {
+    // Блокировка исполнения на время рестарта драйвера (около 3с, подбором)
+    //Serial.println(); Serial.print("Заблокировано"); Serial.println();
+  }
 
+  if(!Tools->getBlocking())
+  {
+    // Блокировка исполнения на время рестарта драйвера (около 3с, подбором)
+    //Serial.println(); Serial.print("Разблокировано"); Serial.println();
+  }
+
+#ifdef TESTLOG
   switch (cnt)
   {
   case 6:
     cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
+    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
+    Tools->setBuffCmd(MCmd::cmd_nop);       // Фоновая команда в буфер  
+    break;
+  default:
+    cmd = MCmd::cmd_nop;                    // Фоновая команда на исполнение
+    break;
+  }
+#else
+  switch (cnt)
+  {
+  case 6:
+    cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
+    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
     Tools->setBuffCmd(MCmd::cmd_get_uis);   // Фоновая команда в буфер  
     break;
   default:
     cmd = MCmd::cmd_get_uis;                // Фоновая команда на исполнение
     break;
   }
+#endif
+
+
+
+
 
   // cmd = MCmd::cmd_get_uis;
   // cmd = MCmd::cmd_adc_write_offset;
@@ -163,8 +193,8 @@ void MCommands::doCommand()
 
     switch( cmd )
     {
-      //Команды управления процессами
-      case MCmd::cmd_get_uis:                readUI();                   break;  // 0x10;   +
+      //Команды чтения результатов измерений
+      case MCmd::cmd_get_uis:                 readUI();                   break;  // 0x10;   +
       case MCmd::cmd_get_u:                   doGetU();                   break;  // 0x11 Чтение напряжения (мВ)
       case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
       case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
