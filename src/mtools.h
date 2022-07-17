@@ -365,7 +365,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
 
     void getAdcOffset();                      // 0x51
-    void setAdcOffset();                      // 0x52
+    void setAdcOffset(short val);                      // 0x52
 
     // Tools->setCmd(MCmd::cmd_adc_write_offset);
     //void setCmd(uint8_t cmd);

@@ -592,8 +592,9 @@ bool MTools::setCurrMin() { return true;}                      // 0x..  Кома
     // Смещение АЦП
 void MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;}    // 0x51
 
-void MTools::setAdcOffset() 
+void MTools::setAdcOffset(short val) 
 {
+    offsetAdc = val;
     buffCmd = MCmd::cmd_adc_write_offset;    // 0x52 Код команды в буфере для передачи
     //Serial.print("bcmd="); Serial.println(buffCmd, HEX);
 }

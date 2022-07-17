@@ -51,7 +51,7 @@ Serial.println(); Serial.print("Разблокировано"); Serial.println(m
   MState * MSetAdcOffset::fsm()
   {
     Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);   // Взять сохраненное из ЭНОЗУ.
-    Tools->setAdcOffset();                                                          // 0x52  Команда драйверу в буфер
+    Tools->setAdcOffset(Tools->offsetAdc);                                          // 0x52  Команда драйверу в буфер
     return new MSetsetFactorU(Tools);                                               // Перейти к следующему параметру
   };
 

@@ -15,6 +15,12 @@ namespace Device
     static constexpr short adc_l = -20;
     static constexpr short adc_h =  20;
 
+      // по умолчанию
+    static constexpr short adc_offset = 0;
+    static constexpr short shift_u    = 0;
+    static constexpr short factor_u   = 0x2D4F;
+    static constexpr short smooth_u   = 3;
+
 
   //   // Параметры условий заряда (здесь – для батарей типа AGM)
   //   static constexpr float voltageMaxFactor     = 1.234f;    // 12v  * 1.234 = 14.8v
@@ -44,10 +50,19 @@ namespace Device
       MState * fsm() override;
   };
 
-  class MOffsetU : public MState
+  class MShiftFactorU : public MState
   {       
     public:
-      MOffsetU(MTools * Tools);
+      MShiftFactorU(MTools * Tools);
+      MState * fsm() override;
+  };
+
+
+
+  class MShiftU : public MState
+  {       
+    public:
+      MShiftU(MTools * Tools);
       MState * fsm() override;
   };
 
