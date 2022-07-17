@@ -108,7 +108,7 @@ void MDispatcher::run()
           case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
           case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
           case CCCVCHARGE:  State = new Cccv::MStart(Tools);     break;
-          case DEVICE:      State = new DeviceFsm::MStart(Tools);   break;
+          case DEVICE:      State = new Device::MStart(Tools);   break;
           default:                                                  break;
         }
       } // !B_CLICK
