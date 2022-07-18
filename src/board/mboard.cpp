@@ -213,7 +213,7 @@ float MBoard::readSteinhart( const int adc )
 
 void  MBoard::setAdcV( int16_t val ) { adcV = val; }
 void  MBoard::setAdcI( int16_t val ) { adcI = val; }
-void  MBoard::setAdcOffset( int16_t val ) { adcOffset = val; }
+//void  MBoard::setAdcOffset( int16_t val ) { adcOffset = val; }
 
 
 

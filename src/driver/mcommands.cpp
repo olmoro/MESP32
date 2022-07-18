@@ -145,7 +145,7 @@ void MCommands::doCommand()
   {
   case 6:
     cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
-    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
+//    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
     Tools->setBuffCmd(MCmd::cmd_nop);       // Фоновая команда в буфер  
     break;
   default:
@@ -439,7 +439,7 @@ short MCommands::dataProcessing()
     case MCmd::cmd_read_offset_u:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
-        Tools->offsetV = (float)Wake->get16(1) / 1000;
+        Tools->shiftV = (float)Wake->get16(1) / 1000;
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
@@ -459,7 +459,7 @@ short MCommands::dataProcessing()
     case MCmd::cmd_read_factor_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
-        Tools->factorA = Wake->get16(1);
+        Tools->factorI = Wake->get16(1);
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
@@ -487,7 +487,7 @@ short MCommands::dataProcessing()
     case MCmd::cmd_read_smooth_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 2) )
       {
-        Tools->smoothA = Wake->get08(1);
+        Tools->smoothI = Wake->get08(1);
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
@@ -506,7 +506,7 @@ short MCommands::dataProcessing()
     case MCmd::cmd_read_offset_i:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
-        Tools->offsetA = Wake->get16(1);
+        Tools->shiftI = Wake->get16(1);
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
@@ -572,7 +572,9 @@ short MCommands::dataProcessing()
     case MCmd::cmd_adc_read_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
-        Board->setAdcOffset(Wake->get16(1));
+        //Board->setAdcOffset(Wake->get16(1));
+        //Tools->setAdcOffset(Wake->get16(1));
+        Tools->txSetAdcOffset(Wake->get16(1));
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
@@ -893,7 +895,7 @@ void MCommands::doGetOffsetU()
 void MCommands::doSetOffsetU() 
 {
   int id = 0;
-  id = Wake->replyU16( id, Tools->offsetV );
+  id = Wake->replyU16( id, Tools->shiftV );
   Wake->configAsk( id, MCmd::cmd_write_offset_u);
 }
 
@@ -915,7 +917,7 @@ void MCommands::doGetFactorI()
 void MCommands::doSetFactorI() 
 {
   int id = 0;
-  id = Wake->replyU16( id, Tools->factorA );
+  id = Wake->replyU16( id, Tools->factorI );
   Wake->configAsk( id, MCmd::cmd_write_factor_i);
 }
 
@@ -943,7 +945,7 @@ void MCommands::doGetSmoothI()
 void MCommands::doSetSmoothI() 
 {
   int id = 0;
-  id = Wake->replyU08( id, Tools->smoothA );
+  id = Wake->replyU08( id, Tools->smoothI );
   Wake->configAsk( id, MCmd::cmd_write_smooth_i);
 }
 
@@ -963,7 +965,7 @@ void MCommands::doGetOffsetI()
 void MCommands::doSetOffsetI() 
 {
   int id = 0;
-  id = Wake->replyU16( id, Tools->offsetA );
+  id = Wake->replyU16( id, Tools->shiftI );
   Wake->configAsk( id, MCmd::cmd_write_offset_i);
 }
 
@@ -1133,23 +1135,19 @@ void MCommands::doReadProbes()
   // ...
 }
 
-// Команда чтения смещения АЦП  0x51 
-// Запрос: 0xC0, 0x51, 0x00, 0x0D                           - ok
-// Ответ:  0xC0, 0x51, 0x03, 0x00, 0x12, 0x34, 0x3A         - ok
-
+// Команда чтения смещения АЦП  0x51
 void MCommands::doAdcGetOffset()
 {
   Wake->configAsk( 0, MCmd::cmd_adc_read_offset);
   // ...
 }
 
-// Команда записи смещения АЦП  0x52 (0x1234) 
-// Запрос: 0xC0, 0x52, 0x02, 0x12, 0x34, 0xEC               - ok
-// Ответ:  0xC0, 0x52, 0x01, 0x00, 0xDD                     - ok
+// Команда записи смещения АЦП  0x52
 void MCommands::doAdcSetOffset()
 {
   int id = 0;
-  id = Wake->replyU16( id, Board->readAdcOffset() );
+  //  id = Wake->replyU16( id, Board->readAdcOffset() );
+  id = Wake->replyU16( id, Tools->getAdcOffset());
   Wake->configAsk( id, MCmd::cmd_adc_write_offset);
 }  
 
@@ -1214,7 +1212,7 @@ void MCommands::doSetCurrent()
   int id = 0;
   id = Wake->replyU08( id, Tools->swOnOff );  // 0x00;
   id = Wake->replyU16( id, Tools->setpointI );
-  id = Wake->replyU16( id, Tools->factorA );
+  id = Wake->replyU16( id, Tools->factorI );
   Wake->configAsk( id, MCmd::cmd_write_current);
 }
 

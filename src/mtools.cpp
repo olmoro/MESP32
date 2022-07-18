@@ -526,32 +526,32 @@ void MTools::powerGo(float spU, float spI, uint8_t mode)
 }      // 2022 0x20
 
 
-void MTools::powerStop()            {buffCmd = MCmd::cmd_power_stop;}               // 0x21
+void MTools::powerStop()                                {buffCmd = MCmd::cmd_power_stop;}               // 0x21
 
     // Множитель преобразования в милливольты
-void MTools::getFactorU()           {buffCmd = MCmd::cmd_read_factor_u;}            // 0x30 Чтение
-void MTools::setFactorU()           {buffCmd = MCmd::cmd_write_factor_u;}           // 0x31 Запись
-void MTools::setFactorDefaultU()    {buffCmd = MCmd::cmd_write_factor_default_u;}   // 0x32 Возврат к заводскому
+void MTools::getFactorU()                               {buffCmd = MCmd::cmd_read_factor_u;}            // 0x30 Чтение
+void MTools::txSetFactorU(short val) {factorV = val;     buffCmd = MCmd::cmd_write_factor_u;}           // 0x31 Запись
+void MTools::setFactorDefaultU()                        {buffCmd = MCmd::cmd_write_factor_default_u;}   // 0x32 Возврат к заводскому
     // Параметр сглаживания
-void MTools::getSmoothU()           {buffCmd = MCmd::cmd_read_smooth_u;}            // 0x33 Чтение
-void MTools::setSmoothU()           {buffCmd = MCmd::cmd_write_smooth_u;}           // 0x34 Запись
+void MTools::getSmoothU()                               {buffCmd = MCmd::cmd_read_smooth_u;}            // 0x33 Чтение
+void MTools::txSetSmoothU(short val) {smoothV = val;     buffCmd = MCmd::cmd_write_smooth_u;}           // 0x34 Запись
     // Приборное смещение
-void MTools::getShiftU()            {buffCmd = MCmd::cmd_read_offset_u;}            // 0x35 Чтение
-void MTools::setShiftU()            {buffCmd = MCmd::cmd_write_offset_u;}           // 0x36 Запись
+void MTools::getShiftU()                                {buffCmd = MCmd::cmd_read_offset_u;}          // 0x35 Чтение
+void MTools::txSetShiftU(short val)  {shiftV  = val;     buffCmd = MCmd::cmd_write_offset_u;}         // 0x36 Запись
 
     // Множитель преобразования в миллиамперы
-void MTools::getFactorI()           {buffCmd = MCmd::cmd_read_factor_i;}            // 0x38 Чтение
-void MTools::setFactorI()           {buffCmd = MCmd::cmd_write_factor_i;}           // 0x39 Запись
-void MTools::setFactorDefaultI()    {buffCmd = MCmd::cmd_write_factor_default_i;}   // 0x3A Возврат к заводскому
+void MTools::getFactorI()                               {buffCmd = MCmd::cmd_read_factor_i;}            // 0x38 Чтение
+void MTools::txSetFactorI(short val) {factorI = val;     buffCmd = MCmd::cmd_write_factor_i;}           // 0x39 Запись
+void MTools::setFactorDefaultI()                        {buffCmd = MCmd::cmd_write_factor_default_i;}   // 0x3A Возврат к заводскому
     // Параметр сглаживания
-void MTools::getSmoothI()           {buffCmd = MCmd::cmd_read_smooth_i;}            // 0x3B Чтение
-void MTools::setSmoothI()           {buffCmd = MCmd::cmd_write_smooth_i;}           // 0x3C Запись
+void MTools::getSmoothI()                               {buffCmd = MCmd::cmd_read_smooth_i;}            // 0x3B Чтение
+void MTools::txSetSmoothI(short val) {smoothI = val;     buffCmd = MCmd::cmd_write_smooth_i;}           // 0x3C Запись
     // Приборное смещение
-void MTools::getShiftI()           {buffCmd = MCmd::cmd_read_offset_i;}             // 0x3D Чтение
-void MTools::setShiftI()           {buffCmd = MCmd::cmd_write_offset_i;}            // 0x3E Запись
+void MTools::getShiftI()                                {buffCmd = MCmd::cmd_read_offset_i;}          // 0x3D Чтение
+void MTools::txSetShiftI(short val)  {shiftI  = val;     buffCmd = MCmd::cmd_write_offset_i;}           // 0x3E Запись
 
   // Команды работы с ПИД-регулятором (пока без проверки диапазона)
-void MTools::setPidCoeffU(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffU(float _kp, float _ki, float _kd)
 {
     pidMode = 1;
     kp = (short)(_kp * param_mult);
@@ -560,7 +560,7 @@ void MTools::setPidCoeffU(float _kp, float _ki, float _kd)
     buffCmd = MCmd::cmd_pid_write_coefficients;                                     // 0x41 Запись
 }
 
-void MTools::setPidCoeffI(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
 {
     pidMode = 2;
     kp = (short)(_kp * param_mult);
@@ -569,7 +569,7 @@ void MTools::setPidCoeffI(float _kp, float _ki, float _kd)
     buffCmd = MCmd::cmd_pid_write_coefficients;                                     // 0x41 Запись
 }
 
-void MTools::setPidCoeffD(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffD(float _kp, float _ki, float _kd)
 {
     pidMode = 3;
     kp = (short)(_kp * param_mult);
@@ -590,14 +590,17 @@ bool MTools::setCurrMin() { return true;}                      // 0x..  Кома
 
 
     // Смещение АЦП
-void MTools::getAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;}    // 0x51
 
-void MTools::setAdcOffset(short val) 
-{
-    offsetAdc = val;
-    buffCmd = MCmd::cmd_adc_write_offset;    // 0x52 Код команды в буфере для передачи
+short MTools::getAdcOffset() {return offsetAdc;}
+void  MTools::setAdcOffset(short val) {offsetAdc = val;}
+
+void  MTools::txGetAdcOffset() {buffCmd = MCmd::cmd_adc_read_offset;}                                // 0x51  
+void  MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}     // 0x52
+
+
+
     //Serial.print("bcmd="); Serial.println(buffCmd, HEX);
-}
+
 
     // Tools->setCmd(MCmd::cmd_adc_write_offset);
 

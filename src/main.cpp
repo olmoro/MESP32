@@ -172,7 +172,7 @@ void touchTask( void * )
 {
   while (true)
   {
-    //unsigned long start = micros();
+    //unsigned long start = micros();   
     Touch->doTouch();
     //Serial.print(" Time, uS: "); Serial.println(micros() - start);
     // 4200µS

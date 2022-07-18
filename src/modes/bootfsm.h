@@ -16,94 +16,94 @@ namespace Bootfsm
       //const int duration = 10 * 3;   // По 10 вызовов за секунду = 3 секунды.
   };
 
-  class MSetAdcOffset : public MState
+  class MTxAdcOffset : public MState
   {
     public:   
-      MSetAdcOffset(MTools * Tools);
+      MTxAdcOffset(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MSetsetFactorU : public MState
+  class MTxsetFactorU : public MState
   {
     public:   
-      MSetsetFactorU(MTools * Tools);
+      MTxsetFactorU(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MSetSmoothU : public MState
+  class MTxSmoothU : public MState
   {
     public:   
-      MSetSmoothU(MTools * Tools);
+      MTxSmoothU(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MSetShiftU : public MState
+  class MTxShiftU : public MState
   {
     public:   
-      MSetShiftU(MTools * Tools);
+      MTxShiftU(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MSetFactorI : public MState
+  class MTxFactorI : public MState
   {
     public:   
-      MSetFactorI(MTools * Tools);
+      MTxFactorI(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MSetSmoothI : public MState
+  class MTxSmoothI : public MState
   {
     public:   
-      MSetSmoothI(MTools * Tools);
+      MTxSmoothI(MTools * Tools);
       MState * fsm() override;
   };
   
-  class MSetShiftI : public MState
+  class MTxShiftI : public MState
   {
     public:   
-      MSetShiftI(MTools * Tools);
+      MTxShiftI(MTools * Tools);
       MState * fsm() override;
   };
 
-  // class MSetPidConfigure : public MState
+  // class MTxPidConfigure : public MState
   // {
   //   public:   
-  //     MSetPidConfigure(MTools * Tools);
+  //     MTxPidConfigure(MTools * Tools);
   //     MState * fsm() override;
   // };
   
-  // class MSetPidCoefficients : public MState
+  // class MTxPidCoefficients : public MState
   // {
   //   public:   
-  //     MSetPidCoefficients(MTools * Tools);
+  //     MTxPidCoefficients(MTools * Tools);
   //     MState * fsm() override;
   // };
 
-  // class MSetPidOutputRange : public MState
+  // class MTxPidOutputRange : public MState
   // {
   //   public:   
-  //     MSetPidOutputRange(MTools * Tools);
+  //     MTxPidOutputRange(MTools * Tools);
   //     MState * fsm() override;
   // };
 
-  // class MSetPidReconfigure : public MState
+  // class MTxPidReconfigure : public MState
   // {
   //   public:   
-  //     MSetPidReconfigure(MTools * Tools);
+  //     MTxPidReconfigure(MTools * Tools);
   //     MState * fsm() override;
   // };
 
-  // class MSetPidClear : public MState
+  // class MTxPidClear : public MState
   // {
   //   public:   
-  //     MSetPidClear(MTools * Tools);
+  //     MTxPidClear(MTools * Tools);
   //     MState * fsm() override;
   // };
 
-  // class MSetPidTest : public MState
+  // class MTxPidTest : public MState
   // {
   //   public:   
-  //     MSetPidTest(MTools * Tools);
+  //     MTxPidTest(MTools * Tools);
   //     MState * fsm() override;
   // };
 

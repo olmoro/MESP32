@@ -48,11 +48,11 @@ class MTools
     // Переменные настроек измерителей
     short factorV   = 0x2DA0;   // Коэффициент преобразования в милливольты
     short smoothV   = 0x0003;   // Коэффициент фильтрации
-    short offsetV   = 0x0000;   // Начальное смещение в вольтах
+    short shiftV   = 0x0000;   // Начальное смещение в вольтах
 
-    short factorA   = 0x030C;   // Коэффициент преобразования в миллиамперы
-    short smoothA   = 0x0003;   // Коэффициент фильтрации
-    short offsetA   = 0x0000;   // Начальное смещение в миллиамперах
+    short factorI   = 0x030C;   // Коэффициент преобразования в миллиамперы
+    short smoothI   = 0x0003;   // Коэффициент фильтрации
+    short shiftI   = 0x0000;   // Начальное смещение в миллиамперах
 
     // ========== Управление ПИД-регулятором, частота фиксирована ==========
 
@@ -314,31 +314,31 @@ bool setPidCoefficients(float kp, float ki, float kd);
       // Команды работы с измерителем напряжения
       // Множитель преобразования в милливольты
     void getFactorU();                                  // 0x30 Чтение
-    void setFactorU();                                  // 0x31 Запись
+    void txSetFactorU(short val);                                  // 0x31 Запись
     void setFactorDefaultU();                           // 0x32 Возврат к заводскому
       // Параметр сглаживания
     void getSmoothU();                                  // 0x33 Чтение
-    void setSmoothU();                                  // 0x34 Запись
+    void txSetSmoothU(short val);                                  // 0x34 Запись
       // Приборный сдвиг
     void getShiftU();                                   // 0x35 Чтение
-    void setShiftU();                                   // 0x36 Запись
+    void txSetShiftU(short val);                                   // 0x36 Запись
 
       // Команды работы с измерителем тока
       // Множитель преобразования в миллиамперы
     void getFactorI();                                  // 0x38 Чтение
-    void setFactorI();                                  // 0x39 Запись
+    void txSetFactorI(short val);                                  // 0x39 Запись
     void setFactorDefaultI();                           // 0x3A Возврат к заводскому
       // Параметр сглаживания
     void getSmoothI();                                  // 0x3B Чтение
-    void setSmoothI();                                  // 0x3C Запись
+    void txSetSmoothI(short val);                                  // 0x3C Запись
       // Приборный сдвиг
     void getShiftI();                                   // 0x3D Чтение
-    void setShiftI();                                   // 0x3E Запись
+    void txSetShiftI(short val);                                   // 0x3E Запись
 
       // Команды работы с ПИД-регулятором
-    void setPidCoeffU(float kp, float ki, float kd);    // 0x41 Запись
-    void setPidCoeffI(float kp, float ki, float kd);    // 0x41 Запись
-    void setPidCoeffD(float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeffU(float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeffI(float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeffD(float kp, float ki, float kd);    // 0x41 Запись
 
 
       // параметры простого заряда
@@ -364,11 +364,12 @@ bool setPidCoefficients(float kp, float ki, float kd);
 //   // АЦП - настройки
 // const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
 
-    void getAdcOffset();                      // 0x51
-    void setAdcOffset(short val);                      // 0x52
+    short getAdcOffset();
+    void  setAdcOffset(short val);
 
-    // Tools->setCmd(MCmd::cmd_adc_write_offset);
-    //void setCmd(uint8_t cmd);
+    void txGetAdcOffset();                            // 0x51
+    void txSetAdcOffset(short val);                   // 0x52
+
 
 
 //   // Команды тестовые

@@ -237,7 +237,7 @@ namespace Cccv
     kpU = Tools->readNvsFloat("cccv", "kpU", 0.06);
     kiU = Tools->readNvsFloat("cccv", "kiU", 0.02);
     kdU = Tools->readNvsFloat("cccv", "kdU", 0.00);
-    Tools->setPidCoeffU(kpU, kiU, kdU);                                               // 0x41  Команда драйверу
+    Tools->txSetPidCoeffU(kpU, kiU, kdU);                                               // 0x41  Команда драйверу
     return new MSetPidCoeffI(Tools);                                                  // Перейти к следующему параметру
   };
 
@@ -249,7 +249,7 @@ namespace Cccv
     kpI = Tools->readNvsFloat("cccv", "kpI", 0.02);
     kiI = Tools->readNvsFloat("cccv", "kiI", 0.10);
     kdI = Tools->readNvsFloat("cccv", "kdI", 0.00);
-    Tools->setPidCoeffI(kpI, kiI, kdI);                                               // 0x41  Команда драйверу
+    Tools->txSetPidCoeffI(kpI, kiI, kdI);                                               // 0x41  Команда драйверу
     return new MSetPidCoeffD(Tools);                                                  // Перейти к следующему параметру
   };
 
@@ -261,7 +261,7 @@ namespace Cccv
     kpD = Tools->readNvsFloat("cccv", "kpD", 0.02);    // Уточнить
     kiD = Tools->readNvsFloat("cccv", "kiD", 0.10);
     kdD = Tools->readNvsFloat("cccv", "kdD", 0.00);
-    Tools->setPidCoeffD(kpD, kiD, kdD);                                               // 0x41  Команда драйверу
+    Tools->txSetPidCoeffD(kpD, kiD, kdD);                                               // 0x41  Команда драйверу
     return new MUpCurrent(Tools);                                                     // Перейти к следующему состоянию
   };
 

@@ -11,6 +11,7 @@
 #include "modes/devicefsm.h"
 #include "mtools.h"
   //#include "mcmd.h"
+  #include "driver/mcommands.h"
 #include "board/mboard.h"
 #include "board/mkeyboard.h"
 #include "display/mdisplay.h"
@@ -21,7 +22,7 @@
 namespace Device
 {
 
-  short shift, factor, smooth, par;   // Можно использовать один - par
+  short shift, factor, smooth, par;
 
     // Состояние "Старт", инициализация выбранного режима работы (DEVICE).
   MStart::MStart(MTools * Tools) : MState(Tools)
@@ -78,8 +79,6 @@ namespace Device
     case MKeyboard::UP_CLICK: Board->buzzerOn();                      return new MStop(Tools);
     case MKeyboard::DN_CLICK: Board->buzzerOn();                      return new MStop(Tools);
 
- 
-
     default:;
     }
     return this;
@@ -112,18 +111,19 @@ namespace Device
       // Перейти к следующему состоянию без сохранения
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftFactorU(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
-      par = Tools->upiVal(par, MConst::adc_l, MConst::adc_h, 1); 
+      par = Tools->upiVal(par, MConst::adc_l, MConst::adc_h, 1U); 
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc=0x"); Serial.println(par, HEX);
+        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(par, HEX);
       #endif           
-      Tools->setAdcOffset(par);                                 // 0x52  Команда драйверу
+      Tools->txSetAdcOffset(par);                                 // 0x52  Команда драйверу
     break;
     case MKeyboard::DN_CLICK: Board->buzzerOn();
-      par = Tools->dniVal(par, MConst::adc_l, MConst::adc_h, 1);
+      par = Tools->dniVal(par, MConst::adc_l, MConst::adc_h, 1U);
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc=0x"); Serial.println(par, HEX);
-      #endif           
-      Tools->setAdcOffset(par);                                 // 0x52  Команда драйверу
+        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(par, HEX);
+      #endif
+      Tools->txSetAdcOffset(par);                                 // 0x52  Команда драйверу
+
     break;
     default:;
     }
@@ -157,6 +157,7 @@ namespace Device
     #ifdef TESTDEVICE
       Serial.println(); Serial.print("FactorV="); Serial.println(factor, HEX);
     #endif
+
     return new MShiftU(Tools);
   };
 

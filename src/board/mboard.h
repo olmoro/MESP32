@@ -113,8 +113,8 @@ class MBoard
 
     // Настройки АЦП
 
-    void  setAdcOffset( short );
-    int16_t readAdcOffset() { return adcOffset; }
+//    void  setAdcOffset( short );
+//    int16_t readAdcOffset() { return adcOffset; }
     void  setAdcV( short );
     void  setAdcI( short );
 

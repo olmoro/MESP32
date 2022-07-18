@@ -109,12 +109,12 @@ MState * MSetPostpone::fsm()
     case MKeyboard::P_CLICK: Board->buzzerOn();                         return new MSetVoltageOffset(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();                                              // Смещение по 1 за шаг
       Tools->offsetAdc = Tools->upiVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
-      Tools->setAdcOffset(Tools->offsetAdc);                      // 0x  Команда драйверу
+      Tools->txSetAdcOffset(Tools->offsetAdc);                      // 0x52  Команда драйверу
     break;
     
     case MKeyboard::DN_CLICK: Board->buzzerOn();                                              // Смещение по 1 за шаг
       Tools->offsetAdc = Tools->dniVal(Tools->offsetAdc, MOptConsts::offset_adc_l, MOptConsts::offset_adc_h, 1);
-      Tools->setAdcOffset(Tools->offsetAdc);                      // 0x  Команда драйверу
+      Tools->txSetAdcOffset(Tools->offsetAdc);                      // 0x52  Команда драйверу
     break;
     
     case MKeyboard::B_CLICK: Board->buzzerOn();                                               // Сохранить
@@ -143,17 +143,17 @@ MState * MSetPostpone::fsm()
     case MKeyboard::C_CLICK: Board->buzzerOn();                         return new MStop(Tools);
     case MKeyboard::P_CLICK: Board->buzzerOn();                         return new MSetVoltageFactor(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
-      Tools->offsetV = Tools->upiVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
-      Tools->setShiftU();                      // 0x36  Команда драйверу
+      Tools->shiftV = Tools->upiVal(Tools->shiftV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
+      //Tools->setShiftU();                      // 0x36  Команда драйверу
     break;
     
     case MKeyboard::DN_CLICK: Board->buzzerOn();                                      // Смещение по 1 мВ за шаг
-      Tools->offsetV = Tools->dniVal(Tools->offsetV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
-      Tools->setShiftU();                      // 0x36  Команда драйверу
+      Tools->shiftV = Tools->dniVal(Tools->shiftV, MOptConsts::offset_v_l, MOptConsts::offset_v_h, 1);
+      //Tools->setShiftU();                      // 0x36  Команда драйверу
     break;
     
     case MKeyboard::B_CLICK: Board->buzzerOn();                                       // Сохранить
-      Tools->saveInt(MNvs::nQulon, MNvs::kOffsetV, Tools->offsetV);     return new MSetVoltageFactor(Tools);
+      Tools->saveInt(MNvs::nQulon, MNvs::kOffsetV, Tools->shiftV);     return new MSetVoltageFactor(Tools);
 
     default:;
     }
@@ -177,12 +177,12 @@ MState * MSetPostpone::fsm()
     case MKeyboard::P_CLICK: Board->buzzerOn();                        return new MSetVoltageSmooth(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       Tools->upiVal(Tools->factorV, MOptConsts::factor_v_l, MOptConsts::factor_v_h, 1);
-      Tools->setFactorU();                      // 0x31  Команда драйверу
+      //Tools->setFactorU();                      // 0x31  Команда драйверу
     break;
     
     case MKeyboard::DN_CLICK : Board->buzzerOn();
       Tools->dniVal(Tools->factorV, MOptConsts::factor_v_l, MOptConsts::factor_v_h, 1);
-      Tools->setFactorU();                      // 0x31  Команда драйверу
+      //Tools->setFactorU();                      // 0x31  Команда драйверу
     break;
     
     case MKeyboard::B_CLICK : Board->buzzerOn();
@@ -210,12 +210,12 @@ MState * MSetPostpone::fsm()
     case MKeyboard::P_CLICK: Board->buzzerOn();                        return new          MSetVoltageSmooth(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       Tools->upiVal(Tools->smoothV, MOptConsts::smooth_v_l, MOptConsts::smooth_v_h, 1);
-      Tools->setSmoothU();                      // 0x34  Команда драйверу
+      //Tools->setSmoothU();                      // 0x34  Команда драйверу
     break;
     
     case MKeyboard::DN_CLICK : Board->buzzerOn();
       Tools->dniVal(Tools->smoothV, MOptConsts::smooth_v_l, MOptConsts::smooth_v_h, 1);
-      Tools->setSmoothU();                      // 0x34  Команда драйверу
+      //Tools->setSmoothU();                      // 0x34  Команда драйверу
     break;
     
     case MKeyboard::B_CLICK : Board->buzzerOn();
