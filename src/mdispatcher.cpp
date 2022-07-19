@@ -43,18 +43,6 @@ sync = true;
 
   Tools->postpone = Tools->readNvsInt( MNvs::nQulon, MNvs::kQulonPostpone,  3 );
 
-  // Настройки АЦП и ниже - вынесены в bootfsm 20220710 
-// Tools->offsetAdc = Tools->readNvsInt( MNvs::nQulon, MNvs::kOffsetAdc, 0x0000 );  // Смещение ЦАП
-
-  // Настройки измерителей (для ввода драйверу)
-//  Tools->factorV  = Tools->readNvsInt( MNvs::nQulon, MNvs::kFactorV, 0x2DA0 );  // Множитель преобразования
-//  Tools->smoothV  = Tools->readNvsInt( MNvs::nQulon, MNvs::kSmoothV, 0x0003 );  // Коэффициент фильтрации
-//  Tools->offsetV  = Tools->readNvsInt( MNvs::nQulon, MNvs::kOffsetV, 0x0000 );  // Смещение в милливольтах
-
-//  Tools->factorA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kFactorA, 0x030C );  // Множитель преобразования
-//  Tools->smoothA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kSmoothA, 0x0003 );  // Коэффициент фильтрации
-//  Tools->offsetA  = Tools->readNvsInt( MNvs::nQulon, MNvs::kOffsetA, 0x0000 );  // Смещение в миллиамперах
-
 }
 
   // Выдерживается период запуска 100мс для вычисления амперчасов
@@ -87,7 +75,7 @@ void MDispatcher::run()
 
 //    Serial.print("sync"); Serial.println((int)sync);
 
-      State = new Bootfsm::MStart(Tools);
+      State = new MBoot::MStart(Tools);
       sync = false;
     }
       //if(!sync)
@@ -103,12 +91,12 @@ void MDispatcher::run()
 
         switch (modeSelection)
         {
-          case BOOT:        State = new Bootfsm::MStart(Tools);     break;
+          case BOOT:        State = new MBoot::MStart(Tools);       break;
           case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
           case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
           case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
-          case CCCVCHARGE:  State = new Cccv::MStart(Tools);     break;
-          case DEVICE:      State = new Device::MStart(Tools);   break;
+          case CCCVCHARGE:  State = new Cccv::MStart(Tools);        break;
+          case DEVICE:      State = new MDevice::MStart(Tools);     break;
           default:                                                  break;
         }
       } // !B_CLICK

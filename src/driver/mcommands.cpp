@@ -1,12 +1,12 @@
 /*
- * Работа с драйверов силовой платы
+ * Работа с драйвером силовой платы
  * read  - чтение через драйвер
  * write - запись через драйвер
- * 07.2022
+ * 07.2022, некоторые не используемые команды не поддерживаются
  */
 
 #include "driver/mcommands.h"
-  #include "nvs.h"
+#include "nvs.h"
 #include "board/mboard.h"
 #include "mtools.h"
 #include "mcmd.h"
@@ -34,156 +34,12 @@ uint8_t cmd = MCmd::cmd_nop;
 //uint8_t state1 = 0b00000000;
 //uint8_t state2 = 0b00000000;
 
-// void MCommands::dataExchange()
-// {
-//   //doSyncing();
-//   doCommand();
-// }
-
-
-//   // Процесс синхронизации данных между контроллерами
-// void MCommands::doSyncing()
-// {
-//   if(sync)
-//   {
-//     static short cnt = 0;
-//     cnt++;
-
-//     switch (cnt)
-//     {
-//       case 1:
-//         Tools->postpone  = Tools->readNvsInt(MNvs::nQulon, MNvs::kQulonPostpone, 3);
-
-//       break;
-//       case 2:
-//         Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);  // Смещение ЦАП
-//         Tools->setAdcOffset();                    // 0x21  Команда драйверу
-//       break;
-//       case 3:
-//         Tools->factorV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorV, 0x2DA0);  // Множитель преобразования
-//         Tools->setFactorU();                      // 0x31  Команда драйверу
-//       break;
-//       case 4:  
-//         Tools->smoothV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothV, 0x0003);  // Коэффициент фильтрации
-//         Tools->setSmoothU();                      // 0x34  Команда драйверу
-//       break;
-//       case 5:
-//         Tools->offsetV   = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetV, 0x0000);  // Смещение в милливольтах
-//         Tools->setOffsetU();                      // 0x36  Команда драйверу
-//       break;
-//       case 6:
-//         Tools->factorA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorA, 0x030C);  // Множитель преобразования
-//         Tools->setFactorI();                      // 0x39  Команда драйверу
-//       break;
-//       case 7:
-//         Tools->smoothA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothA, 0x0003);  // Коэффициент фильтрации
-//         Tools->setSmoothI();                      // 0x3C  Команда драйверу
-//       break;
-//       case 8:
-//         Tools->offsetA   = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetA, 0x0000);  // Смещение в миллиамперах
-//         Tools->setOffsetI();                      // 0x3E  Команда драйверу
-//       break;
-
-
-//       case 10:
-//         Tools->voltageMax  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvVmax, 14.5f); // Заданное максимальное напряжение заряда, В
-//         // Tools->setVoltMax();                      // 0x..  Команда драйверу  
-//       break;
-//       case 11:
-//         Tools->voltageMin  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvVmin, 13.2f); // Заданное минимальное напряжение заряда, В
-//         // Tools->setVoltMin();                      // 0x..  Команда драйверу  
-//       break;
-//       case 12:
-//         Tools->currentMax  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvImax,  5.0f); // Заданный максимальный ток заряда, А
-//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
-//       break;
-//       case 13:
-//         Tools->currentMin  = Tools->readNvsFloat(MNvs::nQulon, MNvs::kCcCvImin,  0.5f); // Заданный минимальный ток заряда, А
-//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
-//       break;
-
-//         // Tools->setVoltMax();                      // 0x..  Команда драйверу  
-//         // Tools->setVoltMin();                      // 0x..  Команда драйверу  
-//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
-//         // Tools->setCurrMax();                      // 0x..  Команда драйверу
-
-
-//       default:
-//       break;
-//     }
-//   }
-//   sync = false;
-// }
-
-
-void MCommands::writeCmd(uint8_t _cmd) { cmd = _cmd; }
-
+void MCommands::writeCmd(uint8_t _cmd) {cmd = _cmd;}
 
 void MCommands::doCommand()
 {
-  static short cnt = 0;
-  cnt++;
-  if(cnt >= 7) cnt = 0;
-
-  //Tools->setBuffCmd(MCmd::cmd_adc_write_offset);    // Test
-  //Tools->setBuffCmd(MCmd::cmd_nop);    // Test
-
-  if(Tools->getBlocking())
-  {
-    // Блокировка исполнения на время рестарта драйвера (около 3с, подбором)
-    //Serial.println(); Serial.print("Заблокировано"); Serial.println();
-  }
-
-  if(!Tools->getBlocking())
-  {
-    // Блокировка исполнения на время рестарта драйвера (около 3с, подбором)
-    //Serial.println(); Serial.print("Разблокировано"); Serial.println();
-  }
-
-#ifdef TESTLOG
-  switch (cnt)
-  {
-  case 6:
-    cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
-//    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
-    Tools->setBuffCmd(MCmd::cmd_nop);       // Фоновая команда в буфер  
-    break;
-  default:
-    cmd = MCmd::cmd_nop;                    // Фоновая команда на исполнение
-    break;
-  }
-#else
-  switch (cnt)
-  {
-  case 6:
-    cmd = Tools->getBuffCmd();              // Целевая команда на исполнение
-    if(cmd != MCmd::cmd_get_uis)   {Serial.println(); Serial.print("Команда: 0x"); Serial.println(cmd, HEX);}
-    Tools->setBuffCmd(MCmd::cmd_get_uis);   // Фоновая команда в буфер  
-    break;
-  default:
-    cmd = MCmd::cmd_get_uis;                // Фоновая команда на исполнение
-    break;
-  }
-#endif
-
-
-
-
-
-  // cmd = MCmd::cmd_get_uis;
-  // cmd = MCmd::cmd_adc_write_offset;
-  // if((cmd == MCmd::cmd_nop) && (Tools->getBuffCmd()) == MCmd::cmd_nop)
-  // {
-  //   cmd = MCmd::cmd_get_uis;
-  // }
-  // else
-  // {
-  //   cmd = Tools->getBuffCmd();
-  // Serial.print("buff_cmd="); Serial.println(cmd, HEX);
-  //   Tools->setBuffCmd(MCmd::cmd_nop);
-  // }
-
-
+  cmd = Tools->getBuffCmd();
+  Tools->setBuffCmd(MCmd::cmd_get_uis);
 
   if( cmd != MCmd::cmd_nop)
   {
@@ -194,7 +50,7 @@ void MCommands::doCommand()
     switch( cmd )
     {
       //Команды чтения результатов измерений
-      case MCmd::cmd_get_uis:                 readUI();                   break;  // 0x10;   +
+      case MCmd::cmd_get_uis:                 readUI();                   break;  // 0x10;
       case MCmd::cmd_get_u:                   doGetU();                   break;  // 0x11 Чтение напряжения (мВ)
       case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
       case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
@@ -202,8 +58,8 @@ void MCommands::doCommand()
       case MCmd::cmd_get_celsius:             doCelsius();                break;  // 0x15 Чтение температуры радиатора
 
         // Команды управления
-      case MCmd::cmd_power_go:                doPowerGo();                break;  // 0x20   +
-      case MCmd::cmd_power_stop:              doPowerStop();              break;  // 0x21   +
+      case MCmd::cmd_power_go:                doPowerGo();                break;  // 0x20
+      case MCmd::cmd_power_stop:              doPowerStop();              break;  // 0x21
 
       //case MCmd::cmd_write_pid:             doSetPid();                 break;  // 0x22
 
@@ -525,16 +381,23 @@ short MCommands::dataProcessing()
     case MCmd::cmd_pid_reconfigure:             // 0x43   + 0B->01
     case MCmd::cmd_pid_clear:                   // 0x44   + 01->01
     case MCmd::cmd_pid_test:                    // 0x46   + 03->01
-
-    case MCmd::cmd_pid_read_param_mult:               // 0x47
-      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))
       {
-        return 0;  //Tools->setProtErr(0);             // Подтверждение
+        return 0;  //Tools->setProtErr(0);
       }
-      else  return 1;  //Tools->setProtErr(1);         // ошибка протокола  
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-      // Чтение настроек ПИД-регулятора                            0x48
+      // Чтение множителя параметров ПИД-регуляторов
+    case MCmd::cmd_pid_read_param_mult:                         // 0x47
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+      {
+        return 0;  //Tools->setProtErr(0);                      // Подтверждение
+      }
+      else  return 1;  //Tools->setProtErr(1);                  // ошибка протокола  
+    break;
+
+      // Чтение настроек ПИД-регулятора                         // 0x48
     case MCmd::cmd_pid_read_configure:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 12) )
       {
@@ -544,12 +407,12 @@ short MCommands::dataProcessing()
         Tools->kd       = Wake->get16(6);
         Tools->minOut   = Wake->get16(8);
         Tools->maxOut   = Wake->get16(10);
-        return 0;  //Tools->setProtErr(0);             // Подтверждение
+        return 0;  //Tools->setProtErr(0);                      // Подтверждение
       }
-      else  return 1;  //Tools->setProtErr(1);         // ошибка
+      else  return 1;  //Tools->setProtErr(1);                  // ошибка
     break;
 
-      // //  case cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
+      // case cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
 
       // ================ Команды работы с АЦП =================
       // Чтение АЦП                                        0x50   + 00->07
@@ -569,22 +432,11 @@ short MCommands::dataProcessing()
     case MCmd::cmd_adc_read_offset:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
-        //Board->setAdcOffset(Wake->get16(1));
-        //Tools->setAdcOffset(Wake->get16(1));
         Tools->txSetAdcOffset(Wake->get16(1));
         return 0;  //Tools->setProtErr(0);
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
-
-    //   // 0x51
-    // case MCmd::cmd_adc_up_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-    //   {
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
 
       // Запись смещения АЦП                                0x52   + 02->01
     case MCmd::cmd_adc_write_offset:
@@ -594,24 +446,6 @@ short MCommands::dataProcessing()
       }
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
-
-    //   // 0x52
-    // case MCmd::cmd_adc_dn_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-    //   {
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
-
-    //   // 0x53
-    // case MCmd::cmd_adc_fb_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-    //   {
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
 
         // Команды задания порогов отключения
       // case cmd_read_win_less_u:             doGetWinLtU();              break;  // 0x60;     00->03
@@ -797,10 +631,6 @@ void MCommands::doCelsius()
 {
   Wake->configAsk( 0, MCmd::cmd_get_celsius);
 }
-
-
-
-
 
 // Команда управления PID регулятором 0x20
 // Запрос: 0xC0, 0x20, 0x05, 0x12, 0x34, 0x56, 0x78, 0x01, 0x64       - ok
@@ -1390,10 +1220,3 @@ void MCommands::doInfo()
   int id = 0;
   Wake->configAsk( id, MCmd::cmd_info );
 }
-
-
-
-
-//void MCommands::exeCommand(uint8_t _cmd) { cmd = _cmd; }
-
-

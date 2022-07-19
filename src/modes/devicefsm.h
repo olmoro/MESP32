@@ -3,7 +3,7 @@
 
 #include "state/mstate.h"
 
-namespace Device
+namespace MDevice
 {
 
   struct MConst

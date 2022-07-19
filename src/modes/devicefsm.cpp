@@ -19,7 +19,7 @@
 #include <Arduino.h>
   //#include <string>
 
-namespace Device
+namespace MDevice
 {
 
   short shift, factor, smooth, par;
