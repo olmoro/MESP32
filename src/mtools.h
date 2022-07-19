@@ -192,7 +192,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
     int   getCycles();
     void  setCycles(int);
 
-
+    short getParamMult();
+    void  setParamMult(short pm);
 
     // будут в private
 //    float powO        =  0.0f;   // резерв
@@ -307,57 +308,50 @@ bool setPidCoefficients(float kp, float ki, float kd);
     // void shutdownCharge();
     // void shutdownDC();
     //2022
-    void powerGo(float spU, float spI, uint8_t mode);  // 0x20
-    void powerStop();                                   // 0x21
+    void txPowerGo(float spU, float spI, uint8_t mode);   // 0x20
+    void txPowerStop();                                   // 0x21
 
 //======================
       // Команды работы с измерителем напряжения
       // Множитель преобразования в милливольты
-    void getFactorU();                                  // 0x30 Чтение
-    void txSetFactorU(short val);                                  // 0x31 Запись
-    void setFactorDefaultU();                           // 0x32 Возврат к заводскому
+    void txGetFactorU();                                  // 0x30 Чтение
+    void txSetFactorU(short val);                         // 0x31 Запись
+    void txSetFactorDefaultU();                           // 0x32 Возврат к заводскому
       // Параметр сглаживания
-    void getSmoothU();                                  // 0x33 Чтение
-    void txSetSmoothU(short val);                                  // 0x34 Запись
+    void txGetSmoothU();                                  // 0x33 Чтение
+    void txSetSmoothU(short val);                         // 0x34 Запись
       // Приборный сдвиг
-    void getShiftU();                                   // 0x35 Чтение
-    void txSetShiftU(short val);                                   // 0x36 Запись
+    void txGetShiftU();                                   // 0x35 Чтение
+    void txSetShiftU(short val);                          // 0x36 Запись
 
       // Команды работы с измерителем тока
       // Множитель преобразования в миллиамперы
-    void getFactorI();                                  // 0x38 Чтение
-    void txSetFactorI(short val);                                  // 0x39 Запись
-    void setFactorDefaultI();                           // 0x3A Возврат к заводскому
+    void txGetFactorI();                                  // 0x38 Чтение
+    void txSetFactorI(short val);                         // 0x39 Запись
+    void txSetFactorDefaultI();                           // 0x3A Возврат к заводскому
       // Параметр сглаживания
-    void getSmoothI();                                  // 0x3B Чтение
-    void txSetSmoothI(short val);                                  // 0x3C Запись
+    void txGetSmoothI();                                  // 0x3B Чтение
+    void txSetSmoothI(short val);                         // 0x3C Запись
       // Приборный сдвиг
-    void getShiftI();                                   // 0x3D Чтение
-    void txSetShiftI(short val);                                   // 0x3E Запись
+    void txGetShiftI();                                   // 0x3D Чтение
+    void txSetShiftI(short val);                          // 0x3E Запись
 
       // Команды работы с ПИД-регулятором
+    void txSetPidConfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
+
     void txSetPidCoeffU(float kp, float ki, float kd);    // 0x41 Запись
     void txSetPidCoeffI(float kp, float ki, float kd);    // 0x41 Запись
     void txSetPidCoeffD(float kp, float ki, float kd);    // 0x41 Запись
 
+    void txSetPidOutputRange(uint8_t m, uint16_t minOut, uint16_t maxOut);                               // 0x42
+    void txSetPidReconfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);    // 0x43, w/o clear
+    void txPidClear();                                    // 0x44
 
-      // параметры простого заряда
-    bool setVoltMax();                      // 0x..  Команда драйверу  
-    bool setVoltMin();                      // 0x..  Команда драйверу  
-    bool setCurrMax();                      // 0x..  Команда драйверу
-    bool setCurrMin();                      // 0x..  Команда драйверу
+    void txGetPidParamMult();                             // 0x47 Get param_mult
+    void txGetPidConfig();                                // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
   // // ПИД-регулятор
-  //   bool pidConfigure(uint8_t, float, float, float, uint16_t, uint16_t);     // 0x40 set mode, kp, ki, kd, min, max
-  //   bool pidCoefficients(uint8_t, float, float, float);                      // 0x41 set mode, kp, ki, kd
-  //   bool pidOutputRange(uint8_t, uint16_t, uint16_t);                        // 0x42 set mode, min, max
-  //   bool pidReconfigure(uint8_t, float, float, float, uint16_t, uint16_t);   // 0x43 set mode, kp, ki, kd, min, max w/o clear
-  //   bool pidClear();                                                         // 0x44 clear
-  //   // bool pidTest(uint8_t, int16_t, ???);                                  // 0x46 set mode, setpoint, sw
-  //   bool pidGetMult();                                                       // 0x47 Get param_mult
   //   bool pidGetConfigure(uint8_t, float, float, float, uint16_t, uint16_t);  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
-  //   //bool pidMaxSum(???64);                                                 // 0x49 Задает максимальный интеграл при вычислении шага рег
-  //   //bool pid      ()                                                       // 0x4A reserved
 
     bool setCooler(uint16_t);                                                // 0x4F Задать скорость вентилятора
 
@@ -367,8 +361,9 @@ bool setPidCoefficients(float kp, float ki, float kd);
     short getAdcOffset();
     void  setAdcOffset(short val);
 
-    void txGetAdcOffset();                            // 0x51
-    void txSetAdcOffset(short val);                   // 0x52
+    void txGetProbes();                                   // 0x50
+    void txGetAdcOffset();                                // 0x51
+    void txSetAdcOffset(short val);                       // 0x52
 
 
 
@@ -596,7 +591,7 @@ private:
   static constexpr uint16_t param_mult  = (((0x1ULL << param_bits)) >> (param_bits - param_shift)); // 0x1000
   static constexpr uint16_t hz = 10;
 
-
+  short paramMult;    // Полученный от драйвера
 
 
   // Configuration

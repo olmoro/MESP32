@@ -54,7 +54,7 @@ namespace MCmd
   constexpr uint8_t cmd_pid_reconfigure           = 0x43; // set kp, ki, kd,min, max w/o clear
   constexpr uint8_t cmd_pid_clear                 = 0x44; // clear
   constexpr uint8_t cmd_pid_test                  = 0x46; // mode, setpoint, sw
-  constexpr uint8_t cmd_pwm_configure             = 0x47; // max, n, invert - подбор полярности PWM. Как раритет
+  constexpr uint8_t cmd_pid_read_param_mult       = 0x47; // param_mult
   constexpr uint8_t cmd_pid_read_configure        = 0x48; // mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
     //    constexpr uint8_t cmd_pid_write_max_sum         = 0x49; // Задает максимальный интеграл при вычислении шага рег
   constexpr uint8_t cmd_pid_up_current            = 0x4A; // Для фазы подъема тока - резерв

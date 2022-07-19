@@ -27,3 +27,5 @@ Flash: [==        ]  16.1% (used 1052334 bytes from 6553600 bytes)
 RAM:   [=         ]  13.4% (used 43752 bytes from 327680 bytes)
 Flash: [==        ]  16.1% (used 1053682 bytes from 6553600 bytes)
 
+19.07.
+Замена команды 0x47 на doPidGetParamMult()

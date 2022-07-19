@@ -30,7 +30,7 @@ namespace Cccv
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
     //Отключить на всякий пожарный
-    Tools->powerStop();                                 // 0x21  Команда драйверу
+    Tools->txPowerStop();                                 // 0x21  Команда драйверу
 
     // Параметры заряда из энергонезависимой памяти, Занесенные в нее при предыдущих включениях, как и
     // выбранные ранее номинальные параметры батареи (напряжение, емкость).
@@ -287,7 +287,7 @@ namespace Cccv
      Здесь задаются сетпойнты по напряжению и току. Подъем тока
      производится ПИД-регулятором.
     */ 
-    Tools->powerGo(Tools->voltageMax * 1.05f, Tools->currentMax, 1);         // 0x20  Команда драйверу
+    Tools->txPowerGo(Tools->voltageMax * 1.05f, Tools->currentMax, 1);         // 0x20  Команда драйверу
   }     
   MUpCurrent::MState * MUpCurrent::fsm()
   {
@@ -324,7 +324,7 @@ namespace Cccv
     Display->showMode((char*)"  CONST VOLTAGE   ");
     Display->showHelp((char*)"     C-STOP       ");
     Board->ledsYellow();
-    //Tools->powerGo(maxV, maxI, 1);         // 0x20  Команда драйверу
+    //Tools->txPowerGo(maxV, maxI, 1);         // 0x20  Команда драйверу
   }       
   MState * MKeepVmax::fsm()
   {
@@ -366,7 +366,7 @@ namespace Cccv
     Display->showHelp( (char*) "      C-STOP      " );
     Board->ledsYellow();
       // Порог регулирования по минимальному напряжению
-    Tools->powerGo(minV, Tools->currentMax, 1);         // 0x20  Команда драйверу
+    Tools->txPowerGo(minV, Tools->currentMax, 1);         // 0x20  Команда драйверу
   }     
   MState * MKeepVmin::fsm()
   {
@@ -408,7 +408,7 @@ namespace Cccv
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
     // Команда драйверу отключить преобразователь (0x21) 
-    Tools->powerStop();            // 0x21
+    Tools->txPowerStop();            // 0x21
 
     Display->showMode( (char*) "     POWER OFF    " );
     Display->showHelp( (char*) "      C-EXIT      " );

@@ -232,7 +232,7 @@ void MCommands::doCommand()
       case MCmd::cmd_pid_reconfigure:           doPidReconfigure();         break;  // 0x43   + 0B->01
       case MCmd::cmd_pid_clear:                 doPidClear();               break;  // 0x44   + 01->01
       case MCmd::cmd_pid_test:                  doPidTest();                break;  // 0x46   + 03->01
-      case MCmd::cmd_pwm_configure:             doPwmConfigure();           break;  // 0x47   + 03->01
+      case MCmd::cmd_pid_read_param_mult:       doPidGetParamMult();        break;  // 0x47
       case MCmd::cmd_pid_read_configure:        doPidGetConfigure();        break;  // 0x48   + 00->0C
   //  case MCmd::cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
 
@@ -240,10 +240,6 @@ void MCommands::doCommand()
       case MCmd::cmd_adc_read_probes:           doReadProbes();             break;  // 0x50   + 00->07
       case MCmd::cmd_adc_read_offset:           doAdcGetOffset();           break;  // 0x51   + 00->03
       case MCmd::cmd_adc_write_offset:          doAdcSetOffset();           break;  // 0x52   + 02->01
-//case MCmd::cmd_adc_up_offset:           doAdcUpOffset();           break;  // 0x51
-//case MCmd::cmd_adc_dn_offset:           doAdcDnOffset();           break;  // 0x52
-//case MCmd::cmd_adc_fb_offset:           doAdcFbOffset();           break;  // 0x52
-
 
         // Команды управления портами управления (в основном тестовые)
       case MCmd::cmd_write_switch_pin:          doSwPin();                  break;  // 0x54     01->01
@@ -529,7 +525,8 @@ short MCommands::dataProcessing()
     case MCmd::cmd_pid_reconfigure:             // 0x43   + 0B->01
     case MCmd::cmd_pid_clear:                   // 0x44   + 01->01
     case MCmd::cmd_pid_test:                    // 0x46   + 03->01
-    case MCmd::cmd_pwm_configure:               // 0x47   + 03->01
+
+    case MCmd::cmd_pid_read_param_mult:               // 0x47
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
         return 0;  //Tools->setProtErr(0);             // Подтверждение
@@ -1077,19 +1074,19 @@ void MCommands::doPidTest()
   Wake->configAsk( id, MCmd::cmd_pid_test);
 }
 
-// Конфигурирование pwm-регулятора     0x47 
-// max, n, invert - подбор полярности PWM. Как раритет 
-// Запрос: 0xC0, 0x47, 0x03,  0x00
-//                            0x10, 0x12, 
-//                            0xB5                          - ok
-// Ответ:  0xC0, 0x47, 0x01, 0x00, 0xA2                     - ok
-void MCommands::doPwmConfigure() 
+
+
+
+// Чтение param_mult     0x47 
+void MCommands::doPidGetParamMult() 
 {
   int id = 0;
-  id = Wake->replyU08( id, Tools->pwmInvert );  // 0x00;
-  id = Wake->replyU16( id, Tools->pwmPeriod );  // 0x1012
-  Wake->configAsk( id, MCmd::cmd_pwm_configure);
+  id = Wake->replyU16( id, Tools->getParamMult() );
+  Wake->configAsk( id, MCmd::cmd_pid_read_param_mult);
 }  
+
+
+
 
 // Возвращает параметры текущего режима регулирования     0x48 
 // mode, kP, kI, kD, min, max 

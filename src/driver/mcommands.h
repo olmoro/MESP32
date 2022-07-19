@@ -125,7 +125,7 @@ class MCommands
     void doPidReconfigure();         // 0x43   
     void doPidClear();               // 0x44   
     void doPidTest();                // 0x46   
-    void doPwmConfigure();           // 0x47   
+    void doPidGetParamMult();        // 0x47   
     void doPidGetConfigure();        // 0x48   
 //    void doPidSetMaxSum();           // 0x49    nu
 

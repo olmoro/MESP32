@@ -28,7 +28,7 @@ namespace Device
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
       //Отключить на всякий пожарный
-    Tools->powerStop();                                 // 0x21  Команда драйверу
+    Tools->txPowerStop();                                 // 0x21  Команда драйверу
 
     // При первом включении, как правило заводском, задается нулевое смещение 
     par = Tools->readNvsInt("qulon", "offsetAdc", MConst::adc_offset);
