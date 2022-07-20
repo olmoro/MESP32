@@ -42,9 +42,14 @@ MTools::~MTools()
 bool MTools::getLocalization() const { return localization; }
 void MTools::setLocalization( bool _localization ) { localization = _localization; }
 
-  // Флаг блокировки обмена с драйвером на время его рестарта
+    // Флаг блокировки обмена с драйвером на время его рестарта
 bool MTools::getBlocking() {return blocking;}
 void MTools::setBlocking(bool bl) {blocking = bl;}
+
+    // Флаг выбора режима коррекции смещения АЦП
+bool MTools::getTuningAdc() {return tuningAdc;}
+void MTools::setTuningAdc(bool tu) {tuningAdc = tu;}
+
   // ========================== FastPID ==========================
 bool MTools::setPidCoefficients(float kp, float ki, float kd)
 {
@@ -618,16 +623,31 @@ void MTools::txGetPidParamMult() {buffCmd = MCmd::cmd_pid_read_param_mult;}     
 void MTools::txGetPidConfig()  {buffCmd = MCmd::cmd_pid_read_configure;}                                // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
 
+void MTools::txSetCooler(short val) {cool = val; buffCmd = MCmd::cmd_set_cooler;}                       // 0x4F Задать скорость вентилятора
+
+short MTools::getCooler() {return cool;}
+void  MTools::setCooler(short val) {cool = val;}
+
+void  MTools::setAdcV( short val ) { adcV = val; }
+void  MTools::setAdcI( short val ) { adcI = val; }
 
 
 short MTools::getAdcOffset() {return offsetAdc;}
 void  MTools::setAdcOffset(short val) {offsetAdc = val;}
 
+
+
+
   // Команды работы с АЦП
+
+short MTools::getAdcV() {return adcV;}
+short MTools::getAdcI() {return adcI;}
+
 void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}          // 0x50
 void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}          // 0x51  
 void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}         // 0x52
 
+void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}          // 0x53  
 
 
     //Serial.print("bcmd="); Serial.println(buffCmd, HEX);

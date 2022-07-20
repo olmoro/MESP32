@@ -58,14 +58,13 @@ namespace MCmd
   constexpr uint8_t cmd_pid_read_configure        = 0x48; // mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
     //    constexpr uint8_t cmd_pid_write_max_sum         = 0x49; // Задает максимальный интеграл при вычислении шага рег
   constexpr uint8_t cmd_pid_up_current            = 0x4A; // Для фазы подъема тока - резерв
+  constexpr uint8_t cmd_set_cooler                = 0x4F; // Задать скорость вентилятора
 
     // АЦП - настройки
   constexpr uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
   constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
   constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
-// const uint8_t cmd_adc_up_offset            = 0x51; // + смещение АЦП
-// const uint8_t cmd_adc_dn_offset            = 0x52; // - смещение АЦП
-// const uint8_t cmd_adc_fb_offset            = 0x53; // заводское смещение АЦП
+  constexpr uint8_t cmd_adc_auto_offset           = 0x53; // Автоматическая компенсация смещения АЦП
 
     // Команды тестовые
   constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D4 PA14 ???

@@ -27,5 +27,10 @@ Flash: [==        ]  16.1% (used 1052334 bytes from 6553600 bytes)
 RAM:   [=         ]  13.4% (used 43752 bytes from 327680 bytes)
 Flash: [==        ]  16.1% (used 1053682 bytes from 6553600 bytes)
 
-19.07.
+20.07.
 Замена команды 0x47 на doPidGetParamMult()
+Оптимизация mboard
+RAM:   [=         ]  13.3% (used 43736 bytes from 327680 bytes)
+Flash: [==        ]  16.1% (used 1053854 bytes from 6553600 bytes)
+New: Задать скорость вентилятора
+void MTools::txSetCooler(short val) {cool = val; buffCmd = MCmd::cmd_set_cooler;}   // 0x4F

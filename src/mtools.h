@@ -35,6 +35,10 @@ class MTools
     bool getBlocking();
     void setBlocking(bool);
 
+    // Флаг выбора режима коррекции смещения АЦП
+    bool getTuningAdc();
+    void setTuningAdc(bool);
+
     // перенесенные из privat
 
     float voltageMax  = 14.5f;   // Заданное напряжение заряда или источника питания, В
@@ -44,15 +48,20 @@ class MTools
 
     // Настройки АЦП
     short offsetAdc = 0x0000;
+    short adcV      = 0x0000;
+    short adcI      = 0x0000;
+
+    short getAdcV();
+    short getAdcI();
     
     // Переменные настроек измерителей
     short factorV   = 0x2DA0;   // Коэффициент преобразования в милливольты
     short smoothV   = 0x0003;   // Коэффициент фильтрации
-    short shiftV   = 0x0000;   // Начальное смещение в вольтах
+    short shiftV    = 0x0000;   // Начальное смещение в вольтах
 
     short factorI   = 0x030C;   // Коэффициент преобразования в миллиамперы
     short smoothI   = 0x0003;   // Коэффициент фильтрации
-    short shiftI   = 0x0000;   // Начальное смещение в миллиамперах
+    short shiftI    = 0x0000;   // Начальное смещение в миллиамперах
 
     // ========== Управление ПИД-регулятором, частота фиксирована ==========
 
@@ -73,6 +82,9 @@ bool setPidCoefficients(float kp, float ki, float kd);
     // PWM
     uint8_t  pwmInvert = (uint8_t)false;   // Выбор полярности PWM (v55: для отключения при сбросе - 0x00)
     uint16_t pwmPeriod = 0x1012;           // Выбор частоты (через период)
+
+
+
 
     // Test
     uint8_t  swOnOff   = (uint8_t)false;
@@ -353,18 +365,21 @@ bool setPidCoefficients(float kp, float ki, float kd);
   // // ПИД-регулятор
   //   bool pidGetConfigure(uint8_t, float, float, float, uint16_t, uint16_t);  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
-    bool setCooler(uint16_t);                                                // 0x4F Задать скорость вентилятора
 
-//   // АЦП - настройки
-// const uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
+    void txSetCooler(short val);                                                // 0x4F Задать скорость вентилятора
+    short getCooler();
+    void  setCooler(short val);
 
+      // АЦП - настройки
+    void  setAdcV(short val);
+    void  setAdcI(short val);
     short getAdcOffset();
     void  setAdcOffset(short val);
 
     void txGetProbes();                                   // 0x50
     void txGetAdcOffset();                                // 0x51
     void txSetAdcOffset(short val);                       // 0x52
-
+    void txAdcAutoOffset();                               // 0x53
 
 
 //   // Команды тестовые
@@ -602,9 +617,10 @@ private:
   uint32_t floatToParam(float); 
   void setCfgErr(); 
 
+  short cool = 0;           // Скорость вентилятора - уточнить
 
   bool blocking;    // 
-
+  bool tuningAdc  = false;  // Флаг подстройки смещения АЦП
 };
 
 #endif //_MTOOLS_H_

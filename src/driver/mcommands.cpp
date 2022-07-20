@@ -39,7 +39,7 @@ void MCommands::writeCmd(uint8_t _cmd) {cmd = _cmd;}
 void MCommands::doCommand()
 {
   cmd = Tools->getBuffCmd();
-  Tools->setBuffCmd(MCmd::cmd_get_uis);
+  Tools->getTuningAdc() ? Tools->setBuffCmd(MCmd::cmd_adc_read_probes) : Tools->setBuffCmd(MCmd::cmd_get_uis);
 
   if( cmd != MCmd::cmd_nop)
   {
@@ -90,12 +90,16 @@ void MCommands::doCommand()
       case MCmd::cmd_pid_test:                  doPidTest();                break;  // 0x46   + 03->01
       case MCmd::cmd_pid_read_param_mult:       doPidGetParamMult();        break;  // 0x47
       case MCmd::cmd_pid_read_configure:        doPidGetConfigure();        break;  // 0x48   + 00->0C
-  //  case MCmd::cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
+      //  case MCmd::cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
+      case MCmd::cmd_set_cooler:                doCooler();                 break;  // 0x4F Задать скорость вентилятора
+
 
         // Команды работы с АЦП
       case MCmd::cmd_adc_read_probes:           doReadProbes();             break;  // 0x50   + 00->07
       case MCmd::cmd_adc_read_offset:           doAdcGetOffset();           break;  // 0x51   + 00->03
       case MCmd::cmd_adc_write_offset:          doAdcSetOffset();           break;  // 0x52   + 02->01
+      case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();          break;  // 0x53
+
 
         // Команды управления портами управления (в основном тестовые)
       case MCmd::cmd_write_switch_pin:          doSwPin();                  break;  // 0x54     01->01
@@ -419,8 +423,8 @@ short MCommands::dataProcessing()
     case MCmd::cmd_adc_read_probes:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
       {
-        Board->setAdcV(Wake->get16(1));
-        Board->setAdcI(Wake->get16(3));
+        Tools->setAdcV(Wake->get16(1));
+        Tools->setAdcI(Wake->get16(3));
         // состояние
         // состояние
         return 0;  //Tools->setProtErr(0);
@@ -945,8 +949,13 @@ void MCommands::doPidGetConfigure()
 //   Wake->configAsk( id, cmd_pid_write_max_sum);
 // }    
 
-
-
+// 0x4F Задать скорость вентилятора 
+void MCommands::doCooler()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->getCooler());
+  Wake->configAsk( id, MCmd::cmd_set_cooler);
+}
 
 
 
@@ -970,13 +979,20 @@ void MCommands::doAdcGetOffset()
 }
 
 // Команда записи смещения АЦП  0x52
-void MCommands::doAdcSetOffset()
+void MCommands::doAdcAutoOffset()
 {
   int id = 0;
   //  id = Wake->replyU16( id, Board->readAdcOffset() );
   id = Wake->replyU16( id, Tools->getAdcOffset());
   Wake->configAsk( id, MCmd::cmd_adc_write_offset);
 }  
+
+// Команда автоматической компенсации смещения АЦП 0x53
+void MCommands::doAdcSetOffset()
+{
+  Wake->configAsk( 0, MCmd::cmd_adc_auto_offset);
+}  
+
 
 
 // ================= Команды тестирования =================

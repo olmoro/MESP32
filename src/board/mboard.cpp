@@ -1,14 +1,13 @@
 /*
   Методы работы с аппаратными ресурсами платы
   pcb: eltr_v2.3
-  2021 март vfq
+  2021 март, 202207
 */
 
 #include <PCF8574.h>
 #include <Wire.h>
 #include "board/mboard.h"
 #include "board/mpins.h"
-//#include "display/mdisplay.h"
 #include "board/msupervisor.h"
 #include <Arduino.h>
 
@@ -17,8 +16,7 @@ MBoard::MBoard()
   PCF_38 = new PCF8574(0x38);   // deviceAddress
 	initEsp32();
   initPCF8574();    // Включая начальную установку
-  initControl();
-  initSD();
+//  initSD();
   Supervisor = new MSupervisor(this);
 }
 
@@ -142,8 +140,6 @@ void MBoard::initEsp32()
 	ledcAttachPin( MPins::pwm_fan_pin, ch_fan );
 	ledcWrite( ch_fan, 0x0000 );	// Начальная установка ШИМ в 0. (или лучше в максимум?)
 
-//  initTouch();
-
 }
 
 // Инициализация ресурсов расширителя выводов
@@ -153,24 +149,11 @@ void MBoard::initPCF8574()
   PCF_38->begin( MPins::i2c_sda_pin, MPins::i2c_scl_pin, pcfOut);
 }
 
-  // Инициализация периферийного интерфейса, который может быть UART2 или I2C (оба на IO16, IO17)
-void MBoard::initControl()
-{
-  #ifdef UART2
-      // Периферия управляется по асинхронному каналу (см. mwake.cpp)
-    Serial2.begin(115200);            // это порт дрйвера
-    Serial2.setTimeout( time_out );   // время ожидания ответа, ms. 
-  #else
-      // Периферия управляется по I2C_2 (MPins::i2c2_sda_pin, MPins::i2c2_scl_pin, 400000)
-    
-  #endif
-}
+//   // Инициализация интерфейса карты памяти (HSPI аппаратный)
+// void MBoard::initSD()
+// {
 
-  // Инициализация интерфейса карты памяти (HSPI аппаратный)
-void MBoard::initSD()
-{
-
-}
+// }
 
   // Преобразование данных АЦП в напряжение с коррекцией линейности 
   // https://github.com/G6EJD/ESP32-ADC-Accuracy-Improvement-function/blob/master/ESP32_ADC_Read_Voltage_Accurate.ino
@@ -204,50 +187,3 @@ float MBoard::readSteinhart( const int adc )
   if ( steinhart == -273.15f ) steinhart = 120.0f;
   return ( steinhart > 120.0f ) ? 120.0f : steinhart;   // В случае обрыва датчика  = 120
 }
-
-
-//float MBoard::getRealVoltage() { return voltage; }  //+21
-//float MBoard::getRealCurrent() { return current; }  //+21
-
-  // Настройки АЦП
-
-void  MBoard::setAdcV( int16_t val ) { adcV = val; }
-void  MBoard::setAdcI( int16_t val ) { adcI = val; }
-//void  MBoard::setAdcOffset( int16_t val ) { adcOffset = val; }
-
-
-
-  // Текущие целочисленные в мВ и мА напряжение и ток преобразуются в вольты и амперы 
-//void  MBoard::setVoltageVolt(short val)     { voltage = (float)val / 1000; }
-//float MBoard::getVoltageVolf()              { return voltage; }
-//void  MBoard::setCurrentAmper(short val)    { current = (float)val / 1000; }
-//float MBoard::getCurrentAmper()             { return current; }
-
-
-//void  MBoard::setSt1(uint8_t val) {}
-//void  MBoard::setSt2(uint8_t val) {}
-// void  MBoard::setProtErr(uint8_t val)  // protocol error - или подтверждения исполнения команды 
-// {
-
-// }
-
-  // Обработка ответов от драйвера силовой платы
-//void  MBoard::readFactorU(short val) { factorU = val; }
-//void  MBoard::readSmoothU(uint8_t val) { smoothU = val; }
-//void  MBoard::readOffsetU(short val) { offsetU = val; }
-//void  MBoard::readFactorI(short val) { factorI = val; }
-//void  MBoard::readSmoothI(uint8_t val) { smoothI = val; }
-//void  MBoard::readOffsetI(short val) { offsetI = val; }
-
-
-//   // ПИД
-// void  MBoard::readPidMode(uint8_t val){ pidMode = val; }    // mode
-// void  MBoard::readKp(short val){ kp = val; }                // kP
-// void  MBoard::readKi(short val){ ki = val; }                // kI
-// void  MBoard::readKd(short val){ kd = val; }                // kD
-// void  MBoard::readMinOut(short val){ minOut = val; }        // min
-// void  MBoard::readMaxOut(short val){ maxOut = val; }        // max
-
-
-
-//int16_t MBoard::getOffsetU() { return (short)Tool->offsetV; }

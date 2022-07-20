@@ -14,6 +14,12 @@ namespace MDevice
       // Пределы регулирования смещения АЦП
     static constexpr short adc_l = -20;
     static constexpr short adc_h =  20;
+    static constexpr short shift_u_l = 20;
+    static constexpr short shift_u_h = 20;
+    static constexpr short factor_u_l = 0x2D4F + 20;
+    static constexpr short factor_u_h = 0x2D4F - 20;
+
+
 
       // по умолчанию
     static constexpr short adc_offset = 0;

@@ -88,10 +88,13 @@ class MCommands
     void doPidGetConfigure();        // 0x48   
 //    void doPidSetMaxSum();           // 0x49    nu
 
+    void doCooler();                 // 0x4F Задать скорость вентилятора 
+      
       // Команды работы с АЦП
     void doReadProbes();             // 0x50   
     void doAdcGetOffset();           // 0x51   
-    void doAdcSetOffset();           // 0x52   
+    void doAdcSetOffset();           // 0x52
+    void doAdcAutoOffset();          // 0x53
 
       // Команды управления портами управления (в основном тестовые)
     void doSwPin();                  // 0x54   

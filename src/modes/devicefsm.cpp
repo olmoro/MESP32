@@ -87,13 +87,13 @@ namespace MDevice
   /*  Выбран режим ручной коррекции смещения АЦП. 
     Перед коррекцией прибор должен быть прогрет в течение нескольких минут, желательно
     под нагрузкой или в режиме разряда. 
-      Коррекцию производить, подключив к клеммам "+" и "-" низкоомный резистор, или, 
+      Коррекцию производить, подключив к клеммам "+" и "-" низкоомный резистор или, 
     если не страшно, клеммы надо закоротить перемычкой. И то и другое - проводами 
     минимальной длины.
-      Цель коррекции - нулевые или околонулевые показания тока и напряжения.  */
+      Цель коррекции - нулевые или околонулевые показания тока и напряжения. - уточняется  */
   MManual::MManual(MTools * Tools) : MState(Tools)
   {
-
+Tools->setTuningAdc(true);
       // Индикация
     Display->showMode((char*)"  MANUAL    UP/DN ");  // В каком режиме
     Display->showHelp((char*)"  P-NEXT   B-SAVE ");  // Активные кнопки
@@ -127,8 +127,9 @@ namespace MDevice
     break;
     default:;
     }
-      // Индикация ввода - текущие напряжение и ток
-
+      // Индикация ввода в "попугаях" АЦП
+      Display->showVolt(Tools->getAdcV() / 100, 3);
+      Display->showAmp (Tools->getAdcI() / 100, 3); 
     return this;
   };  //MManual
 
@@ -144,7 +145,17 @@ namespace MDevice
     Процесс коррекции сдвига чередовать с коррекцией коэффициента пересчета. Переход
     между этими состояниями производится кнопкой "P". */
 
-  MShiftFactorU::MShiftFactorU(MTools * Tools) : MState(Tools) {}
+
+  /* Переходное состояние
+  */
+  MShiftFactorU::MShiftFactorU(MTools * Tools) : MState(Tools)
+  {
+Tools->setTuningAdc(false);
+      // Индикация здесь и далее 
+//    Display->showMode((char*)"  FACTOR    UP/DN ");  // В каком режиме
+//    Display->showHelp((char*)"  P-NEXT   B-SAVE ");  // Активные кнопки
+    Board->ledsGreen();              // Подтверждение
+  }
   MState * MShiftFactorU::fsm()
   {
     // Из-за парной регулировки ... это состояние.
@@ -163,6 +174,7 @@ namespace MDevice
 
   MShiftU::MShiftU(MTools * Tools) : MState(Tools)
   {
+
       // Индикация
     Display->showMode((char*)" SHIFT_U    UP/DN ");  // В каком режиме
     Display->showHelp((char*)" P-FACT_U  B-SAVE ");  // Активные кнопки
@@ -174,16 +186,28 @@ namespace MDevice
     {
       // Отказ от продолжения ввода параметров - стоп
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-      // Сохранить и перейти к следующему состоянию
-
-
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorU(Tools);
-
+      // Сохранить и перейти к следующему состоянию
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "offsetV", shift );                     return new MFactorU(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      par = Tools->upiVal(par, MConst::shift_u_l, MConst::shift_u_h, 1U); 
+      #ifdef TESTDEVICE
+        Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
+      #endif           
+      Tools->txSetShiftU(shift);                                 // 0x36  Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      par = Tools->dniVal(par, MConst::shift_u_l, MConst::shift_u_h, 1U);
+      #ifdef TESTDEVICE
+        Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
+      #endif
+      Tools->txSetShiftU(shift);                                 // 0x36  Команда драйверу
 
     default:;
     }
-
-    return this;
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 2);                    return this;
   };  //MShiftU
 
 
@@ -233,7 +257,8 @@ namespace MDevice
     case MKeyboard::C_CLICK:  Board->buzzerOn();        return new MExit(Tools);
     default:;
     }
-    return this;
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 2);      return this;
   };  //MStop
 
   // Процесс выхода из режима - до нажатия кнопки "С" удерживается индикация
