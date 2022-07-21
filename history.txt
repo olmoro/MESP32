@@ -34,3 +34,7 @@ RAM:   [=         ]  13.3% (used 43736 bytes from 327680 bytes)
 Flash: [==        ]  16.1% (used 1053854 bytes from 6553600 bytes)
 New: Задать скорость вентилятора
 void MTools::txSetCooler(short val) {cool = val; buffCmd = MCmd::cmd_set_cooler;}   // 0x4F
+21.07
+Очистка mtools
+RAM:   [=         ]  13.3% (used 43736 bytes from 327680 bytes)
+Flash: [==        ]  16.1% (used 1054222 bytes from 6553600 bytes)

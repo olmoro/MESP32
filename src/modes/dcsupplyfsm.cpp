@@ -105,22 +105,22 @@ namespace DcSupplyFsm
                 Tools->saveFloat( "s-power", "currMax", Tools->getCurrentMax() ); 
                 return new MSetVoltage(Tools);
             case MKeyboard::UP_CLICK :
-                Tools->incCurrentMax( 0.1f, false );
+                //Tools->incCurrentMax( 0.1f, false );
                 Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
 
                 break;
             case MKeyboard::DN_CLICK:
-                Tools->decCurrentMax( 0.1f, false );
+                //Tools->decCurrentMax( 0.1f, false );
                 Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
 
                 break;
             case MKeyboard::UP_LONG_CLICK:
-                Tools->incCurrentMax( 0.5f, false );
+                //Tools->incCurrentMax( 0.5f, false );
                 Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
 
                 break;
             case MKeyboard::DN_LONG_CLICK:
-                Tools->decCurrentMax( 0.5f, false );
+                //Tools->decCurrentMax( 0.5f, false );
                 Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
 
                 break;
@@ -189,25 +189,25 @@ namespace DcSupplyFsm
                 break;
 
             case MKeyboard::UP_CLICK :
-                Tools->incVoltageMax( 0.1f, false );
+                //Tools->incVoltageMax( 0.1f, false );
 //                Oled->showLine3MaxU( Tools->getVoltageMax() );
 //                Tools->liveU();
                 break;  //return new MExecution(Tools);
 
             case MKeyboard::DN_CLICK:
-                Tools->decVoltageMax( 0.1f, false );
+                //Tools->decVoltageMax( 0.1f, false );
 //                Tools->liveU();   
 //                Oled->showLine3MaxU( Tools->getVoltageMax() );
                 break;  //                return new MExecution(Tools);
 
             case MKeyboard::UP_AUTO_CLICK:
-                Tools->incVoltageMax( 0.1f, false );
+                //Tools->incVoltageMax( 0.1f, false );
 //                Tools->liveU();   
 //                Oled->showLine3MaxU( Tools->getVoltageMax() );
                 break;  //                return new MExecution(Tools);
 
             case MKeyboard::DN_AUTO_CLICK:
-                Tools->decVoltageMax( 0.1f, false );
+                //Tools->decVoltageMax( 0.1f, false );
 //                Tools->liveU();   
 //                Oled->showLine3MaxU( Tools->getVoltageMax() );
                 break;  //                return new MExecution(Tools);
@@ -224,7 +224,7 @@ namespace DcSupplyFsm
     // о продолжительности и отданном заряде.
     MExit::MExit(MTools * Tools) : MState(Tools)
     {
-        Tools->powShutdown();
+        //Tools->powShutdown();
         // Tools->shutdownCharge();
 //        Display->getTextMode( (char*) "   DC DCSUPPLY OFF   " );
         Display->showHelp( (char*) "              C-EXIT " );

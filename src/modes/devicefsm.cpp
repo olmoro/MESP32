@@ -22,7 +22,7 @@
 namespace MDevice
 {
 
-  short shift, factor, smooth, par;
+  short offset, shift, factor, smooth, par;
 
     // Состояние "Старт", инициализация выбранного режима работы (DEVICE).
   MStart::MStart(MTools * Tools) : MState(Tools)
@@ -31,9 +31,9 @@ namespace MDevice
     Tools->txPowerStop();                                 // 0x21  Команда драйверу
 
     // При первом включении, как правило заводском, задается нулевое смещение 
-    par = Tools->readNvsInt("qulon", "offsetAdc", MConst::adc_offset);
+    offset = Tools->readNvsInt("qulon", "offsetAdc", MConst::adc_offset);
     #ifdef TESTDEVICE
-      Serial.println(); Serial.print("offsetAdc=0x"); Serial.println(par, HEX);
+      Serial.println(); Serial.print("offsetAdc=0x"); Serial.println(offset, HEX);
     #endif
     // Индикация
     Display->showMode((char*)"   DEVICE START   ");  // В каком режиме
@@ -107,29 +107,31 @@ Tools->setTuningAdc(true);
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
       // Сохранить и перейти к следующему состоянию
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "offsetAdc", par );                     return new MShiftFactorU(Tools);
+      Tools->saveInt("qulon", "offsetAdc", offset );                     return new MShiftFactorU(Tools);
       // Перейти к следующему состоянию без сохранения
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftFactorU(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
-      par = Tools->upiVal(par, MConst::adc_l, MConst::adc_h, 1U); 
+      offset = Tools->upiVal(offset, MConst::adc_l, MConst::adc_h, 1U); 
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(par, HEX);
+        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(offset, HEX);
       #endif           
-      Tools->txSetAdcOffset(par);                                 // 0x52  Команда драйверу
+      Tools->txSetAdcOffset(offset);                                 // 0x52  Команда драйверу
     break;
     case MKeyboard::DN_CLICK: Board->buzzerOn();
-      par = Tools->dniVal(par, MConst::adc_l, MConst::adc_h, 1U);
+      offset = Tools->dniVal(offset, MConst::adc_l, MConst::adc_h, 1U);
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(par, HEX);
+        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(offset, HEX);
       #endif
-      Tools->txSetAdcOffset(par);                                 // 0x52  Команда драйверу
+      Tools->txSetAdcOffset(offset);                                 // 0x52  Команда драйверу
 
     break;
     default:;
     }
       // Индикация ввода в "попугаях" АЦП
-      Display->showVolt(Tools->getAdcV() / 100, 3);
-      Display->showAmp (Tools->getAdcI() / 100, 3); 
+Serial.println(); Serial.print("adcV = 0x"); Serial.println(Tools->getAdcV(), HEX);
+     
+      Display->showVolt(Tools->getAdcV(), 1);
+      Display->showAmp (Tools->getAdcI(), 1); 
     return this;
   };  //MManual
 
@@ -191,14 +193,16 @@ Tools->setTuningAdc(false);
     case MKeyboard::B_CLICK: Board->buzzerOn();
       Tools->saveInt("qulon", "offsetV", shift );                     return new MFactorU(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
-      par = Tools->upiVal(par, MConst::shift_u_l, MConst::shift_u_h, 1U); 
+      shift = Tools->upiVal(shift, MConst::shift_u_l, MConst::shift_u_h, -1); 
       #ifdef TESTDEVICE
         Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
       #endif           
       Tools->txSetShiftU(shift);                                 // 0x36  Команда драйверу
     break;
     case MKeyboard::DN_CLICK: Board->buzzerOn();
-      par = Tools->dniVal(par, MConst::shift_u_l, MConst::shift_u_h, 1U);
+      //shift = Tools->dniVal(shift, MConst::shift_u_l, MConst::shift_u_h, 5);
+      shift = Tools->upiVal(shift, MConst::shift_u_l, MConst::shift_u_h, +1); 
+
       #ifdef TESTDEVICE
         Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
       #endif
@@ -207,7 +211,7 @@ Tools->setTuningAdc(false);
     default:;
     }
     Display->showVolt(Tools->getRealVoltage(), 3);
-    Display->showAmp (Tools->getRealCurrent(), 2);                    return this;
+    Display->showAmp (Tools->getRealCurrent(), 3);                    return this;
   };  //MShiftU
 
 

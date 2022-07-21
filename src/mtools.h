@@ -123,9 +123,9 @@ bool setPidCoefficients(float kp, float ki, float kd);
     float getRealVoltage(); //+m
     float getRealCurrent(); //+m
 
-    // Индекс массива выбора батареи    
-    int  getAkbInd();
-    void setAkbInd(int);
+    // // Индекс массива выбора батареи    
+    // int  getAkbInd();
+    // void setAkbInd(int);
 
     // Заданная емкость батареи, А-ч
     float getCapacity();
@@ -232,68 +232,74 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void  clearAllKeys (const char * name);
 
 
-    void incBattery();
-    void decBattery();
+    // void incBattery();
+    // void decBattery();
 
-    void incCapacity( float delta, bool way );
-    void decCapacity( float delta, bool way );
+    // void incCapacity( float delta, bool way );
+    // void decCapacity( float delta, bool way );
 
-    void incCurrentMax( float delta, bool way );
-    void decCurrentMax( float delta, bool way );
+    // void incCurrentMax( float delta, bool way );
+    // void decCurrentMax( float delta, bool way );
 
-    void incCurrentMin( float delta, bool way );
-    void decCurrentMin( float delta, bool way );
+    // void incCurrentMin( float delta, bool way );
+    // void decCurrentMin( float delta, bool way );
 
     // void incCurrentDis( float delta, bool way );
     // void decCurrentDis( float delta, bool way );    
 
-    void incVoltageMax( float delta, bool way );
-    void decVoltageMax( float delta, bool way );
+    // void incVoltageMax( float delta, bool way );
+    // void decVoltageMax( float delta, bool way );
 
-    void incVoltageMin( float delta, bool way );
-//    void decVoltageMin( float delta, bool way );
+//     void incVoltageMin( float delta, bool way );
+// //    void decVoltageMin( float delta, bool way );
 
-    void incVoltagePow( float delta, bool way );
-    void decVoltagePow( float delta, bool way );
+    // void incVoltagePow( float delta, bool way );
+    // void decVoltagePow( float delta, bool way );
 
-    void incVoltagePre( float delta, bool way );
-    void decVoltagePre( float delta, bool way );
+    // void incVoltagePre( float delta, bool way );
+    // void decVoltagePre( float delta, bool way );
 
-    void incCurrentPre( float delta, bool way );
-    void decCurrentPre( float delta, bool way );
+    // void incCurrentPre( float delta, bool way );
+    // void decCurrentPre( float delta, bool way );
 
-    void incDurationOn( bool way );
-    void decDurationOn( bool way );
-    void incDurationOff( bool way );
-    void decDurationOff( bool way );
+    // void incDurationOn( bool way );
+    // void decDurationOn( bool way );
+    // void incDurationOff( bool way );
+    // void decDurationOff( bool way );
 
 
-    void incCycles();
-    void decCycles();
+    // void incCycles();
+    // void decCycles();
 
-    void incCurrentDis( float delta, bool way );
-    void decCurrentDis( float delta, bool way );
+    // void incCurrentDis( float delta, bool way );
+    // void decCurrentDis( float delta, bool way );
 
-    void incVoltageDis( float delta, bool way );
-    void decVoltageDis( float delta, bool way );
+    // void incVoltageDis( float delta, bool way );
+    // void decVoltageDis( float delta, bool way );
 
-    void incPause();
-    void decPause();
+    // void incPause();
+    // void decPause();
 
-    int   incNum( int v, int h, int d );
-    int   decNum( int v, int l, int d );
+    // int   incNum( int v, int h, int d );
+    // int   decNum( int v, int l, int d );
 
 
 // inc, dec 201905
-    float incFloatValue( float value,  float value_l, float value_h, float delta ); 
-    float decFloatValue( float value,  float value_l, float value_h, float delta );
-    int   incIntValue( int value, int value_l, int value_h, int delta );
-    int   decIntValue( int value, int value_l, int value_h, int delta );
-//2020
+    // float incFloatValue( float value,  float value_l, float value_h, float delta ); 
+    // float decFloatValue( float value,  float value_l, float value_h, float delta );
+    // int   incIntValue( int value, int value_l, int value_h, int delta );
+    // int   decIntValue( int value, int value_l, int value_h, int delta );
+// 2020
     int   upiVal( int val, int min, int max, int delta );
     int   dniVal( int val, int min, int max, int delta );
     float upfVal( float val, float min, float max, float delta ); 
     float dnfVal( float val, float min, float max, float delta ); 
+// 202207
+    short updnInt(short value, short below, short above, short additives);
+    float updnFloat(float value, float below, float above, float additives);
+
+
+
 
 
     void saveInt(const char * name, const char * key, const int ivalue );
@@ -310,15 +316,15 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
 // Общие для импульсного разряда
 
-    void initCurrentAvr();
-    void addCollectAvr( float amp );
-    int  cnt = 0;
+  //  void initCurrentAvr();
+  //  void addCollectAvr( float amp );
+  //  int  cnt = 0;
     
-    float calcCurrentAvr();
-
+  //  float calcCurrentAvr();
 
     // void shutdownCharge();
     // void shutdownDC();
+
     //2022
     void txPowerGo(float spU, float spI, uint8_t mode);   // 0x20
     void txPowerStop();                                   // 0x21
@@ -414,9 +420,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
     uint8_t getBuffCmd();
     void    setBuffCmd(uint8_t cmd);
 
-//    void orderReadOffsetVoltage();
-//    void orderWriteOffsetVoltage();
-
     
 //============================ Power ===============================================
 
@@ -428,29 +431,27 @@ bool setPidCoefficients(float kp, float ki, float kd);
                               {16.0f,  2.0f} };
 
         int powInd =  3;
-    //static int   selectedDelay   =  0;
-    //float timeCounter = 0;
 
-    void savePowInd( const char * name ); 
-    void savePowO( const char * name ); 
+  //  void savePowInd( const char * name ); 
+  //  void savePowO( const char * name ); 
 
     void upPow();
     void dnPow();
 //    void liveU();
 
-    void powShutdown(); 
+//    void powShutdown(); 
 
 //============================ Charger ===============================================
     // Значения только для теста (читать дефолтные при чистой памяти)
-    int   akbInd = 3;           // в private?
+    // int   akbInd = 3;           // в private?
 
-    const float akb[7][2] = { {12.0f, 100.f},    // авто 
-                            {12.0f,  90.0f},      //  "
-                            {12.0f,  75.0f},      //  "
-                            {12.0f,  55.0f},      //  "
-                            {12.0f,   9.0f},      // ибп
-                            { 6.0f,  12.0f},      // дет.авто
-                            { 6.0f,   4.5f} };    // фонарь
+    // const float akb[7][2] = { {12.0f, 100.f},    // авто 
+    //                         {12.0f,  90.0f},      //  "
+    //                         {12.0f,  75.0f},      //  "
+    //                         {12.0f,  55.0f},      //  "
+    //                         {12.0f,   9.0f},      // ибп
+    //                         { 6.0f,  12.0f},      // дет.авто
+    //                         { 6.0f,   4.5f} };    // фонарь
 
     int   getChargeTimeCounter();       // common?
     float getAhCharge();                // common?
