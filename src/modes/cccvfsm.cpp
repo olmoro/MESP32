@@ -25,21 +25,41 @@ namespace Cccv
 {
   float maxV, minV, maxI, minI;
   
+    //===================================================================================== MStart
 
-  // Состояние "Старт", инициализация выбранного режима работы (Заряд CCCV).
+    // Состояние "Старт", инициализация выбранного режима работы (CC/CV).
+    /*  Параметры заряда восстанавливаются из энергонезависимой памяти и соответствуют 
+      предыдущему включению. Пороговые значения напряжений и токов рассчитываются исходя
+      из типа батареи, её номинального напряжения и емкости. Выбор предполагается производить в 
+      "OPTION", что в данном проекте не реализовано. Здесь же реализован частный случай для 
+      батареи 12в 50Ач, но имеется возможность коррекции пороговых значений, кторые также сохраняются 
+      и восстанавливаются из энергонезависимой памяти.
+        В случае отсутствия в памяти таковых данных они заменяются рассчитанными.
+    */
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
     //Отключить на всякий пожарный
     Tools->txPowerStop();                                 // 0x21  Команда драйверу
 
-    // Параметры заряда из энергонезависимой памяти, Занесенные в нее при предыдущих включениях, как и
-    // выбранные ранее номинальные параметры батареи (напряжение, емкость).
-    // При первом включении, как правило заводском, номиналы батареи задаются в mdispather.h. 
-    maxV = Tools->readNvsFloat("cccv", "maxV", Tools->getVoltageNom() * MConst::voltageMaxFactor);
-//Serial.println(); Serial.print("maxV="); Serial.println(maxV);
-    minV = Tools->readNvsFloat("cccv", "minV", Tools->getVoltageNom() * MConst::voltageMinFactor);
-    maxI = Tools->readNvsFloat("cccv", "maxI", Tools->getCapacity()   * MConst::currentMaxFactor);
-    minI = Tools->readNvsFloat("cccv", "minI", Tools->getCapacity()   * MConst::currentMinFactor);
+    maxV = Tools->readNvsFloat("cccv", "maxV", voltageNom * voltageMaxFactor);
+    #ifdef TESTCCCV 
+      Serial.print("\nmaxV="); Serial.print(maxV, 3);
+    #endif
+
+    minV = Tools->readNvsFloat("cccv", "minV", voltageNom * voltageMinFactor);
+    #ifdef TESTCCCV 
+      Serial.print("\nminV="); Serial.print(minV, 3);
+    #endif
+
+    maxI = Tools->readNvsFloat("cccv", "maxI", capacity * currentMaxFactor);
+    #ifdef TESTCCCV 
+      Serial.print("\nmaxI="); Serial.print(maxI, 3);
+    #endif
+
+    minI = Tools->readNvsFloat("cccv", "minI", capacity * currentMinFactor);
+    #ifdef TESTCCCV 
+      Serial.print("\nminI="); Serial.print(minI, 3);
+    #endif
 
     // Индикация
     Display->showMode( (char*)"       CC/CV      " );  // В каком режиме
@@ -53,11 +73,22 @@ namespace Cccv
     {
       case MKeyboard::C_CLICK: Board->buzzerOn(); 
         // Старт без уточнения параметров (здесь – для батарей типа AGM), 
-        maxV = Tools->getVoltageNom() * MConst::voltageMaxFactor;
-//Serial.println(); Serial.print("maxV="); Serial.println(maxV);
-        minV = Tools->getVoltageNom() * MConst::voltageMinFactor;
-        maxI = Tools->getCapacity()   * MConst::currentMaxFactor; 
-        minI = Tools->getCapacity()   * MConst::currentMinFactor;
+        maxV = voltageNom * voltageMaxFactor;
+        #ifdef TESTCCCV 
+          Serial.print("\nmaxV="); Serial.print(maxV, 3);
+        #endif
+        minV = voltageNom * voltageMinFactor;
+        #ifdef TESTCCCV 
+          Serial.print("\nminV="); Serial.print(minV, 3);
+        #endif
+        maxI = capacity * currentMaxFactor;
+        #ifdef TESTCCCV 
+          Serial.print("\nmaxI="); Serial.print(maxI, 3);
+        #endif
+        minI = capacity * currentMinFactor;
+        #ifdef TESTCCCV 
+          Serial.print("\nminI="); Serial.print(minI, 3);
+        #endif
       return new MPostpone(Tools);
 
       case MKeyboard::P_CLICK: Board->buzzerOn();
@@ -66,16 +97,26 @@ namespace Cccv
     }
     // Индикация текущих значений, указывается число знаков после запятой
     Display->showVolt(Tools->getRealVoltage(), 3);
-    Display->showAmp (Tools->getRealCurrent(), 2);
+    Display->showAmp (Tools->getRealCurrent(), 3);
     return this;
   };
 
-  // Состояние "Коррекция максимального тока заряда"."
+    //===================================================================================== MSetCurrentMax
+
+    // Состояние "Коррекция максимального тока заряда".
+    /*  Параметры заряда восстанавливаются из энергонезависимой памяти и соответствуют 
+      предыдущему включению. Пороговые значения напряжений и токов рассчитываются исходя
+      из типа батареи, её номинального напряжения и емкости. Выбор предполагается производить в 
+      "OPTION", что в данном проекте не реализовано. Здесь же реализован частный случай для 
+      батареи 12в 50Ач, но имеется возможность коррекции пороговых значений, кторые также сохраняются 
+      и восстанавливаются из энергонезависимой памяти.
+        В случае отсутствия в памяти таковых данных они заменяются рассчитанными.
+    */
   MSetCurrentMax::MSetCurrentMax(MTools * Tools) : MState(Tools)
   {
     // Индикация
-    Display->showMode((char*)"    CURRENT MAX   ");  // Регулируемый параметр
-    Display->showHelp((char*)"  U/D B-SAVE C-GO ");  //
+    Display->showMode((char*)" MAX_I        +/- ");  // Регулируемый параметр
+    Display->showHelp((char*)" B-SAVE      C-GO ");  // Активные кнопки
   }
   MState * MSetCurrentMax::fsm()
   {
@@ -83,19 +124,24 @@ namespace Cccv
     {
         // Отказ от продолжения ввода параметров - стоп
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+
         // Отказ от дальнейшего ввода параметров - исполнение
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MPostpone(Tools);
+
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();       
         Tools->saveFloat("cccv", "maxI", maxI);                         return new MSetVoltageMax(Tools);
+
         // Увеличить значение на указанную величину
       case MKeyboard::UP_CLICK:  Board->buzzerOn(); 
       case MKeyboard::UP_AUTO_CLICK:  
-        maxI = Tools->upfVal( maxI, MConst::i_l, MConst::i_h, 0.1f );   break;
+        maxI = Tools->updnFloat(maxI, below, above, 0.1f);             break;
+
         // Уменьшить значение на указанную величину
       case MKeyboard::DN_CLICK: Board->buzzerOn();
       case MKeyboard::DN_AUTO_CLICK:  
-        maxI = Tools->dnfVal(maxI, MConst::i_l, MConst::i_h, 0.1f );    break;
+        maxI = Tools->updnFloat(maxI, below, above, -0.1f);            break;
+
       default:;
     }
     // Если не закончили ввод, то индикация введенного и остаться в том же состоянии
@@ -103,12 +149,14 @@ namespace Cccv
     Display->showAmp(maxI, 1);                                          return this;
   };
 
-  // Состояние: "Коррекция максимального напряжения"
+    //===================================================================================== MSetVoltageMax
+
+    // Состояние: "Коррекция максимального напряжения"
   MSetVoltageMax::MSetVoltageMax(MTools * Tools) : MState(Tools)
   {
     // Индикация 
-    Display->showMode((char*)" U/D-SET VOLT MAX ");
-    Display->showHelp((char*)"  B-SAVE C-START  ");
+    Display->showMode((char*)" MAX_V        +/- ");
+    Display->showHelp((char*)" B-SAVE      C-GO ");
   }
   MState * MSetVoltageMax::fsm()
   {
@@ -116,19 +164,24 @@ namespace Cccv
     {
         // Отказ от продолжения ввода параметров - стоп
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+
         // Отказ от дальнейшего ввода параметров - исполнение
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MPostpone(Tools);
+
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();
         Tools->saveFloat("cccv", "maxV", maxV);                         return new MSetCurrentMin(Tools);
+
         // Увеличить значение на указанную величину
       case MKeyboard::UP_CLICK: Board->buzzerOn();
       case MKeyboard::UP_AUTO_CLICK:  
-        maxV = Tools->upfVal(maxV, MConst::v_l, MConst::v_h, 0.1f);     break;
+        maxV = Tools->updnFloat(maxV, below, above, 0.1f);              break;
+
         // Уменьшить значение на указанную величину
       case MKeyboard::DN_CLICK: Board->buzzerOn(); 
       case MKeyboard::DN_AUTO_CLICK: 
-        maxV = Tools->dnfVal(maxV, MConst::v_l, MConst::v_h, 0.1f);     break;
+        maxV = Tools->updnFloat(maxV, below, above, -0.1f);             break;
+        
       default:;
     }
       // Показать и продолжить
@@ -136,12 +189,14 @@ namespace Cccv
     Display->showAmp(Tools->getRealCurrent(), 3);                       return this;
   };
 
+  //===================================================================================== MSetCurrentMin
+
   // Состояние: "Коррекция минимального тока заряда"
   MSetCurrentMin::MSetCurrentMin(MTools * Tools) : MState(Tools)
   {
     // Индикация помощи
-    Display->showMode((char*)"    CURRENT MIN   ");
-    Display->showHelp((char*)"  U/D B-SAVE C-GO ");
+    Display->showMode((char*)" MAX_I        +/- ");
+    Display->showHelp((char*)" B-SAVE      C-GO ");
   }   
   MState * MSetCurrentMin::fsm()
   {
@@ -149,17 +204,21 @@ namespace Cccv
     {
         // Отказ от продолжения ввода параметров - стоп
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+
         // Отказ от дальнейшего ввода параметров - исполнение
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MPostpone(Tools);
+
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();
         Tools->saveFloat("cccv", "minI", minI);                         return new MSetVoltageMin(Tools);
+
       case MKeyboard::UP_CLICK: Board->buzzerOn();
       case MKeyboard::UP_AUTO_CLICK:
-        minI = Tools->upfVal(minI, MConst::i_l, MConst::i_h, 0.1f);     break;
+        minI = Tools->updnFloat(minI, below, above, 0.1f);              break;
+
       case MKeyboard::DN_CLICK: Board->buzzerOn();
       case MKeyboard::DN_AUTO_CLICK:
-        minI = Tools->dnfVal(minI, MConst::i_l, MConst::i_h, 0.1f);     break;
+        minI = Tools->updnFloat(minI, below, above, -0.1f);             break;
       default:;
     }
     // Показать и продолжить
@@ -167,12 +226,14 @@ namespace Cccv
     Display->showAmp(minI, 1);                                          return this;
   };
 
+  //===================================================================================== MSetVoltageMin
+
   // Состояние: "Коррекция минимального напряжения окончания заряда"
   MSetVoltageMin::MSetVoltageMin(MTools * Tools) : MState(Tools)
   {
     // Индикация помощи
-    Display->showMode((char*)"   VOLTAGE MIN    ");
-    Display->showHelp((char*)"  U/D B-SAVE C-GO ");
+    Display->showMode((char*)" MIN_V        +/- ");
+    Display->showHelp((char*)" B-SAVE      C-GO ");
   }   
   MState * MSetVoltageMin::fsm()
   {
@@ -180,23 +241,30 @@ namespace Cccv
     {
         // Отказ от продолжения ввода параметров - стоп    
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+
         // Отказ от дальнейшего ввода параметров - исполнение
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MPostpone(Tools);
+
         // Сохранить и перейти к исполнению
       case MKeyboard::B_CLICK: Board->buzzerOn();
         Tools->saveFloat( "cccv", "minV", minV );                       return new MPostpone(Tools);
+
       case MKeyboard::UP_CLICK: Board->buzzerOn();
       case MKeyboard::UP_AUTO_CLICK:
-        minV = Tools->upfVal( minV, MConst::v_l, MConst::v_h, 0.1f );   break;
+        minV = Tools->updnFloat(minV, below, above, 0.1f);              break;
+
       case MKeyboard::DN_CLICK: Board->buzzerOn();
       case MKeyboard::DN_AUTO_CLICK:
-        minV = Tools->dnfVal(minV, MConst::v_l, MConst::v_h, 0.1f);     break;
+        minV = Tools->updnFloat(minV, below, above, -0.1f);             break;
+
       default:;
     }
     // Индикация ввода
     Display->showVolt(minV, 1);
     Display->showAmp(Tools->getRealCurrent(), 3);                       return this;
   };
+
+  //===================================================================================== MPostpone
 
   // Состояние: "Задержка включения (отложенный старт)", время ожидания старта задается в OPTIONS.
   MPostpone::MPostpone(MTools * Tools) : MState(Tools)
@@ -218,8 +286,10 @@ namespace Cccv
     {
         // Досрочное прекращение заряда оператором
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+
         // Старт оператором
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MSetPidCoeffU(Tools);
+
       default:;
     }
     // Индикация в период ожидания старта (обратный отсчет)
@@ -228,44 +298,50 @@ namespace Cccv
     return this;
   };
 
-  // *********************************** PID *******************************************
+  //===================================================================================== MSetPidCoeffU
+
   // Восстановление пользовательских kp, ki, и kd для управления напряжением.
   MSetPidCoeffU::MSetPidCoeffU(MTools * Tools) : MState(Tools) {}
   MState * MSetPidCoeffU::fsm()
   {
     //Взять сохраненные из ЭНОЗУ.
-    kpU = Tools->readNvsFloat("cccv", "kpU", 0.06);
-    kiU = Tools->readNvsFloat("cccv", "kiU", 0.02);
-    kdU = Tools->readNvsFloat("cccv", "kdU", 0.00);
-    Tools->txSetPidCoeffU(kpU, kiU, kdU);                                               // 0x41  Команда драйверу
-    return new MSetPidCoeffI(Tools);                                                  // Перейти к следующему параметру
+    kp = Tools->readNvsFloat("cccv", "kpU", 0.06);
+    ki = Tools->readNvsFloat("cccv", "kiU", 0.02);
+    kd = Tools->readNvsFloat("cccv", "kdU", 0.00);
+    Tools->txSetPidCoeffU(kp, ki, kd);                                  // 0x41  Команда драйверу
+    return new MSetPidCoeffI(Tools);                                    // Перейти к следующему параметру
   };
+
+  //===================================================================================== MSetPidCoeffI
 
     // Восстановление пользовательских kp, ki, и kd для управления током заряда.
   MSetPidCoeffI::MSetPidCoeffI(MTools * Tools) : MState(Tools) {}
   MState * MSetPidCoeffI::fsm()
   {
     //Взять сохраненные из ЭНОЗУ.
-    kpI = Tools->readNvsFloat("cccv", "kpI", 0.02);
-    kiI = Tools->readNvsFloat("cccv", "kiI", 0.10);
-    kdI = Tools->readNvsFloat("cccv", "kdI", 0.00);
-    Tools->txSetPidCoeffI(kpI, kiI, kdI);                                               // 0x41  Команда драйверу
-    return new MSetPidCoeffD(Tools);                                                  // Перейти к следующему параметру
+    kp = Tools->readNvsFloat("cccv", "kpI", 0.02);
+    ki = Tools->readNvsFloat("cccv", "kiI", 0.10);
+    kd = Tools->readNvsFloat("cccv", "kdI", 0.00);
+    Tools->txSetPidCoeffI(kp, ki, kd);                                   // 0x41  Команда драйверу
+    return new MSetPidCoeffD(Tools);                                     // Перейти к следующему параметру
   };
+
+  //===================================================================================== MSetPidCoeffD
 
   // Восстановление пользовательских kp, ki, и kd для управления током разряда.
   MSetPidCoeffD::MSetPidCoeffD(MTools * Tools) : MState(Tools) {}
   MState * MSetPidCoeffD::fsm()
   {
     //Взять сохраненные из ЭНОЗУ.
-    kpD = Tools->readNvsFloat("cccv", "kpD", 0.02);    // Уточнить
-    kiD = Tools->readNvsFloat("cccv", "kiD", 0.10);
-    kdD = Tools->readNvsFloat("cccv", "kdD", 0.00);
-    Tools->txSetPidCoeffD(kpD, kiD, kdD);                                               // 0x41  Команда драйверу
-    return new MUpCurrent(Tools);                                                     // Перейти к следующему состоянию
+    kp = Tools->readNvsFloat("cccv", "kpD", 0.02);    // Уточнить
+    ki = Tools->readNvsFloat("cccv", "kiD", 0.10);
+    kd = Tools->readNvsFloat("cccv", "kdD", 0.00);
+    Tools->txSetPidCoeffD(kp, ki, kd);                                     // 0x41  Команда драйверу
+    return new MUpCurrent(Tools);                                          // Перейти к следующему состоянию
   };
 
-  // ************************* Состояния собственно заряда CC/CV *************************
+  //===================================================================================== MUpCurrent
+
   /*  Начальный этап заряда - ток поднимается не выше заданного уровня, при достижении 
     заданного максимального напряжения переход к его удержанию. 
     Здесь и далее подсчитывается время и отданный заряд, а также сохраняется возможность
@@ -278,6 +354,7 @@ namespace Cccv
     Display->showMode((char*)"  CONST CURRENT   ");
     Display->showHelp((char*)"      C-STOP      ");
     Board->ledsGreen();
+    
       // Обнуляются счетчики времени и отданного заряда
     Tools->clrTimeCounter();
     Tools->clrAhCharge();
@@ -287,11 +364,11 @@ namespace Cccv
      Здесь задаются сетпойнты по напряжению и току. Подъем тока
      производится ПИД-регулятором.
     */ 
-    Tools->txPowerGo(Tools->voltageMax * 1.05f, Tools->currentMax, 1);         // 0x20  Команда драйверу
+    Tools->txPowerGo(maxV * 1.05f, maxI, 1);                                // 0x20  Команда драйверу
   }     
   MUpCurrent::MState * MUpCurrent::fsm()
   {
-    Tools->chargeCalculations();                     // Подсчет отданных ампер-часов.
+    Tools->chargeCalculations();                                            // Подсчет отданных ампер-часов.
 
     switch ( Keyboard->getKey() )
     {
@@ -312,6 +389,8 @@ namespace Cccv
     Display->showAh(Tools->getAhCharge());                                  return this;
   };  //MUpCurrent
 
+  //===================================================================================== MKeepVmax
+
   /*  Вторая фаза заряда - достигнуто заданное максимальное напряжение.
     Настройки регулятора не меняются, по факту состояние необходимо только для 
     изменения индикации.
@@ -324,21 +403,22 @@ namespace Cccv
     Display->showMode((char*)"  CONST VOLTAGE   ");
     Display->showHelp((char*)"     C-STOP       ");
     Board->ledsYellow();
-    //Tools->txPowerGo(maxV, maxI, 1);         // 0x20  Команда драйверу
+    //Tools->txPowerGo(maxV, maxI, 1);                                      // 0x20  Команда драйверу
   }       
   MState * MKeepVmax::fsm()
   {
-    Tools->chargeCalculations();                   // Подсчет отданных ампер-часов.
+    Tools->chargeCalculations();                                            // Подсчет отданных ампер-часов.
 
     //if (Keyboard->getKey(MKeyboard::C_CLICK)) { Board->buzzerOn();  return new MStop(Tools); }                // Окончание процесса оператором.
     switch ( Keyboard->getKey() )
     {
-      case MKeyboard::C_CLICK:        // Досрочное прекращение заряда оператором
-      case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                    return new MStop(Tools);
+        // Досрочное прекращение заряда оператором
+      case MKeyboard::C_CLICK:                            
+      case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                      return new MStop(Tools);
       default:;
     }
 
-    if( Tools->getRealCurrent() <= Tools->getCurrentMin() )
+    if(Tools->getRealCurrent() <= Tools->getCurrentMin())
     return new MKeepVmin(Tools);        // Ожидание спада тока ниже C/20 ампер.
 
     // Коррекция
@@ -357,26 +437,29 @@ namespace Cccv
     return this;
   };
 
+  //===================================================================================== MKeepVmin
+
   // Третья фаза заряда - достигнуто снижение тока заряда ниже заданного предела.
   // Проверки различных причин завершения заряда.
   MKeepVmin::MKeepVmin(MTools * Tools) : MState(Tools)
   {
     // Индикация помощи
-    Display->showMode( (char*) " KEEP MIN VOLTAGE " );
-    Display->showHelp( (char*) "      C-STOP      " );
+    Display->showMode((char*)" KEEP MIN VOLTAGE ");
+    Display->showHelp((char*)"      C-STOP      ");
     Board->ledsYellow();
       // Порог регулирования по минимальному напряжению
-    Tools->txPowerGo(minV, Tools->currentMax, 1);         // 0x20  Команда драйверу
+    Tools->txPowerGo(minV, maxI, 1);                                        // 0x20  Команда драйверу
   }     
   MState * MKeepVmin::fsm()
   {
-    Tools->chargeCalculations();        // Подсчет отданных ампер-часов.
+    Tools->chargeCalculations();                                            // Подсчет отданных ампер-часов.
 
     // Окончание процесса оператором.
     //if (Keyboard->getKey(MKeyboard::C_CLICK))     { return new MStop(Tools); }       
     switch ( Keyboard->getKey() )
     {
-      case MKeyboard::C_CLICK:        // Досрочное прекращение заряда оператором
+        // Досрочное прекращение заряда оператором
+      case MKeyboard::C_CLICK:    
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();
       return new MStop(Tools);
 
@@ -385,9 +468,8 @@ namespace Cccv
     // Здесь возможны проверки других условий окончания заряда
     // if( ( ... >= ... ) && ( ... <= ... ) )  { return new MStop(Tools); }
 
-    // Максимальное время заряда, задается в "Настройках"
-    if( Tools->getChargeTimeCounter() >= ( Tools->charge_time_out_limit * 36000 ) ) 
-    { return new MStop(Tools); }
+      // Максимальное время заряда, задается в "Настройках"
+    if(Tools->getChargeTimeCounter() >= (Tools->charge_time_out_limit * 36000))  return new MStop(Tools);
 
     // Необходимая коррекция против выброса тока
 //        if( Tools->getRealCurrent() > Tools->getCurrentMax() ) 
@@ -402,6 +484,8 @@ namespace Cccv
     return this;
   };  //MKeepVmin
 
+  //===================================================================================== MStop
+
   // Завершение режима заряда - до нажатия кнопки "С" удерживается индикация 
   // о продолжительности и отданном заряде.
   // Состояние: "Завершение заряда"
@@ -410,8 +494,8 @@ namespace Cccv
     // Команда драйверу отключить преобразователь (0x21) 
     Tools->txPowerStop();            // 0x21
 
-    Display->showMode( (char*) "     POWER OFF    " );
-    Display->showHelp( (char*) "      C-EXIT      " );
+    Display->showMode((char*)"     POWER OFF    ");
+    Display->showHelp((char*)"      C-EXIT      ");
     Display->barStop();
     Board->ledsRed();
   }    
@@ -435,8 +519,8 @@ namespace Cccv
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
     //Tools->shutdownCharge();
-    Display->showMode( (char*) "  CC/CV MODE OFF  " );
-    Display->showHelp( (char*) " C-TO SELECT MODE " );  // To select the mode
+    Display->showMode((char*)"  CC/CV MODE OFF  ");
+    Display->showHelp((char*)" C-TO SELECT MODE ");                      // To select the mode
     Board->ledsOff();
     Display->barOff();
   }    
@@ -445,7 +529,7 @@ namespace Cccv
     switch ( Keyboard->getKey() )
     {
       case MKeyboard::P_CLICK:  Board->buzzerOn();  
-      return new MStart(Tools);                       // Вернуться в начало
+      return new MStart(Tools);                                             // Вернуться в начало
 
       case MKeyboard::C_CLICK:  Board->buzzerOn(); 
         Tools->activateExit(" ");    // Можно сделать лучше, гасит светодиоды

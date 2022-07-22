@@ -8,17 +8,17 @@ namespace Cccv
   struct MConst
   {
     // Пределы регулирования min/max токов и напряжений
-    static constexpr float i_l =  0.2f;
-    static constexpr float i_h =  6.0f;
-    static constexpr float v_l = 10.0f;
-    static constexpr float v_h = 16.2f;
+    // static constexpr float i_l =  0.2f;
+    // static constexpr float i_h =  6.0f;
+    // static constexpr float v_l = 10.0f;
+    // static constexpr float v_h = 16.2f;
 
 
-    // Параметры условий заряда (здесь – для батарей типа AGM)
-    static constexpr float voltageMaxFactor     = 1.234f;    // 12v  * 1.234 = 14.8v
-    static constexpr float voltageMinFactor     = 0.890f;    // 12v  * 0.89  = 10.7v
-    static constexpr float currentMaxFactor     = 0.100f;    // 55ah * 0.1   = 5,5A 
-    static constexpr float currentMinFactor     = 0.050f;    // 55ah * 0.05  = 2.75A
+    // // Параметры условий заряда (здесь – для батарей типа AGM)
+    // static constexpr float voltageMaxFactor     = 1.234f;    // 12v  * 1.234 = 14.8v
+    // static constexpr float voltageMinFactor     = 0.890f;    // 12v  * 0.89  = 10.7v
+    // static constexpr float currentMaxFactor     = 0.100f;    // 55ah * 0.1   = 5,5A 
+    // static constexpr float currentMinFactor     = 0.050f;    // 55ah * 0.05  = 2.75A
   };
 
   // //pid settings and gains
@@ -41,6 +41,13 @@ namespace Cccv
     public:
       MStart(MTools * Tools);
       MState * fsm() override;
+    private:
+      float voltageNom = 12.0;
+      float capacity   = 55.0;
+      static constexpr float voltageMaxFactor = 1.234f;    // 12v  * 1.234 = 14.8v
+      static constexpr float voltageMinFactor = 0.890f;    // 12v  * 0.89  = 10.7v
+      static constexpr float currentMaxFactor = 0.100f;    // 55ah * 0.1   = 5,5A 
+      static constexpr float currentMinFactor = 0.050f;    // 55ah * 0.05  = 2.75A
   };
 
   class MSetPidCoeffU : public MState
@@ -49,7 +56,8 @@ namespace Cccv
       MSetPidCoeffU(MTools * Tools);
       MState * fsm() override;
     private:
-      float kpU, kiU, kdU;
+      float kp, ki, kd;
+
   };
 
   class MSetPidCoeffI : public MState
@@ -58,7 +66,7 @@ namespace Cccv
       MSetPidCoeffI(MTools * Tools);
       MState * fsm() override;
     private:
-     float kpI, kiI, kdI;
+     float kp, ki, kd;
   };
 
   class MSetPidCoeffD : public MState
@@ -67,7 +75,7 @@ namespace Cccv
       MSetPidCoeffD(MTools * Tools);
       MState * fsm() override;
     private:
-      float kpD, kiD, kdD;
+      float kp, ki, kd;
   };
 
   class MSetCurrentMax : public MState
@@ -75,6 +83,10 @@ namespace Cccv
     public:   
       MSetCurrentMax(MTools * Tools);
       MState * fsm() override;
+    private:
+        // Пределы регулирования max тока
+      static constexpr short above = 6.0f;
+      static constexpr short below = 0.2f;
   };
   
   class MSetVoltageMax : public MState
@@ -82,6 +94,10 @@ namespace Cccv
     public:   
       MSetVoltageMax(MTools * Tools);
       MState * fsm() override;
+    private:
+        // Пределы регулирования max напряжения
+      static constexpr short above = 16.2f;
+      static constexpr short below = 10.0f;
   };
 
   class MSetCurrentMin : public MState
@@ -89,6 +105,10 @@ namespace Cccv
     public:     
       MSetCurrentMin(MTools * Tools);
       MState * fsm() override;
+    private:
+        // Пределы регулирования min тока
+      static constexpr short above = 6.0f;
+      static constexpr short below = 0.2f;
   };
 
   class MSetVoltageMin : public MState
@@ -96,6 +116,10 @@ namespace Cccv
     public:     
       MSetVoltageMin(MTools * Tools);
       MState * fsm() override;
+    private:
+        // Пределы регулирования min напряжения
+      static constexpr short above = 16.2f;
+      static constexpr short below = 10.0f;
   };
 
   class MPostpone : public MState

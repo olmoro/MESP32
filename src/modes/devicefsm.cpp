@@ -27,7 +27,10 @@
 
 namespace MDevice
 {
+    //===================================================================================== MStart
+
     // Состояние "Старт", инициализация выбранного режима работы (DEVICE).
+    /*...*/
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
       //Отключить на всякий пожарный
@@ -56,7 +59,8 @@ namespace MDevice
 
   //===================================================================================== MShiftV
 
-  /*  Выбран режим коррекции приборного смещения (сдвига) по напряжению. 
+    // Состояние: "Коррекция приборного смещения (сдвига) по напряжению".
+  /*  
     Перед коррекцией прибор должен быть прогрет в течение нескольких минут, желательно
     под нагрузкой или в режиме разряда. 
       Коррекцию производить, подключив к клеммам "+" и "-"  внешний источник с регулируемым
@@ -66,7 +70,6 @@ namespace MDevice
       Цель коррекции - минимальные отклонения во всем диапазоне от -2 до +17 вольт. 
     Процесс коррекции сдвига чередовать с коррекцией коэффициента пересчета. Переход
     между этими состояниями производится кнопкой "P". */
-
   MShiftV::MShiftV(MTools * Tools) : MState(Tools)
   {
     shift = Tools->readNvsInt("qulon", "offsetV", fixed);
@@ -110,6 +113,8 @@ namespace MDevice
 
   //===================================================================================== MFactorV
 
+    // Состояние: "Коррекция коэффициента преобразования в милливольты".
+    /*...*/
   MFactorV::MFactorV(MTools * Tools) : MState(Tools)
   {
     factor = Tools->readNvsInt("qulon", "factorV", fixed);
@@ -153,6 +158,8 @@ namespace MDevice
 
   //===================================================================================== MSmoothV
 
+    // Состояние: "Коррекция коэффициента фильтрации по току".
+    /*...*/
   MSmoothV::MSmoothV(MTools * Tools) : MState(Tools)
   {
     smooth = Tools->readNvsInt("qulon", "smoothV", fixed);
@@ -195,7 +202,9 @@ namespace MDevice
   };  //MSmoothV
 
   //===================================================================================== MShiftI
-
+  
+    // Состояние: "Коррекция приборного смещения (сдвига) по току".
+    /*...*/
   MShiftI::MShiftI(MTools * Tools) : MState(Tools)
   {
     shift = Tools->readNvsInt("qulon", "offsetA", fixed);
@@ -237,6 +246,8 @@ namespace MDevice
 
   //===================================================================================== MFactorI
 
+    // Состояние: "Коррекция коэффициента преобразования в миллиамперы".
+    /*...*/
   MFactorI::MFactorI(MTools * Tools) : MState(Tools)
   {
     factor = Tools->readNvsInt("qulon", "factorA", fixed);
@@ -280,6 +291,8 @@ namespace MDevice
 
   //===================================================================================== MSmoothI
 
+    // Состояние: "Коррекция коэффициента фильтрации по току".
+    /*...*/
   MSmoothI::MSmoothI(MTools * Tools) : MState(Tools)
   {
     smooth = Tools->readNvsInt("qulon", "smoothA", fixed);
@@ -323,7 +336,8 @@ namespace MDevice
 
   //===================================================================================== MStop
 
-  // Завершение режима DEVICE - до нажатия кнопки "С" удерживается индикация 
+    // Состояние: ""
+    /* Завершение режима DEVICE - до нажатия кнопки "С" удерживается индикация.*/
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
     Display->showMode((char*) "       READY      ");
@@ -343,9 +357,8 @@ namespace MDevice
 
   //===================================================================================== MExit
 
-  // Процесс выхода из режима - до нажатия кнопки "С" удерживается индикация
-  // о завершении.
-  // Состояние: "Индикация итогов и выход из режима в меню диспетчера" 
+    // Процесс выхода из режима - до нажатия кнопки "С" удерживается индикация о завершении.
+    /* Состояние: "Индикация итогов и выход из режима в меню диспетчера". */ 
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
     Display->showMode((char*)" DEVICE MODE OFF  ");
@@ -357,13 +370,12 @@ namespace MDevice
     switch ( Keyboard->getKey() )
     {
       // Вернуться в начало
-    case MKeyboard::P_CLICK:  Board->buzzerOn();        return new MStart(Tools);
+    case MKeyboard::P_CLICK:  Board->buzzerOn();                      return new MStart(Tools);
 
     case MKeyboard::C_CLICK:  Board->buzzerOn(); 
-        //Tools->activateExit(" ");    // Можно сделать лучше, гасит светодиоды
       // Надо бы восстанавливать средствами диспетчера...
-      Display->showMode( (char*) "   ????????????   " );
-      Display->showHelp( (char*) "     B-SELECT     " );    return nullptr;
+      Display->showMode((char*) "      DEVICE:     ");
+      Display->showHelp((char*) "  CALIBRATION ETC ");                return nullptr;
     default:;
     }
     return this;
