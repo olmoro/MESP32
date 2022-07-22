@@ -1,45 +1,41 @@
 /*
   Файл: devicefsm.cpp 17.07.2022
   Конечный автомат заводских регулировок - арсенал разработчика (ручной режим):
-  - коррекция смещения АЦП в ручном и автоматическом режимах;
   - коррекция приборного смещения и коэффициента преобразования по напряжению;
   - коррекция приборного смещения и коэффициента преобразования по току;
   - коррекция коэффициента фильтрации измерений;
   - 
+    Перед коррекцией прибор должен быть прогрет в течение нескольких минут, желательно
+  под нагрузкой или в режиме разряда. 
+    Коррекцию производить, подключив к клеммам "+" и "-"  внешний источник с регулируемым
+  напряжением порядка 12 вольт по четырёхточечной схеме и эталонный измеритель напряжения. 
+    Прибор, кстати, отобразит ток, потребляемый высокоомным входным делителем порядка 
+  40 килоом, что свиделельствует об исправности входных цепей измерителей.
+    Цель коррекции - минимальные отклонения во всем диапазоне от -2 до +17 вольт. 
+  Процесс коррекции сдвига чередовать с коррекцией коэффициента пересчета. Переход
+  между этими состояниями производится кнопкой "P".
+    При коррекции сдвигов следует иметь ввиду, что одно нажатие на "+" или "-" добавляется 
+  не к милливольтам  или миллиамперам, а данным АЦП до их преобразования в физические величины.
 */
 
 #include "modes/devicefsm.h"
 #include "mtools.h"
-  //#include "mcmd.h"
-  #include "driver/mcommands.h"
 #include "board/mboard.h"
 #include "board/mkeyboard.h"
 #include "display/mdisplay.h"
-  //#include "board/msupervisor.h"
 #include <Arduino.h>
-  //#include <string>
 
 namespace MDevice
 {
-
-  short offset, shift, factor, smooth, par;
-
     // Состояние "Старт", инициализация выбранного режима работы (DEVICE).
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
       //Отключить на всякий пожарный
-    Tools->txPowerStop();                                 // 0x21  Команда драйверу
-
-    // При первом включении, как правило заводском, задается нулевое смещение 
-    offset = Tools->readNvsInt("qulon", "offsetAdc", MConst::adc_offset);
-    #ifdef TESTDEVICE
-      Serial.println(); Serial.print("offsetAdc=0x"); Serial.println(offset, HEX);
-    #endif
-    // Индикация
-    Display->showMode((char*)"   DEVICE START   ");  // В каком режиме
-    Display->showHelp((char*)"    P-ADJ   C-GO  ");  // Активные кнопки
-    Display->barOff();
-    Board->ledsOn();              // Подтверждение входа в настройки заряда белым свечением светодиода
+    Tools->txPowerStop();                                               // 0x21 Команда драйверу
+      // Индикация
+    Display->showMode((char*)"   DEVICE START   ");                     // Что регулируется
+    Display->showHelp((char*)" P-ADJ_I  C-ADJ_V ");                     // Активные кнопки
+    Board->ledsOn();                                // Подтверждение входа белым свечением светодиода
   }
   MState * MStart::fsm()
   {
@@ -47,94 +43,18 @@ namespace MDevice
     {
         // Отказ от продолжения ввода параметров - стоп
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-        // Старт автоматической коррекции
-      case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MAuto(Tools);
-        // Ручная коррекция смещения АЦП
-      case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MManual(Tools);
+        // Коррекция смещения по напряжению
+      case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
+        // Коррекция смещения по току
+      case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
       default:;
     }
     // Индикация текущих значений, указывается число знаков после запятой
     Display->showVolt(Tools->getRealVoltage(), 3);
-    Display->showAmp (Tools->getRealCurrent(), 2);                      return this;
+    Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
   };
 
-    // Выбран режим автоматической коррекции смещения АЦП
-  MAuto::MAuto(MTools * Tools) : MState(Tools)
-  {
-
-      // Индикация
-    Display->showMode((char*)"       AUTO       ");  // В каком режиме
-    Display->showHelp((char*)"  IN DEVELOPMENT  ");  // Активные кнопки
-    Display->initBar(TFT_GREEN);
-    Board->ledsGreen();              // Подтверждение
-  }
-  MState * MAuto::fsm()
-  {
-    switch (Keyboard->getKey())    //Здесь так можно
-    {
-      // Отказ от продолжения ввода параметров - стоп
-    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-    case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MStop(Tools);
-    case MKeyboard::B_CLICK: Board->buzzerOn();                       return new MStop(Tools);
-    case MKeyboard::UP_CLICK: Board->buzzerOn();                      return new MStop(Tools);
-    case MKeyboard::DN_CLICK: Board->buzzerOn();                      return new MStop(Tools);
-
-    default:;
-    }
-    return this;
-  };
-
-  /*  Выбран режим ручной коррекции смещения АЦП. 
-    Перед коррекцией прибор должен быть прогрет в течение нескольких минут, желательно
-    под нагрузкой или в режиме разряда. 
-      Коррекцию производить, подключив к клеммам "+" и "-" низкоомный резистор или, 
-    если не страшно, клеммы надо закоротить перемычкой. И то и другое - проводами 
-    минимальной длины.
-      Цель коррекции - нулевые или околонулевые показания тока и напряжения. - уточняется  */
-  MManual::MManual(MTools * Tools) : MState(Tools)
-  {
-Tools->setTuningAdc(true);
-      // Индикация
-    Display->showMode((char*)"  MANUAL    UP/DN ");  // В каком режиме
-    Display->showHelp((char*)"  P-NEXT   B-SAVE ");  // Активные кнопки
-    Board->ledsGreen();              // Подтверждение
-  }
-  MState * MManual::fsm()
-  {
-    switch (Keyboard->getKey())
-    {
-      // Отказ от продолжения ввода параметров - стоп
-    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-      // Сохранить и перейти к следующему состоянию
-    case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "offsetAdc", offset );                     return new MShiftFactorU(Tools);
-      // Перейти к следующему состоянию без сохранения
-    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftFactorU(Tools);
-    case MKeyboard::UP_CLICK: Board->buzzerOn();
-      offset = Tools->upiVal(offset, MConst::adc_l, MConst::adc_h, 1U); 
-      #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(offset, HEX);
-      #endif           
-      Tools->txSetAdcOffset(offset);                                 // 0x52  Команда драйверу
-    break;
-    case MKeyboard::DN_CLICK: Board->buzzerOn();
-      offset = Tools->dniVal(offset, MConst::adc_l, MConst::adc_h, 1U);
-      #ifdef TESTDEVICE
-        Serial.println(); Serial.print("offsetAdc = 0x"); Serial.println(offset, HEX);
-      #endif
-      Tools->txSetAdcOffset(offset);                                 // 0x52  Команда драйверу
-
-    break;
-    default:;
-    }
-      // Индикация ввода в "попугаях" АЦП
-Serial.println(); Serial.print("adcV = 0x"); Serial.println(Tools->getAdcV(), HEX);
-     
-      Display->showVolt(Tools->getAdcV(), 1);
-      Display->showAmp (Tools->getAdcI(), 1); 
-    return this;
-  };  //MManual
-
+  //===================================================================================== MShiftV
 
   /*  Выбран режим коррекции приборного смещения (сдвига) по напряжению. 
     Перед коррекцией прибор должен быть прогрет в течение нескольких минут, желательно
@@ -147,134 +67,290 @@ Serial.println(); Serial.print("adcV = 0x"); Serial.println(Tools->getAdcV(), HE
     Процесс коррекции сдвига чередовать с коррекцией коэффициента пересчета. Переход
     между этими состояниями производится кнопкой "P". */
 
-
-  /* Переходное состояние
-  */
-  MShiftFactorU::MShiftFactorU(MTools * Tools) : MState(Tools)
+  MShiftV::MShiftV(MTools * Tools) : MState(Tools)
   {
-Tools->setTuningAdc(false);
-      // Индикация здесь и далее 
-//    Display->showMode((char*)"  FACTOR    UP/DN ");  // В каком режиме
-//    Display->showHelp((char*)"  P-NEXT   B-SAVE ");  // Активные кнопки
-    Board->ledsGreen();              // Подтверждение
-  }
-  MState * MShiftFactorU::fsm()
-  {
-    // Из-за парной регулировки ... это состояние.
-    shift  = Tools->readNvsInt("qulon", "offsetV", MConst::shift_u);
+    shift = Tools->readNvsInt("qulon", "offsetV", fixed);
     #ifdef TESTDEVICE
-      Serial.println(); Serial.print("ShiftV="); Serial.println(shift);
+      Serial.print("\nshiftV=0x"); Serial.print(shift, HEX);
     #endif
-
-    factor = Tools->readNvsInt("qulon", "factorV", MConst::smooth_u);
-    #ifdef TESTDEVICE
-      Serial.println(); Serial.print("FactorV="); Serial.println(factor, HEX);
-    #endif
-
-    return new MShiftU(Tools);
-  };
-
-  MShiftU::MShiftU(MTools * Tools) : MState(Tools)
-  {
-
       // Индикация
-    Display->showMode((char*)" SHIFT_U    UP/DN ");  // В каком режиме
-    Display->showHelp((char*)" P-FACT_U  B-SAVE ");  // Активные кнопки
-    //Board->ledsGreen();              // Подтверждение
+    Display->showMode((char*)"    SHIFT_V +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-FACT_V  B-SAVE ");                   // Активные кнопки
+    Board->ledsGreen();                                               // Подтверждение
   }
-  MState * MShiftU::fsm()
+  MState * MShiftV::fsm()
   {
     switch (Keyboard->getKey())
     {
       // Отказ от продолжения ввода параметров - стоп
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorU(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorV(Tools);
       // Сохранить и перейти к следующему состоянию
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "offsetV", shift );                     return new MFactorU(Tools);
+      Tools->saveInt("qulon", "offsetV", shift);                      return new MFactorV(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
-      shift = Tools->upiVal(shift, MConst::shift_u_l, MConst::shift_u_h, -1); 
+      shift = Tools->updnInt(shift, below, above, +1); 
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
+        Serial.print("\nshiftV=0x"); Serial.print(shift, HEX);
       #endif           
-      Tools->txSetShiftU(shift);                                 // 0x36  Команда драйверу
+      Tools->txSetShiftU(shift);                                      // 0x36 Команда драйверу
     break;
     case MKeyboard::DN_CLICK: Board->buzzerOn();
-      //shift = Tools->dniVal(shift, MConst::shift_u_l, MConst::shift_u_h, 5);
-      shift = Tools->upiVal(shift, MConst::shift_u_l, MConst::shift_u_h, +1); 
-
+      shift = Tools->updnInt(shift, below, above, -1); 
       #ifdef TESTDEVICE
-        Serial.println(); Serial.print("shift = 0x"); Serial.println(shift, HEX);
+        Serial.print("\nshiftV=0x"); Serial.print(shift, HEX);
       #endif
-      Tools->txSetShiftU(shift);                                 // 0x36  Команда драйверу
+      Tools->txSetShiftU(shift);                                      // 0x36 Команда драйверу
 
     default:;
     }
     Display->showVolt(Tools->getRealVoltage(), 3);
     Display->showAmp (Tools->getRealCurrent(), 3);                    return this;
-  };  //MShiftU
+  };  //MShiftV
 
+  //===================================================================================== MFactorV
 
-
-  MFactorU::MFactorU(MTools * Tools) : MState(Tools)
+  MFactorV::MFactorV(MTools * Tools) : MState(Tools)
   {
+    factor = Tools->readNvsInt("qulon", "factorV", fixed);
+    #ifdef TESTDEVICE
+      Serial.print("\nfactorV=0x"); Serial.print(factor, HEX);
+    #endif
       // Индикация
-    Display->showMode((char*)" FACTOR_U   UP/DN ");  // В каком режиме
-    Display->showHelp((char*)" P-SHIFT_U B-SAVE ");  // Активные кнопки
-    //Board->ledsGreen();              // Подтверждение
+    Display->showMode((char*)"   FACTOR_V +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-SHIFT_V B-SAVE ");                   // Активные кнопки
+    //Board->ledsGreen();                                             // Подтверждение
   }
-  MState * MFactorU::fsm()
+  MState * MFactorV::fsm()
   {
       switch (Keyboard->getKey())
     {
       // Отказ от продолжения ввода параметров - стоп
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
-      // Сохранить и перейти к следующему состоянию
-
       // Вернуться
-    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftU(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
+      // Сохранить и перейти к следующему состоянию    
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "factorV", factor);                     return new MSmoothV(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      factor = Tools->updnInt(factor, below, above, +1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nfactorV=0x"); Serial.print(factor, HEX);
+      #endif           
+      Tools->txSetShiftU(factor);                                     // 0x39 Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      factor = Tools->updnInt(factor, below, above, -1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nfactor=0x"); Serial.print(factor, HEX);
+      #endif
+      Tools->txSetFactorU(factor);                                    // 0x39 Команда драйверу
+    default:;
+    }
+      Display->showVolt(Tools->getRealVoltage(), 3);
+      Display->showAmp (Tools->getRealCurrent(), 3);                  return this;  
+  };  //MFactorV
 
+  //===================================================================================== MSmoothV
+
+  MSmoothV::MSmoothV(MTools * Tools) : MState(Tools)
+  {
+    smooth = Tools->readNvsInt("qulon", "smoothV", fixed);
+    #ifdef TESTDEVICE
+      Serial.print("\nsmoothV=0x"); Serial.print(smooth, HEX);
+    #endif
+      // Индикация
+    Display->showMode((char*)"   SMOOTH_V +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-SHIFT_I B-SAVE ");                   // Активные кнопки
+    //Board->ledsGreen();                                             // Подтверждение
+  }
+  MState * MSmoothV::fsm()
+  {
+      switch (Keyboard->getKey())
+    {
+      // Отказ от продолжения ввода параметров - стоп
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+      // Вернуться
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
+      // Сохранить и перейти к следующему состоянию    
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "smoothV", smooth);                     return new MShiftI(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      smooth = Tools->updnInt(smooth, below, above, +1); 
+      #ifdef TESTDEVICE
+        Serial.print("smoothV=0x"); Serial.print(smooth, HEX);
+      #endif           
+      Tools->txSetSmoothU(smooth);                                    // 0x34 Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      smooth = Tools->updnInt(smooth, below, above, -1); 
+      #ifdef TESTDEVICE
+        Serial.print("smoothV=0x"); Serial.print(smooth, HEX);
+      #endif
+      Tools->txSetSmoothU(smooth);                                    // 0x34 Команда драйверу
+    default:;
+    }
+      Display->showVolt(Tools->getRealVoltage(), 3);
+      Display->showAmp (Tools->getRealCurrent(), 3);                  return this;  
+  };  //MSmoothV
+
+  //===================================================================================== MShiftI
+
+  MShiftI::MShiftI(MTools * Tools) : MState(Tools)
+  {
+    shift = Tools->readNvsInt("qulon", "offsetA", fixed);
+    #ifdef TESTDEVICE
+      Serial.print("\nshiftI=0x"); Serial.print(shift, HEX);
+    #endif
+    Display->showMode((char*)"    SHIFT_I +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-FACT_I  B-SAVE ");                   // Активные кнопки
+  }
+  MState * MShiftI::fsm()
+  {
+    switch (Keyboard->getKey())
+    {
+      // Отказ от продолжения ввода параметров - стоп
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorI(Tools);
+      // Сохранить и перейти к следующему состоянию
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "offsetA", shift);                      return new MFactorI(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      shift = Tools->updnInt(shift, below, above, +1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nshiftI=0x"); Serial.print(shift, HEX);
+      #endif           
+      Tools->txSetShiftI(shift);                                      // 0x3E Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      shift = Tools->updnInt(shift, below, above, -1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nshiftI=0x"); Serial.print(shift, HEX);
+      #endif
+      Tools->txSetShiftI(shift);                                      // 0x3E Команда драйверу
 
     default:;
-    }  
-    return this;
-  };  //MFactorU
+    }
+    Display->showVolt(Tools->getRealVoltage(), 3);
+    Display->showAmp (Tools->getRealCurrent(), 3);                    return this;
+  };
 
+  //===================================================================================== MFactorI
 
+  MFactorI::MFactorI(MTools * Tools) : MState(Tools)
+  {
+    factor = Tools->readNvsInt("qulon", "factorA", fixed);
+    #ifdef TESTDEVICE
+      Serial.print("\nfactorI="); Serial.print(factor, HEX);
+    #endif
+      // Индикация
+    Display->showMode((char*)"   FACTOR_I +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-SHIFT_I B-SAVE ");                   // Активные кнопки
+    Board->ledsGreen();                                               // Подтверждение
+  }
+  MState * MFactorI::fsm()
+  {
+      switch (Keyboard->getKey())
+    {
+      // Отказ от продолжения ввода параметров - стоп
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+      // Вернуться
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
+      // Сохранить и перейти к следующему состоянию    
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "factorA", factor);                     return new MSmoothI(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      factor = Tools->updnInt(factor, below, above, +1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nfactorI = 0x"); Serial.print(factor, HEX);
+      #endif           
+      Tools->txSetFactorI(factor);                                    // 0x39 Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      factor = Tools->updnInt(factor, below, above, -1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nfactorI = 0x"); Serial.print(factor, HEX);
+      #endif
+      Tools->txSetFactorI(factor);                                    // 0x39 Команда драйверу
+    default:;
+    }
+      Display->showVolt(Tools->getRealVoltage(), 3);
+      Display->showAmp (Tools->getRealCurrent(), 3);                  return this;  
+  };  //MFactorI
 
+  //===================================================================================== MSmoothI
 
+  MSmoothI::MSmoothI(MTools * Tools) : MState(Tools)
+  {
+    smooth = Tools->readNvsInt("qulon", "smoothA", fixed);
+    #ifdef TESTDEVICE
+      Serial.print("\nsmoothI=0x"); Serial.print(smooth, HEX);
+    #endif
+      // Индикация
+    Display->showMode((char*)"   SMOOTH_I +/-   ");                   // Что регулируется
+    Display->showHelp((char*)" P-SHIFT_I B-SAVE ");                   // Активные кнопки
+    Board->ledsGreen();                                               // Подтверждение
+  }
+  MState * MSmoothI::fsm()
+  {
+      switch (Keyboard->getKey())
+    {
+      // Отказ от продолжения ввода параметров - стоп
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+      // Вернуться
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
+      // Сохранить и перейти к следующему состоянию    
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->saveInt("qulon", "smoothA", smooth);                     return new MExit(Tools);
+    case MKeyboard::UP_CLICK: Board->buzzerOn();
+      smooth = Tools->updnInt(smooth, below, above, +1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nsmoothI=0x"); Serial.print(smooth, HEX);
+      #endif           
+      Tools->txSetSmoothI(smooth);                                    // 0x3C Команда драйверу
+    break;
+    case MKeyboard::DN_CLICK: Board->buzzerOn();
+      smooth = Tools->updnInt(smooth, below, above, -1); 
+      #ifdef TESTDEVICE
+        Serial.print("\nsmoothI=0x"); Serial.print(smooth, HEX);
+      #endif
+      Tools->txSetSmoothI(smooth);                                    // 0x3C Команда драйверу
+    default:;
+    }
+      Display->showVolt(Tools->getRealVoltage(), 3);
+      Display->showAmp (Tools->getRealCurrent(), 3);                  return this;  
+  };  //MSmoothI
 
-
+  //===================================================================================== MStop
 
   // Завершение режима DEVICE - до нажатия кнопки "С" удерживается индикация 
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
     Display->showMode((char*) "       READY      ");
     Display->showHelp((char*) "      C-EXIT      ");
-    Display->barStop();
-    Board->ledsRed();
+    Board->ledsRed();                                                 // Подтверждение
   }    
   MState * MStop::fsm()
   {
     switch ( Keyboard->getKey() )
     {
-    case MKeyboard::C_CLICK:  Board->buzzerOn();        return new MExit(Tools);
+    case MKeyboard::C_CLICK:  Board->buzzerOn();                      return new MExit(Tools);
     default:;
     }
     Display->showVolt(Tools->getRealVoltage(), 3);
-    Display->showAmp (Tools->getRealCurrent(), 2);      return this;
+    Display->showAmp (Tools->getRealCurrent(), 3);                    return this;
   };  //MStop
+
+  //===================================================================================== MExit
 
   // Процесс выхода из режима - до нажатия кнопки "С" удерживается индикация
   // о завершении.
   // Состояние: "Индикация итогов и выход из режима в меню диспетчера" 
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
-    //Tools->shutdownCharge();
     Display->showMode((char*)" DEVICE MODE OFF  ");
     Display->showHelp((char*)"  P-AGAIN  C-EXIT ");  // To select the mode
     Board->ledsOff();
-    Display->barOff();
   }    
   MState * MExit::fsm()
   {

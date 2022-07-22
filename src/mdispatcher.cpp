@@ -136,8 +136,8 @@ void MDispatcher::textMode(short modeSelection)
     break;
 
     case OPTIONS:
-      sprintf( sMode, "     OPTIONS:     " );
-      sprintf( sHelp, "  CALIBRATION ETC " );
+      sprintf(sMode, "     OPTIONS:     ");
+      sprintf(sHelp, "  USER PARAMETERS ");
     break;
 
     case TEMPLATE:
@@ -156,8 +156,8 @@ void MDispatcher::textMode(short modeSelection)
     break;
 
     case DEVICE:
-      sprintf( sMode, "      DEVICE:     " );   // Настройки с доступом (?) разработчика (заводской доступ)
-      sprintf( sHelp, "       TOOLS      " );
+      sprintf(sMode, "      DEVICE:     ");   // Настройки с доступом (?) разработчика (заводской доступ)
+      sprintf(sHelp, "  CALIBRATION ETC ");
     break;
 
     default:

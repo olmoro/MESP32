@@ -38,3 +38,9 @@ void MTools::txSetCooler(short val) {cool = val; buffCmd = MCmd::cmd_set_cooler;
 Очистка mtools
 RAM:   [=         ]  13.3% (used 43736 bytes from 327680 bytes)
 Flash: [==        ]  16.1% (used 1054222 bytes from 6553600 bytes)
+
+22.07
+devicefsm дописан, тестируется
+
+RAM:   [=         ]  13.3% (used 43728 bytes from 327680 bytes)
+Flash: [==        ]  16.1% (used 1054998 bytes from 6553600 bytes)
