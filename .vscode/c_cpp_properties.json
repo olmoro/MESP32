@@ -230,7 +230,7 @@
                 "ARDUINO_BOARD=\"Espressif ESP32 Dev Module\"",
                 "CLOCK=1",
                 "UART2=1",
-                "TESTCCCV=1",
+                "TESTPID=1",
                 ""
             ],
             "cStandard": "c99",

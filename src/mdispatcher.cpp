@@ -13,6 +13,7 @@
 #include <string.h>
 #include "modes/bootfsm.h"
 #include "modes/optionsfsm.h"
+  #include "modes/pidfsm.h"
 #include "modes/templatefsm.h"
 #include "modes/dcsupplyfsm.h"
 #include "modes/cccvfsm.h"
@@ -93,6 +94,7 @@ void MDispatcher::run()
         {
           case BOOT:        State = new MBoot::MStart(Tools);       break;
           case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
+            case PIDTEST:     State = new MPid::MStart(Tools);        break;
           case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
           case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
           case CCCVCHARGE:  State = new Cccv::MStart(Tools);        break;
@@ -131,28 +133,33 @@ void MDispatcher::textMode(short modeSelection)
   switch(modeSelection)
   {
     case BOOT:
-      sprintf( sMode, "       BOOT:      " );   // Только 18 знакомест для этого дисплея
-      sprintf( sHelp, "    ...WAIT...    " );
+      sprintf(sMode, "       BOOT:     ");   // Только 17 знакомест для этого дисплея,
+      sprintf(sHelp, "    ...WAIT...   ");   // в 18-й вводить пробел
     break;
 
     case OPTIONS:
-      sprintf(sMode, "     OPTIONS:     ");
-      sprintf(sHelp, "  USER PARAMETERS ");
+      sprintf(sMode, "     OPTIONS:    ");
+      sprintf(sHelp, " USER PARAMETERS ");
+    break;
+
+    case PIDTEST:
+      sprintf(sMode, "     PIDTEST:    ");
+      sprintf(sHelp, " ADJ  KP, PD, KI ");
     break;
 
     case TEMPLATE:
-      sprintf( sMode, "     TEMPLATE:    " );
-      sprintf( sHelp, "      EXAMPLE     " );
+      sprintf(sMode, "    TEMPLATE:    " );
+      sprintf(sHelp, "     EXAMPLE     " );
     break;
 
     case DCSUPPLY:
-      sprintf( sMode, "   DC DCSUPPLY:   " );
-      sprintf( sHelp, "   POWER SUPPLY   " );
+      sprintf(sMode, "  DC DCSUPPLY:   " );
+      sprintf(sHelp, "  POWER SUPPLY   " );
     break;
 
     case CCCVCHARGE:
-      sprintf( sMode, "   CC/CV CHARGE:  " );
-      sprintf( sHelp, "     B-SELECT     " );
+      sprintf(sMode, "   CC/CV CHARGE:  ");
+      sprintf(sHelp, "     B-SELECT     ");
     break;
 
     case DEVICE:
@@ -161,8 +168,8 @@ void MDispatcher::textMode(short modeSelection)
     break;
 
     default:
-      sprintf( sMode, "      ERROR:      " );
-      sprintf( sHelp, "   UNIDENTIFIED   " );
+      sprintf(sMode, "      ERROR:      " );
+      sprintf(sHelp, "   UNIDENTIFIED   " );
     break;
   }
 
