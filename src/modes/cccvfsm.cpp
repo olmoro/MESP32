@@ -308,7 +308,7 @@ namespace Cccv
     kp = Tools->readNvsFloat("cccv", "kpU", 0.06);
     ki = Tools->readNvsFloat("cccv", "kiU", 0.02);
     kd = Tools->readNvsFloat("cccv", "kdU", 0.00);
-    Tools->txSetPidCoeffU(kp, ki, kd);                                  // 0x41  Команда драйверу
+    Tools->txSetPidCoeffV(kp, ki, kd);                                  // 0x41  Команда драйверу
     return new MSetPidCoeffI(Tools);                                    // Перейти к следующему параметру
   };
 

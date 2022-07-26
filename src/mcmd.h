@@ -64,10 +64,10 @@ namespace MCmd
   constexpr uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
   constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
   constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
-  constexpr uint8_t cmd_adc_auto_offset           = 0x53; // Автоматическая компенсация смещения АЦП
+  constexpr uint8_t cmd_adc_auto_offset           = 0x53; // Автоматическая компенсация смещения АЦП (пока нет)
 
     // Команды тестовые
-  constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D4 PA14 ???
+  constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D13 (PA17) Управление силовыми ключами SAMD21 MINI 
 
   constexpr uint8_t cmd_write_power               = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
   constexpr uint8_t cmd_write_discharge           = 0x57; // не проверена

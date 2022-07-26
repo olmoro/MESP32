@@ -39,7 +39,12 @@ void MCommands::writeCmd(uint8_t _cmd) {cmd = _cmd;}
 void MCommands::doCommand()
 {
   cmd = Tools->getBuffCmd();
-  Tools->getTuningAdc() ? Tools->setBuffCmd(MCmd::cmd_adc_read_probes) : Tools->setBuffCmd(MCmd::cmd_get_uis);
+
+  #ifdef WO_UIS
+    Tools->setBuffCmd(MCmd::cmd_nop);
+  #else
+    Tools->getTuningAdc() ? Tools->setBuffCmd(MCmd::cmd_adc_read_probes) : Tools->setBuffCmd(MCmd::cmd_get_uis);
+  #endif
 
   if( cmd != MCmd::cmd_nop)
   {
@@ -979,7 +984,7 @@ void MCommands::doAdcGetOffset()
 }
 
 // Команда записи смещения АЦП  0x52
-void MCommands::doAdcAutoOffset()
+void MCommands::doAdcSetOffset()
 {
   int id = 0;
   //  id = Wake->replyU16( id, Board->readAdcOffset() );
@@ -988,7 +993,7 @@ void MCommands::doAdcAutoOffset()
 }  
 
 // Команда автоматической компенсации смещения АЦП 0x53
-void MCommands::doAdcSetOffset()
+void MCommands::doAdcAutoOffset()
 {
   Wake->configAsk( 0, MCmd::cmd_adc_auto_offset);
 }  

@@ -52,3 +52,7 @@ Flash: [==        ]  16.1% (used 1055562 bytes from 6553600 bytes)
 pidfsm
 RAM:   [=         ]  13.3% (used 43736 bytes from 327680 bytes)
 Flash: [==        ]  16.1% (used 1057354 bytes from 6553600 bytes)
+
+26.07
+RAM:   [=         ]  13.4% (used 43768 bytes from 327680 bytes)
+Flash: [==        ]  16.2% (used 1061990 bytes from 6553600 bytes)

@@ -4,7 +4,8 @@
 *
 * Необходимо выдерживать длину имен и ключей не более 15 знаков
 * nXXX - имя раздела
-* kYYY - ключ параметра
+* kXXX - ключ параметра
+* tXXX - ключ параметра
 */
 
 #ifndef _NVS_H_
@@ -65,6 +66,21 @@ namespace MNvs
     static constexpr const char* kKpD         = "kpD";  // PID kPD
     static constexpr const char* kKiD         = "kiD";  // PID kiD
     static constexpr const char* kKdD         = "kdD";  // PID kdD
+
+  static constexpr const char* nPTest          = "pidtest";     // ПИД тест
+    static constexpr const char* tMode          = "mode";     // Выбор заряд/разряд 
+
+    static constexpr const char* tSpV           = "spV";      //
+    static constexpr const char* tSpI           = "spI";      //
+    static constexpr const char* tSpD           = "spD";      //
+
+    static constexpr const char* tKpV           = "kpV";      //
+    static constexpr const char* tKiV           = "kiV";      //
+    static constexpr const char* tKdV           = "kdV";      //
+
+    static constexpr const char* tKpI           = "kpI";      //
+    static constexpr const char* tKiI           = "kiI";      //
+    static constexpr const char* tKdI           = "kdI";      //    
 
 // старые, будут отменены --------------------------------------
     // static constexpr const char* kMaxU        = "maxU";

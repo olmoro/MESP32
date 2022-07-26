@@ -139,7 +139,7 @@ void MDispatcher::textMode(short modeSelection)
 
     case OPTIONS:
       sprintf(sMode, "     OPTIONS:    ");
-      sprintf(sHelp, " USER PARAMETERS ");
+      sprintf(sHelp, " USER PARAM...S  ");
     break;
 
     case PIDTEST:

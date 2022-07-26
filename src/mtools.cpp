@@ -275,9 +275,29 @@ void MTools::clearAllKeys(const char * name) {
 }
 
 
-//Saves 201905
-void MTools::saveInt(   const char * name, const char * key, const int   ivalue ) { writeNvsInt(   name, key, ivalue ); }
-void MTools::saveFloat( const char * name, const char * key, const float fvalue ) { writeNvsFloat( name, key, fvalue ); }
+// Read/write nvs 202207
+void  MTools::saveInt(const char * name, const char * key, const short value ) {writeNvsInt(name, key, value );}
+
+short MTools::readInt(const char * name, const char * key, const short defaultValue)
+{
+  qPreferences->begin(name, true);                    // RW-mode (second parameter has to be false).
+  short value = qPreferences->getInt(key, defaultValue);
+  qPreferences->end();                                // Close the Preferences
+  return value;  
+}
+
+void  MTools::saveFloat(const char * name, const char * key, const float value) {writeNvsFloat( name, key, value);}
+
+short MTools::readFloat(const char * name, const char * key, const short defaultValue)
+{
+  qPreferences->begin(name, true);
+  float value = qPreferences->getFloat(key, defaultValue);
+  qPreferences->end();
+  return value;
+}
+//!Read/write nvs 202207
+
+
 
 
 void MTools::showUpDn() 
@@ -308,187 +328,6 @@ void MTools::activateExit(const char * s)
 //     capacity = akb[akbInd][1];
 // }
 
-// void MTools::incCapacity( float delta, bool way )
-// {
-//     capacity = incfValue( capacity, capacity_l, capacity_h, delta, way );
-// }
-// void MTools::decCapacity( float delta, bool way )
-// {
-//     capacity = decfValue( capacity, capacity_l, capacity_h, delta, way );
-// }
-
-// void MTools::incCurrentMax( float delta, bool way )
-// {
-//     currentMax = incfValue( currentMax, curr_max_l, curr_max_h, delta, way );
-// }
-// void MTools::decCurrentMax( float delta, bool way )
-// {
-//     currentMax = decfValue( currentMax, curr_max_l, curr_max_h, delta, way );
-// }
-
-// void MTools::incCurrentMin( float delta, bool way )
-// {
-//     currentMin = incfValue( currentMin, curr_max_l, curr_max_h, delta, way );   // пределы уточнить
-// }
-// void MTools::decCurrentMin( float delta, bool way )
-// {
-//     currentMin = decfValue( currentMin, curr_max_l, curr_max_h, delta, way );   // пределы уточнить
-// }
-
-// void MTools::incCurrentDis( float delta, bool way )
-// {
-//     currentDis = incfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );   // пределы уточнить
-// }
-// void MTools::deccurrentDis( float delta, bool way )
-// {
-//     currentDis = decfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );   // пределы уточнить
-// }
-
-
-
-
-// void MTools::incVoltageMax( float delta, bool way )
-// {
-//     voltageMax = incfValue( voltageMax, volt_end_l, volt_end_h, delta, way );
-// }
-// void MTools::decVoltageMax( float delta, bool way )
-// {
-//     voltageMax = decfValue( voltageMax, volt_end_l, volt_end_h, delta, way );
-// }
-
-// void MTools::incVoltageMin( float delta, bool way )
-// {
-//     voltageMin = incfValue( voltageMin, volt_end_l, volt_end_h, delta, way );   // пределы уточнить
-// }
-// // void MTools::decVoltageMin( float delta, bool way )
-// // {
-// //     voltageMin = decfValue( voltageMin, volt_end_l, volt_end_h, delta, way );   // пределы уточнить
-// // }
-
-// void MTools::incDurationOn( bool way )
-// {
-//     durationOn = incfValue ( durationOn, duration_on_l, duration_on_h, 0.5, way );
-// }
-// void MTools::decDurationOn( bool way )
-// {
-//     durationOn = decfValue ( durationOn, duration_on_l, duration_on_h, 0.5, way );
-// }
-
-// void MTools::incDurationOff( bool way)
-// {
-//     durationOff = incfValue ( durationOff, duration_off_l, duration_off_h, 0.5, way );
-// }
-// void MTools::decDurationOff( bool way )
-// {
-//     durationOff = decfValue ( durationOff, duration_off_l, duration_off_h, 0.5, way );
-// }
-
-// void MTools::incPostpone( int delta )
-// {
-//     postpone = inciValue( postpone, postpone_l, postpone_h, delta );
-// }
-// void MTools::decPostpone( int delta )
-// {
-//     postpone = deciValue( postpone, postpone_l, postpone_h, delta );
-// }
-
-// void MTools::incVoltagePre( float delta, bool way )
-// {
-//     voltagePre = incfValue( voltagePre, volt_pre_l, volt_pre_h, delta, way );
-// }
-// void MTools::decVoltagePre( float delta, bool way )
-// {
-//     voltagePre = decfValue( voltagePre, volt_pre_l, volt_pre_h, delta, way );
-// }
-
-// void MTools::incCurrentPre( float delta, bool way )
-// {
-//     currentPre = incfValue( currentPre, curr_pre_l, curr_pre_h, delta, way );
-// }
-// void MTools::decCurrentPre( float delta, bool way )
-// {
-//     currentPre = decfValue( currentPre, curr_pre_l, curr_pre_h, delta, way );
-// }
-
-
-// void MTools::incVoltagePow( float delta, bool way )
-// {
-//     voltageMax = incfValue( voltageMax, volt_l, volt_h, delta, way );
-// }
-// void MTools::decVoltagePow( float delta, bool way )
-// {
-//     voltageMax = decfValue( voltageMax, volt_l, volt_h, delta, way );
-// }
-
-// void MTools::incCycles()
-// {
-//     numCycles = inciValue ( numCycles, num_cycl_l, num_cycl_h, 1 );
-// }
-// void MTools::decCycles()
-// {
-//     numCycles = deciValue ( numCycles, num_cycl_l, num_cycl_h, 1 );
-// }
-
-// void MTools::incCurrentDis( float delta, bool way )
-// {
-//     currentDis = incfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );
-// }
-// void MTools::decCurrentDis( float delta, bool way )
-// {
-//     currentDis = decfValue( currentDis, curr_dis_l, curr_dis_h, delta, way );
-// }
-
-// void MTools::incVoltageDis( float delta, bool way )
-// {
-//     voltageDis = incfValue( voltageDis, volt_min_l, volt_min_h, delta, way );
-// }
-// void MTools::decVoltageDis( float delta, bool way )
-// {
-//     voltageDis = decfValue( voltageDis, volt_min_l, volt_min_h, delta, way );
-// }
-
-// void MTools::incPause()
-// {
-//     pause = inciValue( pause, pause_l, pause_h, 1 ); 
-// }
-// void MTools::decPause()
-// {
-//     pause = deciValue( pause, pause_l, pause_h, 1 ); 
-// }
-
-// int MTools::incNum( int v, int h, int d )
-// {
-//     v += d;
-//     if (v >= h) return h;
-//     else        return v;
-// }
-// int MTools::decNum( int v, int l, int d )
-// {
-//     v -= d;
-//     if (v <= l) return l;
-//     else        return v;
-// }
-
-// // inc, dec 201905
-// float MTools::incFloatValue( float value,  float value_l, float value_h, float delta ) {
-//     if( value >= value_h - delta ) return value_h;
-//     else return value += delta;
-// }
-
-// float MTools::decFloatValue( float value,  float value_l, float value_h, float delta ) {
-//     if( value <= value_l + delta ) return value_l;
-//     else return value -= delta;
-// }
-
-// int MTools::incIntValue( int value, int value_l, int value_h, int delta ) {
-//   if( value >= value_h - delta ) return value_h;
-//   else return value += delta;
-// }
-
-// int MTools::decIntValue( int value, int value_l, int value_h, int delta ) {
-//   if( value <= value_l + delta ) return value_l;
-//   else return value -= delta;
-// }
 
 
 void MTools::clrTimeCounter() { timeCounter = 0; }
@@ -498,25 +337,7 @@ int  MTools::getTimeCounter() { return timeCounter; }
 void MTools::setTimeCounter( int ivalue ) { timeCounter = ivalue; }
 
 
-
-
-// void MTools::shutdownCharge() 
-// {
-// //    output = 0.0;
-
-//     shutdownDC();
-//     // cmd = cmd_power_stop;            // doPowerStop()    0x21
-//     Board->ledsRed();
-// }
-
-// void MTools::shutdownDC()           // Подумать об общей команде
-// {
-//     //Board->powOff();
-//     Board->swOff();
-//     Board->ledsOff();
-// }
-
-    uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
+uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
 
 uint8_t MTools::getBuffCmd()            {return buffCmd;}
 void    MTools::setBuffCmd(uint8_t cmd) {buffCmd = cmd;}
@@ -559,7 +380,7 @@ void MTools::txSetShiftI(short val)  {shiftI  = val;     buffCmd = MCmd::cmd_wri
 void MTools::txSetPidConfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_t _minOut, uint16_t _maxOut)
 {
     pidMode = _m;
-    kp      = (short)(_kp * param_mult);
+    kp      = (short) (_kp * param_mult);
     ki      = (short)((_ki * param_mult) * hz);
     kd      = (short)((_kd * param_mult) / hz);
     minOut  = _minOut;
@@ -567,7 +388,16 @@ void MTools::txSetPidConfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_
     buffCmd = MCmd::cmd_pid_configure;                                                                  // 0x40 Запись
 }
 
-void MTools::txSetPidCoeffU(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeff(short m, float _kp, float _ki, float _kd)    // 0x41 Запись
+{
+    pidMode = m;
+    kp      = (short) (_kp * param_mult);
+    ki      = (short)((_ki * param_mult) * hz);
+    kd      = (short)((_kd * param_mult) / hz);
+    buffCmd = MCmd::cmd_pid_write_coefficients;                                                         // 0x41 Запись
+}
+
+void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
 {
     pidMode = 1;
     kp      = (short)(_kp * param_mult);
@@ -671,7 +501,6 @@ void MTools::upPow()
     else { powInd--; } 
     voltageMax = pows[powInd][0];
     currentMax = pows[powInd][1];
-//    Oled->showLine3Power( voltageMax, currentMax );
 }
 
 void MTools::dnPow() 
@@ -680,24 +509,9 @@ void MTools::dnPow()
     else { powInd++; } 
     voltageMax = pows[powInd][0];
     currentMax = pows[powInd][1];
-//    Oled->showLine3Power( voltageMax, currentMax );
 }
 
-
-// void MTools::liveU()
-// {
-//     setPoint = voltageMax;
-// }
-
 //================= Charger =========================================
-
-// void MTools::powShutdown() 
-// {
-// //    output = 0.0;
-//     Board->swOff();
-//     Board->ledsOff();
-//     Board->ledROn();
-// }
 
 
 bool MTools::postponeCalculation()
@@ -707,27 +521,6 @@ bool MTools::postponeCalculation()
     if( chargeTimeCounter == 0 ) return true;
       return false;
 }
-
-
-// void MTools::initCurrentAvr() { collectAvr = 0.0f;  cnt = 0; count = 0; }       // оставить один счетчик
-
-// void MTools::addCollectAvr( float amp ) { collectAvr += amp;  cnt++; count++; }       // оставить один счетчик
-
-// float MTools::calcCurrentAvr()
-// {
-//     if( cnt == 0 ) return 0.0;
-//     #ifdef DEBUG_CHARGE
-//         Serial.print("getCurrentAver : ");  
-//         Serial.print( collectAvr ); Serial.print(", ");    
-//         Serial.print( cnt );        Serial.print(", ");  
-//         Serial.println( collectAvr / (float)cnt );
-//     #endif
-//     return collectAvr / (float)cnt;
-// }
-
-
-
-
 
 
 

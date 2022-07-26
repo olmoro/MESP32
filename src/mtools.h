@@ -235,60 +235,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
     // void incBattery();
     // void decBattery();
 
-    // void incCapacity( float delta, bool way );
-    // void decCapacity( float delta, bool way );
-
-    // void incCurrentMax( float delta, bool way );
-    // void decCurrentMax( float delta, bool way );
-
-    // void incCurrentMin( float delta, bool way );
-    // void decCurrentMin( float delta, bool way );
-
-    // void incCurrentDis( float delta, bool way );
-    // void decCurrentDis( float delta, bool way );    
-
-    // void incVoltageMax( float delta, bool way );
-    // void decVoltageMax( float delta, bool way );
-
-//     void incVoltageMin( float delta, bool way );
-// //    void decVoltageMin( float delta, bool way );
-
-    // void incVoltagePow( float delta, bool way );
-    // void decVoltagePow( float delta, bool way );
-
-    // void incVoltagePre( float delta, bool way );
-    // void decVoltagePre( float delta, bool way );
-
-    // void incCurrentPre( float delta, bool way );
-    // void decCurrentPre( float delta, bool way );
-
-    // void incDurationOn( bool way );
-    // void decDurationOn( bool way );
-    // void incDurationOff( bool way );
-    // void decDurationOff( bool way );
 
 
-    // void incCycles();
-    // void decCycles();
-
-    // void incCurrentDis( float delta, bool way );
-    // void decCurrentDis( float delta, bool way );
-
-    // void incVoltageDis( float delta, bool way );
-    // void decVoltageDis( float delta, bool way );
-
-    // void incPause();
-    // void decPause();
-
-    // int   incNum( int v, int h, int d );
-    // int   decNum( int v, int l, int d );
-
-
-// inc, dec 201905
-    // float incFloatValue( float value,  float value_l, float value_h, float delta ); 
-    // float decFloatValue( float value,  float value_l, float value_h, float delta );
-    // int   incIntValue( int value, int value_l, int value_h, int delta );
-    // int   decIntValue( int value, int value_l, int value_h, int delta );
 // 2020
     int   upiVal( int val, int min, int max, int delta );
     int   dniVal( int val, int min, int max, int delta );
@@ -301,9 +249,12 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
 
 
+      // 202207 read/write nvs
+    void  saveInt(const char * name, const char * key, const short value);
+    short readInt(const char * name, const char * key, const short defaultValue);
+    void  saveFloat(const char * name, const char * key, const float fvalue);
+    short readFloat(const char * name, const char * key, const short defaultValue);
 
-    void saveInt(const char * name, const char * key, const int ivalue );
-    void saveFloat(const char * name, const char * key, const float fvalue );
 
     void activateExit(const char * s);
 
@@ -312,18 +263,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void clrAhCharge();
     int  getTimeCounter();
     void setTimeCounter( int ivalue );
-
-
-// Общие для импульсного разряда
-
-  //  void initCurrentAvr();
-  //  void addCollectAvr( float amp );
-  //  int  cnt = 0;
-    
-  //  float calcCurrentAvr();
-
-    // void shutdownCharge();
-    // void shutdownDC();
 
     //2022
     void txPowerGo(float spU, float spI, uint8_t mode);   // 0x20
@@ -357,7 +296,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
       // Команды работы с ПИД-регулятором
     void txSetPidConfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
 
-    void txSetPidCoeffU(float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeff(short m, float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeffV(float kp, float ki, float kd);    // 0x41 Запись
     void txSetPidCoeffI(float kp, float ki, float kd);    // 0x41 Запись
     void txSetPidCoeffD(float kp, float ki, float kd);    // 0x41 Запись
 
@@ -368,11 +308,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void txGetPidParamMult();                             // 0x47 Get param_mult
     void txGetPidConfig();                                // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
-  // // ПИД-регулятор
-  //   bool pidGetConfigure(uint8_t, float, float, float, uint16_t, uint16_t);  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
-
-
-    void txSetCooler(short val);                                                // 0x4F Задать скорость вентилятора
+  
+    void txSetCooler(short val);                          // 0x4F Задать скорость вентилятора
     short getCooler();
     void  setCooler(short val);
 
@@ -385,7 +322,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void txGetProbes();                                   // 0x50
     void txGetAdcOffset();                                // 0x51
     void txSetAdcOffset(short val);                       // 0x52
-    void txAdcAutoOffset();                               // 0x53
+    void txAdcAutoOffset();                               // 0x53 (пока в резерве)
 
 
 //   // Команды тестовые
@@ -437,9 +374,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
     void upPow();
     void dnPow();
-//    void liveU();
-
-//    void powShutdown(); 
 
 //============================ Charger ===============================================
     // Значения только для теста (читать дефолтные при чистой памяти)
@@ -529,37 +463,35 @@ private:
     const bool onloop  = true;
 
 
-    const float curr_max_l =  0.2f;
-    const float curr_max_h = 12.2f;
+    // const float curr_max_l =  0.2f;
+    // const float curr_max_h = 12.2f;
 
-  
+    // const float volt_end_l = 10.0f;
+    // const float volt_end_h = 16.0f;
 
-    const float volt_end_l = 10.0f;
-    const float volt_end_h = 16.0f;
+    // const int   num_cycl_l = 0;
+    // const int   num_cycl_h = 3;
 
-    const int   num_cycl_l = 0;
-    const int   num_cycl_h = 3;
+    // const float curr_dis_l =  0.0f;
+    // const float curr_dis_h =  2.5f;
 
-    const float curr_dis_l =  0.0f;
-    const float curr_dis_h =  2.5f;
+    // const float duration_on_l  =  5.0f;         // для импульсных режимов
+    // const float duration_on_h  = 10.0f;
 
-    const float duration_on_l  =  5.0f;         // для импульсных режимов
-    const float duration_on_h  = 10.0f;
+    // const float duration_off_l  = 2.5f;
+    // const float duration_off_h  = 5.0f;
 
-    const float duration_off_l  = 2.5f;
-    const float duration_off_h  = 5.0f;
+    // const float volt_min_l = 10.0f;
+    // const float volt_min_h = 16.0f;
 
-    const float volt_min_l = 10.0f;
-    const float volt_min_h = 16.0f;
+    // const int   pause_l = 0;
+    // const int   pause_h = 3;
 
-    const int   pause_l = 0;
-    const int   pause_h = 3;
+    // const float volt_pre_l  =  1.5f;
+    // const float volt_pre_h  = 14.0f;
 
-    const float volt_pre_l  =  1.5f;
-    const float volt_pre_h  = 14.0f;
-
-    const float curr_pre_l  =  0.5f;
-    const float curr_pre_h  =  6.0f;
+    // const float curr_pre_l  =  0.5f;
+    // const float curr_pre_h  =  6.0f;
 
 
 
@@ -573,8 +505,8 @@ private:
     const int number_of_powers = 6;
 
     // Charge
-    float integral = 0.0f;
-    float temp = 0.0f;
+    // float integral = 0.0f;
+    // float temp = 0.0f;
     const int number_of_batteries = 7;
     float ahCharge = 0.0f;
     int   fulfill  = 75;            // TEST 
