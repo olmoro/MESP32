@@ -1,15 +1,18 @@
 /*
+    Набор методов, доступных разработчику для программирования собственных
+ режимов работы прибора.
 
-
+              !!!!!!!!!!!!!!!!!!!!!!!!!!!! 2022 июль
+    Продолжается очистка от мусора проекта-прототипа, который был без драйвера.          
 */
 
         //#include "SPIFFS.h"
-        #include <Update.h>
+        //#include <Update.h>
 
 
 #include "mtools.h"
 #include "mcmd.h"
-    #include "driver/mcommands.h"
+#include "driver/mcommands.h"
 #include "board/mboard.h"
 #include "board/mkeyboard.h"
 #include "display/mdisplay.h"
@@ -494,7 +497,12 @@ void MTools::txGetUpV()                            {buffCmd = MCmd::cmd_get_up_v
 void MTools::txSetUpV(short val)        {upV = val; buffCmd = MCmd::cmd_set_up_v;}                      // 0x64
 void MTools::txSetUpDefaultV(short val) {upV = val; buffCmd = MCmd::cmd_set_up_default_v;}              // 0x65
 
-
+void MTools::txGetLtI()                            {buffCmd = MCmd::cmd_get_lt_i;}                      // 0x68
+void MTools::txSetLtI(short val)        {ltI = val; buffCmd = MCmd::cmd_set_lt_i;}                      // 0x69
+void MTools::txSetLtDefaultI(short val) {ltI = val; buffCmd = MCmd::cmd_set_lt_default_i;}              // 0x6A
+void MTools::txGetUpI()                            {buffCmd = MCmd::cmd_get_up_i;}                      // 0x6B
+void MTools::txSetUpI(short val)        {upI = val; buffCmd = MCmd::cmd_set_up_i;}                      // 0x6C
+void MTools::txSetUpDefaultI(short val) {upI = val; buffCmd = MCmd::cmd_set_up_default_i;}              // 0x6D
 
 
 //================= Power =========================================
@@ -528,68 +536,7 @@ bool MTools::postponeCalculation()
     timeCounter--;
     chargeTimeCounter = timeCounter / 10;   //2;
     if( chargeTimeCounter == 0 ) return true;
-      return false;
-}
-
-
-
-// ========================== Service ====================================
-
-// mb common
-float MTools::incfValue( float value,  float value_l, float value_h, float delta, bool way ) 
-{
-    if( value >= value_h - delta )
-    {
-        if( way ) { return value_l; }
-        else      { return value_h; }        
-    } else return value += delta;
-}
-
-float MTools::upfVal( float val, float val_l, float val_h, float delta )   //2020
-{
-    if( (val += delta) > val_h ) return val_h; 
-    return val;
-}
-
-
-float MTools::decfValue( float value,  float value_l, float value_h, float delta, bool way )
-{
-    if( value <= value_l + delta )
-    {
-        if( way ) { return value_h; }
-        else      { return value_l; } 
-    } else return value -= delta;
-}
-
-float MTools::dnfVal( float val, float val_l, float val_h, float delta )   //2020
-{
-    if( (val -= delta) < val_l ) return val_l; 
-    return val;
-}
-
-
-int MTools::inciValue( int value,  int value_l, int value_h, int delta ) 
-{
-    if( value >= value_h ) return value_l; 
-    return value += delta; 
-}
-
-int MTools::upiVal( int val, int val_l, int val_h, int delta ) //2020
-{
-    if( (val += delta) > val_h ) return val_h; 
-    return val;
-}
-
-int MTools::deciValue( int value,  int value_l, int value_h, int delta )
-{
-    if( value <= value_l ) return value_h; 
-    return value -= delta; 
-}
-
-int MTools::dniVal( int val, int val_l, int val_h, int delta ) //2020
-{
-    if( (val -= delta) < val_l ) return val_l; 
-    return val;
+    return false;
 }
 
 // 202207 
@@ -608,4 +555,3 @@ float MTools::updnFloat(float value, float below, float above, float additives)
     if(value < below) return below;
     return value;
 }
-

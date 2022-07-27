@@ -235,13 +235,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
     // void incBattery();
     // void decBattery();
 
-
-
-// 2020
-    int   upiVal( int val, int min, int max, int delta );
-    int   dniVal( int val, int min, int max, int delta );
-    float upfVal( float val, float min, float max, float delta ); 
-    float dnfVal( float val, float min, float max, float delta ); 
 // 202207
     short updnInt(short value, short below, short above, short additives);
     float updnFloat(float value, float below, float above, float additives);
@@ -494,45 +487,6 @@ short upI = up_default_i;
     const bool onlimit = false;
     const bool onloop  = true;
 
-
-    // const float curr_max_l =  0.2f;
-    // const float curr_max_h = 12.2f;
-
-    // const float volt_end_l = 10.0f;
-    // const float volt_end_h = 16.0f;
-
-    // const int   num_cycl_l = 0;
-    // const int   num_cycl_h = 3;
-
-    // const float curr_dis_l =  0.0f;
-    // const float curr_dis_h =  2.5f;
-
-    // const float duration_on_l  =  5.0f;         // для импульсных режимов
-    // const float duration_on_h  = 10.0f;
-
-    // const float duration_off_l  = 2.5f;
-    // const float duration_off_h  = 5.0f;
-
-    // const float volt_min_l = 10.0f;
-    // const float volt_min_h = 16.0f;
-
-    // const int   pause_l = 0;
-    // const int   pause_h = 3;
-
-    // const float volt_pre_l  =  1.5f;
-    // const float volt_pre_h  = 14.0f;
-
-    // const float curr_pre_l  =  0.5f;
-    // const float curr_pre_h  =  6.0f;
-
-
-
-    float incfValue( float value, float min, float max, float delta, bool way );
-    float decfValue( float value, float min, float max, float delta, bool way );
-    int   inciValue( int value,  int min, int max, int delta );
-    int   deciValue( int value,  int min, int max, int delta );
-
-
     // Power
     const int number_of_powers = 6;
 
@@ -560,11 +514,6 @@ short upI = up_default_i;
       https://github.com/mike-matera/FastPID/tree/master/examples/VoltageRegulator
       Константы синхронизированы с ведомым контроллером (20220715)
     */  
-  // static constexpr int32_t  integ_max   = (INT32_MAX);         // 0x7FFFFFFF
-  // static constexpr int32_t  integ_min   = (INT32_MIN);         // 0x80000000
-  // static constexpr int16_t  deriv_max   = (INT16_MAX);         // 0x7FFF
-  // static constexpr int16_t  deriv_min   = (INT16_MIN);         // 0x8000
-
   static constexpr uint8_t  param_shift = 12;
   static constexpr uint8_t  param_bits  = 16;
   static constexpr uint16_t param_max   = (((0x1ULL << param_bits)-1) >> param_shift);              // 0x000F

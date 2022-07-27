@@ -1,7 +1,7 @@
 /*
  * Работа с драйвером силовой платы
- * read  - чтение через драйвер
- * write - запись через драйвер
+ * read  (get) - чтение через драйвер
+ * write (set) - запись через драйвер
  * 07.2022, некоторые не используемые команды не поддерживаются
  */
 
@@ -18,7 +18,7 @@
 MCommands::MCommands(MTools * tools) : Tools(tools), Board(tools->Board) 
 { 
   Wake = new MWake(); 
-  Wake->wakeInit( 0x00, 50 );  // Адрес в сети и время ожидания ответа
+  Wake->wakeInit( 0x00, 50 );  // Адрес в сети и время ожидания ответа (ms)
 }
 
 MCommands::~MCommands()
@@ -26,15 +26,9 @@ MCommands::~MCommands()
   delete Wake;
 }
 // Имя устройства
-static constexpr char Info[] = {" QMoro Rev0.0\n\0"};   // Убрать для активного 
-
+// static constexpr char Info[] = {" QMoro Rev0.0\n\0"};   // Убрать для активного 
 
 uint8_t cmd = MCmd::cmd_nop;
-
-//uint8_t state1 = 0b00000000;
-//uint8_t state2 = 0b00000000;
-
-void MCommands::writeCmd(uint8_t _cmd) {cmd = _cmd;}
 
 void MCommands::doCommand()
 {
@@ -55,90 +49,88 @@ void MCommands::doCommand()
     switch( cmd )
     {
       //Команды чтения результатов измерений
-      case MCmd::cmd_get_uis:                 readUI();                   break;  // 0x10;
+      case MCmd::cmd_get_uis:                 doGetUIS();                 break;  // 0x10
       case MCmd::cmd_get_u:                   doGetU();                   break;  // 0x11 Чтение напряжения (мВ)
       case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
       case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
       case MCmd::cmd_get_state:               doGetState();               break;  // 0x14 Чтение состояния
-      case MCmd::cmd_get_celsius:             doCelsius();                break;  // 0x15 Чтение температуры радиатора
+      case MCmd::cmd_get_celsius:             doGetCelsius();             break;  // 0x15 Чтение температуры радиатора
 
         // Команды управления
       case MCmd::cmd_power_go:                doPowerGo();                break;  // 0x20
       case MCmd::cmd_power_stop:              doPowerStop();              break;  // 0x21
 
-      //case MCmd::cmd_write_pid:             doSetPid();                 break;  // 0x22
-
         // Команды работы с измерителем напряжения 
-      case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30   + 00->03
-      case MCmd::cmd_write_factor_u:          doSetFactorU();             break;  // 0x31   + 02->01
-      case MCmd::cmd_write_factor_default_u:  doSetFactorDefaultU();      break;  // 0x32   + 00->01
-      case MCmd::cmd_read_smooth_u:           doGetSmoothU();             break;  // 0x33   + 00->02
-      case MCmd::cmd_write_smooth_u:          doSetSmoothU();             break;  // 0x34   + 01->01
-      case MCmd::cmd_read_offset_u:           doGetOffsetU();             break;  // 0x35   + 00->03
-      case MCmd::cmd_write_offset_u:          doSetOffsetU();             break;  // 0x36   + 02->01
+      case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30
+      case MCmd::cmd_write_factor_u:          doSetFactorU();             break;  // 0x31
+      case MCmd::cmd_write_factor_default_u:  doSetFactorDefaultU();      break;  // 0x32
+      case MCmd::cmd_read_smooth_u:           doGetSmoothU();             break;  // 0x33
+      case MCmd::cmd_write_smooth_u:          doSetSmoothU();             break;  // 0x34
+      case MCmd::cmd_read_offset_u:           doGetOffsetU();             break;  // 0x35
+      case MCmd::cmd_write_offset_u:          doSetOffsetU();             break;  // 0x36
       
         // Команды работы с измерителем тока
-      case MCmd::cmd_read_factor_i:             doGetFactorI();             break;  // 0x38   + 00->03
-      case MCmd::cmd_write_factor_i:            doSetFactorI();             break;  // 0x39   + 02->01
-      case MCmd::cmd_write_factor_default_i:    doSetFactorDefaultI();      break;  // 0x3A   + 00->01
-      case MCmd::cmd_read_smooth_i:             doGetSmoothI();             break;  // 0x3B   + 00->02
-      case MCmd::cmd_write_smooth_i:            doSetSmoothI();             break;  // 0x3C   + 01->01
-      case MCmd::cmd_read_offset_i:             doGetOffsetI();             break;  // 0x3D   + 00->03
-      case MCmd::cmd_write_offset_i:            doSetOffsetI();             break;  // 0x3E   + 02->01
+      case MCmd::cmd_read_factor_i:             doGetFactorI();           break;  // 0x38
+      case MCmd::cmd_write_factor_i:            doSetFactorI();           break;  // 0x39
+      case MCmd::cmd_write_factor_default_i:    doSetFactorDefaultI();    break;  // 0x3A
+      case MCmd::cmd_read_smooth_i:             doGetSmoothI();           break;  // 0x3B
+      case MCmd::cmd_write_smooth_i:            doSetSmoothI();           break;  // 0x3C
+      case MCmd::cmd_read_offset_i:             doGetOffsetI();           break;  // 0x3D
+      case MCmd::cmd_write_offset_i:            doSetOffsetI();           break;  // 0x3E
 
         // Команды работы с ПИД-регулятором
-      case MCmd::cmd_pid_configure:             doPidConfigure();           break;  // 0x40   + 0B->01
-      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();     break;  // 0x41   + 07->01
-      case MCmd::cmd_pid_output_range:          doPidOutputRange();         break;  // 0x42   + 05->01
-      case MCmd::cmd_pid_reconfigure:           doPidReconfigure();         break;  // 0x43   + 0B->01
-      case MCmd::cmd_pid_clear:                 doPidClear();               break;  // 0x44   + 01->01
-      case MCmd::cmd_pid_test:                  doPidTest();                break;  // 0x46   + 03->01
-      case MCmd::cmd_pid_read_param_mult:       doPidGetParamMult();        break;  // 0x47
-      case MCmd::cmd_pid_read_configure:        doPidGetConfigure();        break;  // 0x48   + 00->0C
-      //  case MCmd::cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
-      case MCmd::cmd_set_cooler:                doCooler();                 break;  // 0x4F Задать скорость вентилятора
+      case MCmd::cmd_pid_configure:             doPidConfigure();         break;  // 0x40
+      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41
+      case MCmd::cmd_pid_output_range:          doPidOutputRange();       break;  // 0x42
+      case MCmd::cmd_pid_reconfigure:           doPidReconfigure();       break;  // 0x43
+      case MCmd::cmd_pid_clear:                 doPidClear();             break;  // 0x44
+      case MCmd::cmd_pid_test:                  doPidTest();              break;  // 0x46
+      case MCmd::cmd_pid_read_param_mult:       doPidGetParamMult();      break;  // 0x47
+      case MCmd::cmd_pid_read_configure:        doPidGetConfigure();      break;  // 0x48
+      //  case MCmd::cmd_pid_write_max_sum:       doPidSetMaxSum();         break;  // 0x49  ?
+      case MCmd::cmd_set_cooler:                doCooler();               break;  // 0x4F Задать скорость вентилятора
 
 
         // Команды работы с АЦП
-      case MCmd::cmd_adc_read_probes:           doReadProbes();             break;  // 0x50   + 00->07
-      case MCmd::cmd_adc_read_offset:           doAdcGetOffset();           break;  // 0x51   + 00->03
-      case MCmd::cmd_adc_write_offset:          doAdcSetOffset();           break;  // 0x52   + 02->01
-      case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();          break;  // 0x53
+      case MCmd::cmd_adc_read_probes:           doReadProbes();           break;  // 0x50
+      case MCmd::cmd_adc_read_offset:           doAdcGetOffset();         break;  // 0x51
+      case MCmd::cmd_adc_write_offset:          doAdcSetOffset();         break;  // 0x52
+      case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();        break;  // 0x53 na
 
 
         // Команды управления тестовые
-      case MCmd::cmd_write_switch_pin:          doSwPin();                  break;  // 0x54     01->01
-      case MCmd::cmd_write_power:               doSetPower();               break;  // 0x56     04->01
-      case MCmd::cmd_write_discharge:           doSetDischg();              break;  // 0x57     01->01
-      case MCmd::cmd_write_voltage:             doSetVoltage();             break;  // 0x58     03->03
-      case MCmd::cmd_write_current:             doSetCurrent();             break;  // 0x59     05->03
-      case MCmd::cmd_write_discurrent:          doSetDiscurrent();          break;  // 0x5A     03->01
-  //   case MCmd::cmd_write_surge_compensation:  doSurgeCompensation();      break;  // 0x5B   nu
-      case MCmd::cmd_write_idle_load:           doIdleLoad();               break;  // 0x5C   
+      case MCmd::cmd_write_switch_pin:          doSwPin();                break;  // 0x54 na
+      case MCmd::cmd_write_power:               doSetPower();             break;  // 0x56 na
+      case MCmd::cmd_write_discharge:           doSetDischg();            break;  // 0x57 na
+      case MCmd::cmd_write_voltage:             doSetVoltage();           break;  // 0x58 na
+      case MCmd::cmd_write_current:             doSetCurrent();           break;  // 0x59 na
+      case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
+  //   case MCmd::cmd_write_surge_compensation:  doSurgeCompensation();     break;  // 0x5B   nu
+      case MCmd::cmd_write_idle_load:           doIdleLoad();             break;  // 0x5C na   
 
         // Команды задания порогов отключения
-      case MCmd::cmd_get_lt_v:           doGetLtV();              break;  // 0x60;     00->03
-      case MCmd::cmd_set_lt_v:          doSetLtV();              break;  // 0x61;     02->01
-      case MCmd::cmd_set_lt_default_v:  doSetLtDefaultV();       break;  // 0x62;     02->01
-      case MCmd::cmd_get_up_v:             doGetUpV();              break;  // 0x63;     00->03
-      case MCmd::cmd_set_up_v:            doSetUpV();              break;  // 0x64;     02->01
-      case MCmd::cmd_set_up_default_v:    doSetUpDefaultV();       break;  // 0x65;     02->01
+      case MCmd::cmd_get_lt_v:                  doGetLtV();               break;  // 0x60
+      case MCmd::cmd_set_lt_v:                  doSetLtV();               break;  // 0x61
+      case MCmd::cmd_set_lt_default_v:          doSetLtDefaultV();        break;  // 0x62
+      case MCmd::cmd_get_up_v:                  doGetUpV();               break;  // 0x63
+      case MCmd::cmd_set_up_v:                  doSetUpV();               break;  // 0x64
+      case MCmd::cmd_set_up_default_v:          doSetUpDefaultV();        break;  // 0x65
 
-      case MCmd::cmd_get_lt_i:           doGetLtI();              break;  // 0x68;     00->03
-      case MCmd::cmd_set_lt_i:          doSetLtI();              break;  // 0x69;     02->01
-      case MCmd::cmd_set_lt_default_i:  doSetLtDefaultI();       break;  // 0x6A;     02->01
-      case MCmd::cmd_get_up_i:             doGetUpI();              break;  // 0x6B;     00->03
-      case MCmd::cmd_set_up_i:            doSetUpI();              break;  // 0x6C;     02->01
-      case MCmd::cmd_set_up_default_i:    doSetUpDefaultI();       break;  // 0x6D;     02->01
+      case MCmd::cmd_get_lt_i:                  doGetLtI();               break;  // 0x68
+      case MCmd::cmd_set_lt_i:                  doSetLtI();               break;  // 0x69
+      case MCmd::cmd_set_lt_default_i:          doSetLtDefaultI();        break;  // 0x6A
+      case MCmd::cmd_get_up_i:                  doGetUpI();               break;  // 0x6B
+      case MCmd::cmd_set_up_i:                  doSetUpI();               break;  // 0x6C
+      case MCmd::cmd_set_up_default_i:          doSetUpDefaultI();        break;  // 0x6D
 
         // Команды универсальные
-      case MCmd::cmd_nop:                       doNop();                    break;  // 0x00
-      case MCmd::cmd_info:                      doInfo();                   break;  // 0x03
+      case MCmd::cmd_nop:                       doNop();                  break;  // 0x00
+      case MCmd::cmd_info:                      doInfo();                 break;  // 0x03
 
       default: 
       break ;
     }
-    cmd = MCmd::cmd_nop;       // не надо
+    cmd = MCmd::cmd_nop;                                                          // не обязательно
   }
 
 }
@@ -152,8 +144,8 @@ short MCommands::dataProcessing()
 
   switch(cmd)
   {
-    // Ответ на команду чтения результатов измерения напряжения (мВ), тока (мА)
-    // и двух байт состояния драйвера (всего 7 байт, включая байт ошибки)
+    // Ответ на команду чтения результатов измерения напряжения (мВ), тока (мА) и
+    // двух байт состояния драйвера (всего 7 байт, включая байт ошибки)
     case MCmd::cmd_get_uis:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
       {
@@ -212,7 +204,7 @@ short MCommands::dataProcessing()
     break;
 
     // Ответ на команду чтения результата преобразования данных датчика температуры
-    // всего 3 байтf, включая байт ошибки
+    // всего 3 байта, включая байт ошибки
     case MCmd::cmd_get_celsius:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
       {
@@ -226,10 +218,10 @@ short MCommands::dataProcessing()
 
 
 
-      // Ответ на команду старта преобразователя с заданными максимальными U и I
-      // (всего 1 байт, байт ошибки)
+      // Ответ на команду старта преобразователя с заданными максимальными V и I
+      // (всего 5 байт, включая байт ошибки)
     case MCmd::cmd_power_go:
-      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 5) )    // ??
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 5) )
       {
         return 0;  //Tools->setProtErr(0);
       }
@@ -237,7 +229,7 @@ short MCommands::dataProcessing()
     break;
 
       // Ответ на команду отключения преобразователя и цепи разряда
-      // (всего 1 байт, байт ошибки)
+      // (всего 1 байт - байт ошибки)
     case MCmd::cmd_power_stop:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
@@ -455,122 +447,105 @@ short MCommands::dataProcessing()
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-        // Команды задания порогов отключения
-      // case cmd_get_lt_u:             doGetLtV();              break;  // 0x60;     00->03
-      // case cmd_set_lt_u:            doSetLtV();              break;  // 0x61;     02->01
-      // case cmd_set_lt_default_u:    doSetLtDefaultU();       break;  // 0x62;     02->01
-      // case cmd_get_up_u:               doGetUpU();              break;  // 0x63;     00->03
-      // case cmd_set_up_u:              doSetUpU();              break;  // 0x64;     02->01
-      // case cmd_set_up_default_u:      doSetUpDefaultU();       break;  // 0x65;     02->01
-
-      // case cmd_get_lt_i:             doGetLtI();              break;  // 0x68;     00->03
-      // case cmd_set_lt_i:            doSetLtI();              break;  // 0x69;     02->01
-      // case cmd_set_lt_default_i:    doSetLtDefaultI();       break;  // 0x6A;     02->01
-      // case cmd_get_up_i:               doGetUpI();              break;  // 0x6B;     00->03
-      // case cmd_set_up_i:              doSetUpI();              break;  // 0x6C;     02->01
-      // case cmd_set_up_default_i:      doSetUpDefaultI();       break;  // 0x6D;     02->01
 
 
+
+
+        // Команды чтения и записи порогов отключения по напряжению
+        // Нижний порог отключения, чтение                  0x60
+    case MCmd::cmd_get_lt_v:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->txSetLtV(Wake->get16(1));
+        return 0;
+      }
+      else return 1;
+      break;
+
+        // Нижний порог отключения, запись                  0x61
+    case MCmd::cmd_set_lt_v:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Нижний порог отключения, запись дефолтного       0x62    
+    case MCmd::cmd_set_lt_default_v:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Верхний порог отключения, чтение                 0x63
+    case MCmd::cmd_get_up_v:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->txSetUpV(Wake->get16(1));
+        return 0;
+      }
+      else return 1;
+      break;
+
+        // Верхний порог отключения, запись                 0x64
+    case MCmd::cmd_set_up_v:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Верхний порог отключения, запись дефолтного      0x65    
+    case MCmd::cmd_set_up_default_v:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Команды чтения и записи порогов отключения по току
+        // Нижний порог отключения, чтение                  0x68
+    case MCmd::cmd_get_lt_i:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->txSetLtI(Wake->get16(1));
+        return 0;
+      }
+      else return 1;
+      break;
+
+        // Нижний порог отключения, запись                  0x69
+    case MCmd::cmd_set_lt_i:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Нижний порог отключения, запись дефолтного       0x6A    
+    case MCmd::cmd_set_lt_default_i:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Верхний порог отключения, чтение                 0x6B
+    case MCmd::cmd_get_up_i:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->txSetUpV(Wake->get16(1));
+        return 0;
+      }
+      else return 1;
+      break;
+
+        // Верхний порог отключения, запись                 0x6C
+    case MCmd::cmd_set_up_i:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
+
+        // Нижний порог отключения, запись дефолтного       0x6D    
+    case MCmd::cmd_set_up_default_i:
+      if((Wake->get08(0) == 0) && (Wake->getNbt() == 1))  return 0;
+      else  return 1;
+      break;
 
     default:
     return 2;   // Нет такой команды
     break;
   }
 }
-
-
-#ifdef OLD
-// передать информацию об устройстве
-void doInfo()
-{
-  char ch = 1;
-  int i = 0;
-
-  for( i = 0; i < frame && ch; i++ )
-  {
-  ch = txDat[i] = Info[i];
-
-  #ifdef DEBUG_WAKE
-    Serial.print( ch );
-  #endif
-  }
-  
-  txReplay( i, txDat[0] );        // Искусственный прием, об ошибках не сообщается
-}
-
-// передать эхо
-void doEcho()
-{
-  for( int i = 0; i < rxNbt && i < frame; i++ )
-  txDat[i] = rxDat[i];
-  txReplay( rxNbt, txDat[0] );
-  #ifdef DEBUG_WAKE
-    Serial.print("команда эхо = "); Serial.print( rxNbt );
-  #endif
-}
-
-// ошибка приема пакета
-void doErr()
-{
-  txReplay(1, err_tx);
-  #ifdef DEBUG_WAKE
-    Serial.println("обработка ошибки");
-  #endif
-}
-
-// // Формирование регистра состояния 1
-// void doState1()
-// {
-//   _switchStatus         ? state1 |= 0b10000000 : state1 &= 0b01111111; 
-//   _converterStatus      ? state1 |= 0b01000000 : state1 &= 0b10111111; 
-//   _currentControlStatus ? state1 |= 0b00100000 : state1 &= 0b11011111; 
-//   _voltageControlStatus ? state1 |= 0b00010000 : state1 &= 0b11101111; 
-//   _chargeStatus         ? state1 |= 0b00001000 : state1 &= 0b11110111; 
-//   _dischargeStatus      ? state1 |= 0b00000100 : state1 &= 0b11111011; 
-//   _pauseStatus          ? state1 |= 0b00000010 : state1 &= 0b11111101; 
-//   _reserve1Status       ? state1 |= 0b00000001 : state1 &= 0b11111110;
-
-//   switchFoff(_switchStatus);        // Непрерывное подтверждение состояния
-//   converterOff(_converterStatus);
-// }
-
-// // Формирование регистра состояния 2 
-// void doState2()
-// {
-//   _overHeatingStatus     ? state2 |= 0b10000000 : state2 &= 0b01111111; 
-//   _overloadStatus        ? state2 |= 0b01000000 : state2 &= 0b10111111; 
-//   _powerLimitationStatus ? state2 |= 0b00100000 : state2 &= 0b11011111; 
-//   _reversePolarityStatus ? state2 |= 0b00010000 : state2 &= 0b11101111; 
-//   _shortCircuitStatus    ? state2 |= 0b00001000 : state2 &= 0b11110111; 
-//   _calibrationStatus     ? state2 |= 0b00000100 : state2 &= 0b11111011; 
-//   _upgradeStatus         ? state2 |= 0b00000010 : state2 &= 0b11111101; 
-//   _reserve2Status        ? state2 |= 0b00000001 : state2 &= 0b11111110; 
-// }
-#endif
-
-// constexpr float hz = 10.0;    // Пока без вариантов
-
-// bool _cfg_err;    // Этого не будет - проверки на стороне ESP минимальны
-
-// // На стороне ESP все float параметры преобразуются в целочисленные 
-// //                                                    НЕ ПРОВЕРЕНО
-// uint32_t MCommands::floatToParam(float in)
-// {
-//   if (in > param_max || in < 0)
-//   {
-//     _cfg_err = true;
-//     return 0;
-//   }
-
-//   uint32_t param = in * param_mult;
-
-//   if (in != 0 && param == 0) {
-//     _cfg_err = true;
-//     return 0;
-//   }
-  
-//   return param;
-// }
 
 // Запись байта в буфер передатчика по индексу 
 void MCommands::txU08(uint8_t id,  uint8_t value)
@@ -600,7 +575,7 @@ void MCommands::txU32(uint8_t id, uint32_t value)
 // Запрос: 0xC0, 0x10, 0x00, 0x52     t = 0.35ms                  - ok
 // Ожидаемый ответ: целочисленные знаковые в милливольтах и миллиамперах и два байта состояний.
 // Ответ:  0xC0, 0x10, 0x07, 0x00, 0xFC, 0xEE, 0x00, 0x21, 0x00, 0x00, 0xDE - ok,  t = 0.95ms
-void MCommands::readUI()
+void MCommands::doGetUIS()
 {        
   Wake->configAsk( 0, MCmd::cmd_get_uis);
 }
@@ -635,7 +610,7 @@ void MCommands::doGetState()
 
 // 0x15 Чтение температуры радиатора
 // Ожидаемый ответ: целочисленное знаковое ADC как есть.
-void MCommands::doCelsius()
+void MCommands::doGetCelsius()
 {
   Wake->configAsk( 0, MCmd::cmd_get_celsius);
 }
@@ -659,13 +634,6 @@ void MCommands::doPowerStop()
 {
   Wake->configAsk( 0, MCmd::cmd_power_stop);
 }
-
-// void MCommands::doSetPid()                 // 0x22
-// {
-//   // nu
-//   Wake->configReply( 5, 0, cmd_write_pid);    // txNbt, err, command   - 
-// }
-
 
 // =============== Команды работы с измерителем напряжения ================
 // Команда чтения множителя по напряжению 0x30 

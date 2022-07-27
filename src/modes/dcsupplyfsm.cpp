@@ -68,17 +68,17 @@ namespace DcSupplyFsm
                 Tools->saveFloat( "s-power", "voltMax", Tools->getVoltageMax() ); 
                 return new MExecution(Tools);
             case MKeyboard::UP_CLICK :
-                Tools->voltageMax = Tools->upfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 0.1f );
+                //Tools->voltageMax = Tools->upfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 0.1f );
                 break;
             case MKeyboard::DN_CLICK:
-                Tools->voltageMax = Tools->dnfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 0.1f );
+                //Tools->voltageMax = Tools->dnfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 0.1f );
                 break;
             case MKeyboard::UP_LONG_CLICK:
-                Tools->voltageMax = Tools->upfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 1.0f );
+                //Tools->voltageMax = Tools->upfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 1.0f );
                 break;
             case MKeyboard::DN_LONG_CLICK:
                 //Tools->decVoltageMax( 1.0f, false );
-                Tools->voltageMax = Tools->dnfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 1.0f );
+                //Tools->voltageMax = Tools->dnfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 1.0f );
                 break;
             default:;
         }
@@ -106,22 +106,22 @@ namespace DcSupplyFsm
                 return new MSetVoltage(Tools);
             case MKeyboard::UP_CLICK :
                 //Tools->incCurrentMax( 0.1f, false );
-                Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
+                //Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
 
                 break;
             case MKeyboard::DN_CLICK:
                 //Tools->decCurrentMax( 0.1f, false );
-                Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
+                //Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.1f );
 
                 break;
             case MKeyboard::UP_LONG_CLICK:
                 //Tools->incCurrentMax( 0.5f, false );
-                Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
+                //Tools->currentMax = Tools->upfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
 
                 break;
             case MKeyboard::DN_LONG_CLICK:
                 //Tools->decCurrentMax( 0.5f, false );
-                Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
+                //Tools->currentMax = Tools->dnfVal( Tools->currentMax, MDcConst::c_l, MDcConst::c_h, 0.5f );
 
                 break;
             default:;
