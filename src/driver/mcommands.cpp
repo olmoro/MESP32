@@ -106,9 +106,8 @@ void MCommands::doCommand()
       case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();          break;  // 0x53
 
 
-        // Команды управления портами управления (в основном тестовые)
+        // Команды управления тестовые
       case MCmd::cmd_write_switch_pin:          doSwPin();                  break;  // 0x54     01->01
-        // Команды тестовые
       case MCmd::cmd_write_power:               doSetPower();               break;  // 0x56     04->01
       case MCmd::cmd_write_discharge:           doSetDischg();              break;  // 0x57     01->01
       case MCmd::cmd_write_voltage:             doSetVoltage();             break;  // 0x58     03->03
@@ -118,19 +117,19 @@ void MCommands::doCommand()
       case MCmd::cmd_write_idle_load:           doIdleLoad();               break;  // 0x5C   
 
         // Команды задания порогов отключения
-      case MCmd::cmd_read_win_less_u:           doGetWinLtU();              break;  // 0x60;     00->03
-      case MCmd::cmd_write_win_less_u:          doSetWinLtU();              break;  // 0x61;     02->01
-      case MCmd::cmd_write_win_less_default_u:  doSetWinLtDefaultU();       break;  // 0x62;     02->01
-      case MCmd::cmd_read_win_up_u:             doGetWinUpU();              break;  // 0x63;     00->03
-      case MCmd::cmd_write_win_up_u:            doSetWinUpU();              break;  // 0x64;     02->01
-      case MCmd::cmd_write_win_up_default_u:    doSetWinUpDefaultU();       break;  // 0x65;     02->01
+      case MCmd::cmd_get_lt_v:           doGetLtV();              break;  // 0x60;     00->03
+      case MCmd::cmd_set_lt_v:          doSetLtV();              break;  // 0x61;     02->01
+      case MCmd::cmd_set_lt_default_v:  doSetLtDefaultV();       break;  // 0x62;     02->01
+      case MCmd::cmd_get_up_v:             doGetUpV();              break;  // 0x63;     00->03
+      case MCmd::cmd_set_up_v:            doSetUpV();              break;  // 0x64;     02->01
+      case MCmd::cmd_set_up_default_v:    doSetUpDefaultV();       break;  // 0x65;     02->01
 
-      case MCmd::cmd_read_win_less_i:           doGetWinLtI();              break;  // 0x68;     00->03
-      case MCmd::cmd_write_win_less_i:          doSetWinLtI();              break;  // 0x69;     02->01
-      case MCmd::cmd_write_win_less_default_i:  doSetWinLtDefaultI();       break;  // 0x6A;     02->01
-      case MCmd::cmd_read_win_up_i:             doGetWinUpI();              break;  // 0x6B;     00->03
-      case MCmd::cmd_write_win_up_i:            doSetWinUpI();              break;  // 0x6C;     02->01
-      case MCmd::cmd_write_win_up_default_i:    doSetWinUpDefaultI();       break;  // 0x6D;     02->01
+      case MCmd::cmd_get_lt_i:           doGetLtI();              break;  // 0x68;     00->03
+      case MCmd::cmd_set_lt_i:          doSetLtI();              break;  // 0x69;     02->01
+      case MCmd::cmd_set_lt_default_i:  doSetLtDefaultI();       break;  // 0x6A;     02->01
+      case MCmd::cmd_get_up_i:             doGetUpI();              break;  // 0x6B;     00->03
+      case MCmd::cmd_set_up_i:            doSetUpI();              break;  // 0x6C;     02->01
+      case MCmd::cmd_set_up_default_i:    doSetUpDefaultI();       break;  // 0x6D;     02->01
 
         // Команды универсальные
       case MCmd::cmd_nop:                       doNop();                    break;  // 0x00
@@ -457,19 +456,19 @@ short MCommands::dataProcessing()
     break;
 
         // Команды задания порогов отключения
-      // case cmd_read_win_less_u:             doGetWinLtU();              break;  // 0x60;     00->03
-      // case cmd_write_win_less_u:            doSetWinLtU();              break;  // 0x61;     02->01
-      // case cmd_write_win_less_default_u:    doSetWinLtDefaultU();       break;  // 0x62;     02->01
-      // case cmd_read_win_up_u:               doGetWinUpU();              break;  // 0x63;     00->03
-      // case cmd_write_win_up_u:              doSetWinUpU();              break;  // 0x64;     02->01
-      // case cmd_write_win_up_default_u:      doSetWinUpDefaultU();       break;  // 0x65;     02->01
+      // case cmd_get_lt_u:             doGetLtV();              break;  // 0x60;     00->03
+      // case cmd_set_lt_u:            doSetLtV();              break;  // 0x61;     02->01
+      // case cmd_set_lt_default_u:    doSetLtDefaultU();       break;  // 0x62;     02->01
+      // case cmd_get_up_u:               doGetUpU();              break;  // 0x63;     00->03
+      // case cmd_set_up_u:              doSetUpU();              break;  // 0x64;     02->01
+      // case cmd_set_up_default_u:      doSetUpDefaultU();       break;  // 0x65;     02->01
 
-      // case cmd_read_win_less_i:             doGetWinLtI();              break;  // 0x68;     00->03
-      // case cmd_write_win_less_i:            doSetWinLtI();              break;  // 0x69;     02->01
-      // case cmd_write_win_less_default_i:    doSetWinLtDefaultI();       break;  // 0x6A;     02->01
-      // case cmd_read_win_up_i:               doGetWinUpI();              break;  // 0x6B;     00->03
-      // case cmd_write_win_up_i:              doSetWinUpI();              break;  // 0x6C;     02->01
-      // case cmd_write_win_up_default_i:      doSetWinUpDefaultI();       break;  // 0x6D;     02->01
+      // case cmd_get_lt_i:             doGetLtI();              break;  // 0x68;     00->03
+      // case cmd_set_lt_i:            doSetLtI();              break;  // 0x69;     02->01
+      // case cmd_set_lt_default_i:    doSetLtDefaultI();       break;  // 0x6A;     02->01
+      // case cmd_get_up_i:               doGetUpI();              break;  // 0x6B;     00->03
+      // case cmd_set_up_i:              doSetUpI();              break;  // 0x6C;     02->01
+      // case cmd_set_up_default_i:      doSetUpDefaultI();       break;  // 0x6D;     02->01
 
 
 
@@ -1109,117 +1108,117 @@ void MCommands::doIdleLoad()
 // Команда чтения нижнего порога отключения по напряжению  0x60;
 // Запрос: 0xC0, 0x60, 0x00, 0xE4                           - ok
 // Ответ:  0xC0, 0x60, 0x03, 0x00, 0xFF, 0x38, 0x2C         - ok
-void MCommands::doGetWinLtU()              
+void MCommands::doGetLtV()              
 {
   int id = 0;
   // ...
-  Wake->configAsk( id, MCmd::cmd_read_win_less_u );
+  Wake->configAsk( id, MCmd::cmd_get_lt_v );
 }
 
 // Команда записи нижнего порога отключения по напряжению  0x61;
 // Запрос: 0xC0, 0x61, 0x02, 0xFF, 0x38, 0x73               - ok
 // Ответ:  0xC0, 0x61, 0x01, 0x00, 0xE7                     - ok
-void MCommands::doSetWinLtU()
+void MCommands::doSetLtV()
 {
   int id = 0;
-  id = Wake->replyU16( id, Board->getWinLU() ); // 0xFF38
-  Wake->configAsk( id, MCmd::cmd_write_win_less_u );
+  id = Wake->replyU16( id, Tools->getLtV() ); // 0xFF38
+  Wake->configAsk( id, MCmd::cmd_set_lt_v );
 }
 
 // Команда восстановления заводского нижнего порога отключения по напряжению  0x62;
 // Запрос: 0xC0, 0x62, 0x00, 0x75                           - ok
 // Ответ:  0xC0, 0x62, 0x01, 0x00, 0x03                     - ok
-void MCommands::doSetWinLtDefaultU() 
+void MCommands::doSetLtDefaultV() 
 {
   int id = 0;
-  Wake->configAsk( id, MCmd::cmd_write_win_less_default_u );
+  Wake->configAsk( id, MCmd::cmd_set_lt_default_v );
 }
 
 // Команда чтения верхнего порога отключения по напряжению  0x63;
 // Запрос: 0xC0, 0x63, 0x00, 0xB1                           - ok
 // Ответ:  0xC0, 0x63, 0x03, 0x00, 0x46, 0x50, 0x75         - ok
-void MCommands::doGetWinUpU()              
+void MCommands::doGetUpV()              
 {
   int id = 0;
   // ...
-  Wake->configAsk( id, MCmd::cmd_read_win_up_u );
+  Wake->configAsk( id, MCmd::cmd_get_up_v );
 }
 
 // Команда записи верхнего порога отключения по напряжению  0x64;
 // Запрос: 0xC0, 0x64, 0x02, 0x46, 0x50, 0xE5               - ok
 // Ответ:  0xC0, 0x64, 0x01, 0x00, 0x79                     - ok
-void MCommands::doSetWinUpU()
+void MCommands::doSetUpV()
 {
   int id = 0;
-  id = Wake->replyU16( id, Board->getWinUpU() ); // 0xFF38
-  Wake->configAsk( id, MCmd::cmd_write_win_up_u );
+  id = Wake->replyU16( id, Tools->getUpV() ); // 0xFF38
+  Wake->configAsk( id, MCmd::cmd_set_up_v );
 }
 
 // Команда восстановления заводского верхнего порога отключения по напряжению  0x65;
 // Запрос: 0xC0, 0x65, 0x00, 0x1B                           - ok
 // Ответ:  0xC0, 0x65, 0x01, 0x00, 0x79                     - ok
-void MCommands::doSetWinUpDefaultU() 
+void MCommands::doSetUpDefaultV() 
 {
   int id = 0;
-  Wake->configAsk( id, MCmd::cmd_write_win_up_default_u );
+  Wake->configAsk( id, MCmd::cmd_set_up_default_v );
 }
 
 // Команда чтения нижнего порога отключения по току  0x68;
 // Запрос: 0xC0, 0x68, 0x00, 0x92                           - ok
 // Ответ:  0xC0, 0x68, 0x03, 0x00, 0xFA, 0x24, 0xD3         - ok
-void MCommands::doGetWinLtI()              
+void MCommands::doGetLtI()              
 {
   int id = 0;
   // ...
-  Wake->configAsk( id, MCmd::cmd_read_win_less_i );
+  Wake->configAsk( id, MCmd::cmd_get_lt_i );
 }
 
 // Команда записи нижнего порога отключения по току  0x69;
 // Запрос: 0xC0, 0x69, 0x02, 0xFA, 0x24, 0xAE               - ok
 // Ответ:  0xC0, 0x69, 0x01, 0x00, 0xC2                     - ok
-void MCommands::doSetWinLtI()
+void MCommands::doSetLtI()
 {
   int id = 0;
-  id = Wake->replyU16( id, Board->getWinLI() ); // 0x
-  Wake->configAsk( id, MCmd::cmd_write_win_less_i );
+  id = Wake->replyU16( id, Tools->getLtI() ); // 0x
+  Wake->configAsk( id, MCmd::cmd_set_lt_i );
 }
 
 // Команда восстановления заводского нижнего порога отключения по току  0x6A;
 // Запрос: 0xC0, 0x6A, 0x00, 0x03                           - ok
 // Ответ:  0xC0, 0x6A, 0x01, 0x00, 0x26                     - ok
-void MCommands::doSetWinLtDefaultI() 
+void MCommands::doSetLtDefaultI() 
 {
   int id = 0;
-  Wake->configAsk( id, MCmd::cmd_write_win_less_default_i );
+  Wake->configAsk( id, MCmd::cmd_set_lt_default_i );
 }
 
 // Команда чтения верхнего порога отключения по току  0x6B;
 // Запрос: 0xC0, 0x6B, 0x00, 0xC7                           - ok
 // Ответ:  0xC0, 0x6B, 0x03, 0x00, 0x13, 0x88, 0x56         - ok
-void MCommands::doGetWinUpI()              
+void MCommands::doGetUpI()              
 {
   int id = 0;
   // ...
-  Wake->configAsk( id, MCmd::cmd_read_win_up_i );
+  Wake->configAsk( id, MCmd::cmd_get_up_i );
 }
 
 // Команда записи верхнего порога отключения по току  0x6C;
 // Запрос: 0xC0, 0x6C, 0x02, 0x13, 0x88, 0xE4               - ok
 // Ответ:  0xC0, 0x6C, 0x01, 0x00, 0xF7                     - ok
-void MCommands::doSetWinUpI()
+void MCommands::doSetUpI()
 {
   int id = 0;
-  id = Wake->replyU16( id, Board->getWinUpI() ); // 0x
-  Wake->configAsk( id, MCmd::cmd_write_win_up_i );
+  id = Wake->replyU16( id, Tools->getUpI() ); // 0x
+  Wake->configAsk( id, MCmd::cmd_set_up_i );
 }
 
 // Команда восстановления заводского верхнего порога отключения по току  0x6D;
 // Запрос: 0xC0, 0x6D, 0x00, 0x6D                           - ok
 // Ответ:  0xC0, 0x6D, 0x01, 0x00, 0x5C                     - ok
-void MCommands::doSetWinUpDefaultI() 
+void MCommands::doSetUpDefaultI() 
 {
   int id = 0;
-  Wake->configAsk( id, MCmd::cmd_write_win_up_default_i );
+  Wake->configAsk( id, MCmd::cmd_set_up_default_i );
 }
 
 // ================ Команды универсальные ================

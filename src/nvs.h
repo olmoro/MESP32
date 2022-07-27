@@ -18,15 +18,15 @@ namespace MNvs
     static constexpr const char* kQulonMode      = "mode";     //  
     static constexpr const char* kQulonPostpone  = "postp";    // 
 
-    static constexpr const char* kOffsetAdc     = "offsetAdc";  // Смещение ЦАП
+//    static constexpr const char* kOffsetAdc     = "offsetAdc";  // Смещение АЦП
 
     static constexpr const char* kFactorV       = "factorV";  // Множитель преобразования
     static constexpr const char* kSmoothV       = "smoothV";  // Коэффициент фильтрации
-    static constexpr const char* kOffsetV       = "offsetV";  // Смещение adcV
+    static constexpr const char* kOffsetV       = "offsetV";  // Сдвиг adcV
 
     static constexpr const char* kFactorA       = "factorA";  // Множитель преобразования
     static constexpr const char* kSmoothA       = "smoothA";  // Коэффициент фильтрации
-    static constexpr const char* kOffsetA       = "offsetA";  // Смещение adcI
+    static constexpr const char* kOffsetA       = "offsetA";  // Сдвиг adcI
 
 
 // старые, будут отменены --------------------------------------

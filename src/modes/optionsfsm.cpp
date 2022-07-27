@@ -118,7 +118,7 @@ MState * MSetPostpone::fsm()
     break;
     
     case MKeyboard::B_CLICK: Board->buzzerOn();                                               // Сохранить
-      Tools->saveInt(MNvs::nQulon, MNvs::kOffsetAdc, Tools->offsetAdc); return new MSetVoltageOffset(Tools);
+      //Tools->saveInt(MNvs::nQulon, MNvs::kOffsetAdc, Tools->offsetAdc); return new MSetVoltageOffset(Tools);
     default:;  
     }
     // Изменение смещения отображается на текущем значении (спорно)

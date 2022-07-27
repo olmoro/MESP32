@@ -49,8 +49,10 @@ namespace MBoot
   MTxAdcOffset::MTxAdcOffset(MTools * Tools) : MState(Tools) {}
   MState * MTxAdcOffset::fsm()
   {
-    Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);   // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetAdcOffset(Tools->offsetAdc);                                        // 0x52  Команда драйверу в буфер
+    // Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);   // Взять сохраненное из ЭНОЗУ.
+    // Tools->txSetAdcOffset(Tools->offsetAdc);                                        // 0x52  Команда драйверу в буфер
+     Tools->txAdcAutoOffset();                                                      // 0x53  Команда драйверу в буфер
+
     return new MTxsetFactorU(Tools);                                                // Перейти к следующему параметру
   };
 

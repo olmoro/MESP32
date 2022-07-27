@@ -264,32 +264,58 @@ bool setPidCoefficients(float kp, float ki, float kd);
     int  getTimeCounter();
     void setTimeCounter( int ivalue );
 
-    //2022
+    uint8_t getBuffCmd();
+    void    setBuffCmd(uint8_t cmd);
+
+    short getCooler();
+    void  setCooler(short val);
+
+      // АЦП - настройки
+    void  setAdcV(short val);
+    void  setAdcI(short val);
+    short getAdcOffset();
+    void  setAdcOffset(short val);
+
+    short getLtV();
+    short getUpV();
+    short getLtI();
+    short getUpI();
+
+// ======================== ЦЕЛЕВЫЕ КОМАНДЫ УПРАВЛЕНИЯ ДРАЙВЕРОМ SAMD21 MO MINI ========================
+
+      // Команды чтения результатов измерений
+    void txReadUIS();                                     // 0x10;
+    void txGetU();                                        // 0x11 Чтение напряжения (мВ)
+    void txGetI();                                        // 0x12 Чтение тока (мА)
+    void txGetUI();                                       // 0x13 Чтение напряжения (мВ) и тока (мА)
+    void txGetState();                                    // 0x14 Чтение состояния
+    void txCelsius();                                     // 0x15 Чтение температуры радиатора
+      
+      // 
     void txPowerGo(float spU, float spI, uint8_t mode);   // 0x20
     void txPowerStop();                                   // 0x21
 
-//======================
       // Команды работы с измерителем напряжения
-      // Множитель преобразования в милливольты
+        // Множитель преобразования в милливольты
     void txGetFactorU();                                  // 0x30 Чтение
     void txSetFactorU(short val);                         // 0x31 Запись
     void txSetFactorDefaultU();                           // 0x32 Возврат к заводскому
-      // Параметр сглаживания
+        // Параметр сглаживания
     void txGetSmoothU();                                  // 0x33 Чтение
     void txSetSmoothU(short val);                         // 0x34 Запись
-      // Приборный сдвиг
+        // Приборный сдвиг
     void txGetShiftU();                                   // 0x35 Чтение
     void txSetShiftU(short val);                          // 0x36 Запись
 
       // Команды работы с измерителем тока
-      // Множитель преобразования в миллиамперы
+        // Множитель преобразования в миллиамперы
     void txGetFactorI();                                  // 0x38 Чтение
     void txSetFactorI(short val);                         // 0x39 Запись
     void txSetFactorDefaultI();                           // 0x3A Возврат к заводскому
-      // Параметр сглаживания
+        // Параметр сглаживания
     void txGetSmoothI();                                  // 0x3B Чтение
     void txSetSmoothI(short val);                         // 0x3C Запись
-      // Приборный сдвиг
+        // Приборный сдвиг
     void txGetShiftI();                                   // 0x3D Чтение
     void txSetShiftI(short val);                          // 0x3E Запись
 
@@ -308,16 +334,7 @@ bool setPidCoefficients(float kp, float ki, float kd);
     void txGetPidParamMult();                             // 0x47 Get param_mult
     void txGetPidConfig();                                // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
-  
     void txSetCooler(short val);                          // 0x4F Задать скорость вентилятора
-    short getCooler();
-    void  setCooler(short val);
-
-      // АЦП - настройки
-    void  setAdcV(short val);
-    void  setAdcI(short val);
-    short getAdcOffset();
-    void  setAdcOffset(short val);
 
     void txGetProbes();                                   // 0x50
     void txGetAdcOffset();                                // 0x51
@@ -336,26 +353,26 @@ bool setPidCoefficients(float kp, float ki, float kd);
 // const uint8_t cmd_set_surge_compensation    = 0x5B; // параметры подавления всплеска напряжения na
 // const uint8_t cmd_set_idle_load             = 0x5C; // параметры доп.нагрузки ХХ
 
-//   // Команды задания порогов отключения
-// const uint8_t cmd_get_win_less_u            = 0x60; // 
-// const uint8_t cmd_set_win_less_u            = 0x61; // 
-// const uint8_t cmd_set_win_less_default_u    = 0x62; // 
-// const uint8_t cmd_get_win_up_u              = 0x63; // 
-// const uint8_t cmd_set_win_up_u              = 0x64; // 
-// const uint8_t cmd_set_win_up_default_u      = 0x65; // 
+  // Команды задания порогов отключения
+    void txGetLtV();                                      // 0x60
+    void txSetLtV(short val);                             // 0x61
+    void txSetLtDefaultV(short val);                      // 0x62
+    void txGetUpV();                                      // 0x63
+    void txSetUpV(short val);                             // 0x64
+    void txSetUpDefaultV(short val);                      // 0x65
 
-// const uint8_t cmd_get_win_less_i            = 0x68; // 
-// const uint8_t cmd_set_win_less_i            = 0x69; // 
-// const uint8_t cmd_set_win_less_default_i    = 0x6A; // 
-// const uint8_t cmd_get_win_up_i              = 0x6B; // 
-// const uint8_t cmd_set_win_up_i              = 0x6C; // 
-// const uint8_t cmd_set_win_up_default_i      = 0x6D; // 
+    void txGetLtI();                                      // 0x68
+    void txSetLtI(short val);                             // 0x69
+    void txSetLtDefaultI(short val);                      // 0x6A
+    void txGetUpI();                                      // 0x6B
+    void txSetUpI(short val);                             // 0x6C
+    void txSetUpDefaultI(short val);                      // 0x6D
 
-//======================
+// =====================================================================================================
 
 
-    uint8_t getBuffCmd();
-    void    setBuffCmd(uint8_t cmd);
+
+
 
     
 //============================ Power ===============================================
@@ -418,6 +435,21 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
 //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====
 private:
+// Пороги отключения по умолчанию: мВ, мА  (имитация аппаратной поддержки)
+static constexpr short lt_default_v  =  -200;   // при переплюсовке
+static constexpr short up_default_v  = 18000;   // исполняется конструктивно
+static constexpr short lt_default_i  = -1500;   // максимальный ток разряда
+static constexpr short up_default_i  =  6000;   // максимальный ток заряда
+  // Пороги отключения: мВ, мА  (имитация аппаратной поддержки)
+short ltV = lt_default_v;
+short upV = up_default_v;
+short ltI = lt_default_i;
+short upI = up_default_i;
+
+
+
+
+
   float voltage     = 0.0f;    // Напряжение на клеммах аккумулятора, В
   float current     = 0.0f;    // Текущий измеренный ток, А
   uint8_t state1    = 0x00;

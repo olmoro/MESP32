@@ -108,19 +108,19 @@ class MCommands
     void doIdleLoad();               // 0x5C   
 
       // Команды задания порогов отключения
-    void doGetWinLtU();              // 0x60
-    void doSetWinLtU();              // 0x61
-    void doSetWinLtDefaultU();       // 0x62
-    void doGetWinUpU();              // 0x63 
-    void doSetWinUpU();              // 0x64 
-    void doSetWinUpDefaultU();       // 0x65 
+    void doGetLtV();              // 0x60
+    void doSetLtV();              // 0x61
+    void doSetLtDefaultV();       // 0x62
+    void doGetUpV();              // 0x63 
+    void doSetUpV();              // 0x64 
+    void doSetUpDefaultV();       // 0x65 
 
-    void doGetWinLtI();              // 0x68 
-    void doSetWinLtI();              // 0x69  
-    void doSetWinLtDefaultI();       // 0x6A 
-    void doGetWinUpI();              // 0x6B 
-    void doSetWinUpI();              // 0x6C
-    void doSetWinUpDefaultI();       // 0x6D 
+    void doGetLtI();              // 0x68 
+    void doSetLtI();              // 0x69  
+    void doSetLtDefaultI();       // 0x6A 
+    void doGetUpI();              // 0x6B 
+    void doSetUpI();              // 0x6C
+    void doSetUpDefaultI();       // 0x6D 
 
       // Команды универсальные
     void doNop();                    // 0x00

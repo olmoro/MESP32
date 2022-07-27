@@ -25,7 +25,7 @@ namespace MBoot
       MTxAdcOffset(MTools * Tools);
       MState * fsm() override;
   };
-
+  
   class MTxsetFactorU : public MState
   {
     public:   

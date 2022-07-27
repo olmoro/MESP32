@@ -342,50 +342,78 @@ uint8_t buffCmd = MCmd::cmd_nop;             // 0x00 - нет операции
 uint8_t MTools::getBuffCmd()            {return buffCmd;}
 void    MTools::setBuffCmd(uint8_t cmd) {buffCmd = cmd;}
 
-// Вариант 2022 - не доделано
+short MTools::getParamMult() {return paramMult;}
+void  MTools::setParamMult(short _pm) {paramMult = _pm;}
+
+short MTools::getCooler() {return cool;}
+void  MTools::setCooler(short val) {cool = val;}
+
+void  MTools::setAdcV( short val ) { adcV = val; }
+void  MTools::setAdcI( short val ) { adcI = val; }
+
+short MTools::getAdcOffset() {return offsetAdc;}
+void  MTools::setAdcOffset(short val) {offsetAdc = val;}
+
+short MTools::getAdcV() {return adcV;}
+short MTools::getAdcI() {return adcI;}
+
+short MTools::getLtV() {return ltV;}
+short MTools::getUpV() {return upV;}
+short MTools::getLtI() {return ltI;}
+short MTools::getUpI() {return upI;}
+
+// ======================== ЦЕЛЕВЫЕ КОМАНДЫ УПРАВЛЕНИЯ ДРАЙВЕРОМ SAMD21 MO MINI ========================
+  //Команды чтения результатов измерений:
+void MTools::txReadUIS()                                {buffCmd = MCmd::cmd_get_uis;}                  // 0x10;
+void MTools::txGetU()                                   {buffCmd = MCmd::cmd_get_u;}                    // 0x11 Чтение напряжения (мВ)
+void MTools::txGetI()                                   {buffCmd = MCmd::cmd_get_i;}                    // 0x12 Чтение тока (мА)
+void MTools::txGetUI()                                  {buffCmd = MCmd::cmd_get_ui;}                   // 0x13 Чтение напряжения (мВ) и тока (мА)
+void MTools::txGetState()                               {buffCmd = MCmd::cmd_get_state;}                // 0x14 Чтение состояния
+void MTools::txCelsius()                                {buffCmd = MCmd::cmd_get_celsius;}              // 0x15 Чтение температуры радиатора
+
+  // Команды управления силовым преобразователем
 void MTools::txPowerGo(float spU, float spI, uint8_t mode)
 {
-    setpointU = (short)(spU * 1000);
-    setpointI = (short)(spI * 1000);
-    pidMode   = mode;
-    buffCmd = MCmd::cmd_power_go;
-}      // 2022 0x20
-
+  setpointU = (short)(spU * 1000);
+  setpointI = (short)(spI * 1000);
+  pidMode   = mode;
+  buffCmd = MCmd::cmd_power_go;
+}                                                                                                       // 0x20
 
 void MTools::txPowerStop()                              {buffCmd = MCmd::cmd_power_stop;}               // 0x21
 
+  // Команды управления измерителями:
     // Множитель преобразования в милливольты
 void MTools::txGetFactorU()                             {buffCmd = MCmd::cmd_read_factor_u;}            // 0x30 Чтение
 void MTools::txSetFactorU(short val) {factorV = val;     buffCmd = MCmd::cmd_write_factor_u;}           // 0x31 Запись
 void MTools::txSetFactorDefaultU()                      {buffCmd = MCmd::cmd_write_factor_default_u;}   // 0x32 Возврат к заводскому
-    // Параметр сглаживания
+    // Параметр сглаживания по напряжению
 void MTools::txGetSmoothU()                             {buffCmd = MCmd::cmd_read_smooth_u;}            // 0x33 Чтение
 void MTools::txSetSmoothU(short val) {smoothV = val;     buffCmd = MCmd::cmd_write_smooth_u;}           // 0x34 Запись
-    // Приборное смещение
+    // Приборное смещение по напряжению
 void MTools::txGetShiftU()                              {buffCmd = MCmd::cmd_read_offset_u;}            // 0x35 Чтение
 void MTools::txSetShiftU(short val)  {shiftV  = val;     buffCmd = MCmd::cmd_write_offset_u;}           // 0x36 Запись
-
     // Множитель преобразования в миллиамперы
 void MTools::txGetFactorI()                             {buffCmd = MCmd::cmd_read_factor_i;}            // 0x38 Чтение
 void MTools::txSetFactorI(short val) {factorI = val;     buffCmd = MCmd::cmd_write_factor_i;}           // 0x39 Запись
 void MTools::txSetFactorDefaultI()                      {buffCmd = MCmd::cmd_write_factor_default_i;}   // 0x3A Возврат к заводскому
-    // Параметр сглаживания
+    // Параметр сглаживания по току
 void MTools::txGetSmoothI()                             {buffCmd = MCmd::cmd_read_smooth_i;}            // 0x3B Чтение
 void MTools::txSetSmoothI(short val) {smoothI = val;     buffCmd = MCmd::cmd_write_smooth_i;}           // 0x3C Запись
-    // Приборное смещение
+    // Приборное смещение по току
 void MTools::txGetShiftI()                              {buffCmd = MCmd::cmd_read_offset_i;}            // 0x3D Чтение
 void MTools::txSetShiftI(short val)  {shiftI  = val;     buffCmd = MCmd::cmd_write_offset_i;}           // 0x3E Запись
 
-  // Команды работы с ПИД-регулятором (пока без проверки диапазона)
+  // Команды работы с ПИД-регулятором:
 void MTools::txSetPidConfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_t _minOut, uint16_t _maxOut)
 {
-    pidMode = _m;
-    kp      = (short) (_kp * param_mult);
-    ki      = (short)((_ki * param_mult) * hz);
-    kd      = (short)((_kd * param_mult) / hz);
-    minOut  = _minOut;
-    maxOut  = _maxOut;
-    buffCmd = MCmd::cmd_pid_configure;                                                                  // 0x40 Запись
+  pidMode = _m;
+  kp      = (short) (_kp * param_mult);
+  ki      = (short)((_ki * param_mult) * hz);
+  kd      = (short)((_kd * param_mult) / hz);
+  minOut  = _minOut;
+  maxOut  = _maxOut;
+  buffCmd = MCmd::cmd_pid_configure;                                                                    // 0x40 Запись
 }
 
 void MTools::txSetPidCoeff(short m, float _kp, float _ki, float _kd)    // 0x41 Запись
@@ -443,47 +471,28 @@ void MTools::txSetPidReconfig(uint8_t _m, float _kp, float _ki, float _kd, uint1
     buffCmd = MCmd::cmd_pid_reconfigure;                                                                // 0x43 Запись
 }
 
-void MTools::txPidClear() {buffCmd = MCmd::cmd_pid_clear;}                                              // 0x44
+void MTools::txPidClear()                               {buffCmd = MCmd::cmd_pid_clear;}                // 0x44
+void MTools::txGetPidParamMult()                        {buffCmd = MCmd::cmd_pid_read_param_mult;}      // 0x47 Get param_mult
+void MTools::txGetPidConfig()                           {buffCmd = MCmd::cmd_pid_read_configure;}       // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
-short MTools::getParamMult() {return paramMult;}
-void  MTools::setParamMult(short _pm) {paramMult = _pm;}
-
-
-void MTools::txGetPidParamMult() {buffCmd = MCmd::cmd_pid_read_param_mult;}                             // 0x47 Get param_mult
-void MTools::txGetPidConfig()  {buffCmd = MCmd::cmd_pid_read_configure;}                                // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
-
-
-void MTools::txSetCooler(short val) {cool = val; buffCmd = MCmd::cmd_set_cooler;}                       // 0x4F Задать скорость вентилятора
-
-short MTools::getCooler() {return cool;}
-void  MTools::setCooler(short val) {cool = val;}
-
-void  MTools::setAdcV( short val ) { adcV = val; }
-void  MTools::setAdcI( short val ) { adcI = val; }
-
-
-short MTools::getAdcOffset() {return offsetAdc;}
-void  MTools::setAdcOffset(short val) {offsetAdc = val;}
-
-
-
+  // Команда управления вентилятором
+void MTools::txSetCooler(short val)                     {cool = val; buffCmd = MCmd::cmd_set_cooler;}   // 0x4F Задать скорость вентилятора
 
   // Команды работы с АЦП
-
-short MTools::getAdcV() {return adcV;}
-short MTools::getAdcI() {return adcI;}
-
 void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}          // 0x50
 void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}          // 0x51  
 void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}         // 0x52
+void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}          // 0x53 nu 
 
-void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}          // 0x53  
+  // Команды управления тестовые
 
-
-    //Serial.print("bcmd="); Serial.println(buffCmd, HEX);
-
-
-    // Tools->setCmd(MCmd::cmd_adc_write_offset);
+  // Команды задания порогов отключения
+void MTools::txGetLtV()                            {buffCmd = MCmd::cmd_get_lt_v;}                      // 0x60
+void MTools::txSetLtV(short val)        {ltV = val; buffCmd = MCmd::cmd_set_lt_v;}                      // 0x61
+void MTools::txSetLtDefaultV(short val) {ltV = val; buffCmd = MCmd::cmd_set_lt_default_v;}              // 0x62
+void MTools::txGetUpV()                            {buffCmd = MCmd::cmd_get_up_v;}                      // 0x63
+void MTools::txSetUpV(short val)        {upV = val; buffCmd = MCmd::cmd_set_up_v;}                      // 0x64
+void MTools::txSetUpDefaultV(short val) {upV = val; buffCmd = MCmd::cmd_set_up_default_v;}              // 0x65
 
 
 

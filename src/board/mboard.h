@@ -2,7 +2,7 @@
 #define _MBOARD_H_
 
 /*
- * Вариант  202101
+ * Вариант  202207
  * pcb: eltr_v56, v5.7
  */
 
@@ -74,11 +74,6 @@ class MBoard
     int8_t  getPerc()       { return perc; }
     int16_t getIdleI()      { return idleI; }   // Минимальный ток, при котором не нужна дополнительная нагрузка 
     int16_t getIdleDac()    { return idleDac; } // Ток в коде DAC
-
-    int16_t getWinLU()      { return winLU; }
-    int16_t getWinUpU()     { return winUpU; }
-    int16_t getWinLI()      { return winLI; }
-    int16_t getWinUpI()     { return winUpI; }
 
   private:
     PCF8574 * PCF_38 = nullptr;

@@ -78,19 +78,19 @@ namespace MCmd
   constexpr uint8_t cmd_write_idle_load           = 0x5C; // параметры доп.нагрузки ХХ
 
     // Команды задания порогов отключения
-  constexpr uint8_t cmd_read_win_less_u           = 0x60; // 
-  constexpr uint8_t cmd_write_win_less_u          = 0x61; // 
-  constexpr uint8_t cmd_write_win_less_default_u  = 0x62; // 
-  constexpr uint8_t cmd_read_win_up_u             = 0x63; // 
-  constexpr uint8_t cmd_write_win_up_u            = 0x64; // 
-  constexpr uint8_t cmd_write_win_up_default_u    = 0x65; // 
+  constexpr uint8_t cmd_get_lt_v                  = 0x60; // 
+  constexpr uint8_t cmd_set_lt_v                  = 0x61; // 
+  constexpr uint8_t cmd_set_lt_default_v          = 0x62; // 
+  constexpr uint8_t cmd_get_up_v                  = 0x63; // 
+  constexpr uint8_t cmd_set_up_v                  = 0x64; // 
+  constexpr uint8_t cmd_set_up_default_v          = 0x65; // 
 
-  constexpr uint8_t cmd_read_win_less_i           = 0x68; // 
-  constexpr uint8_t cmd_write_win_less_i          = 0x69; // 
-  constexpr uint8_t cmd_write_win_less_default_i  = 0x6A; // 
-  constexpr uint8_t cmd_read_win_up_i             = 0x6B; // 
-  constexpr uint8_t cmd_write_win_up_i            = 0x6C; // 
-  constexpr uint8_t cmd_write_win_up_default_i    = 0x6D; // 
+  constexpr uint8_t cmd_get_lt_i                  = 0x68; // 
+  constexpr uint8_t cmd_set_lt_i                  = 0x69; // 
+  constexpr uint8_t cmd_set_lt_default_i          = 0x6A; // 
+  constexpr uint8_t cmd_get_up_i                  = 0x6B; // 
+  constexpr uint8_t cmd_set_up_i                  = 0x6C; // 
+  constexpr uint8_t cmd_set_up_default_i          = 0x6D; // 
 
     // Команды универсальные
   constexpr uint8_t cmd_nop                       = 0x00; // нет операции
