@@ -90,6 +90,21 @@ namespace MDevice
       static constexpr short below = 1; 
   };
 
+  class MClearAllKeys : public MState
+  {
+    public:  
+      MClearAllKeys(MTools * Tools);
+      MState * fsm() override;
+  };
+
+  class MRemoveKey : public MState
+  {
+    public:  
+      MRemoveKey(MTools * Tools);
+      MState * fsm() override;
+  };
+
+
   class MStop : public MState
   {
     public:  

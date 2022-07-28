@@ -11,8 +11,8 @@
 */
 
 #include "modes/bootfsm.h"
-  #include "mdispatcher.h"
-#include "nvs.h"
+#include "mdispatcher.h"
+//#include "nvs.h"
 #include "mtools.h"
 #include "mcmd.h"
 #include "board/mboard.h"
@@ -41,72 +41,61 @@ namespace MBoot
   MTxPowerStop::MTxPowerStop(MTools * Tools) : MState(Tools) {}
   MState * MTxPowerStop::fsm()
   {
-    Tools->txPowerStop();                                                         // 0x21  Команда драйверу
-    return new MTxAdcOffset(Tools);
-  };
-
-  // Восстановление пользовательской (или заводской) настройки смещения АЦП.
-  MTxAdcOffset::MTxAdcOffset(MTools * Tools) : MState(Tools) {}
-  MState * MTxAdcOffset::fsm()
-  {
-    // Tools->offsetAdc = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetAdc, 0x0000);   // Взять сохраненное из ЭНОЗУ.
-    // Tools->txSetAdcOffset(Tools->offsetAdc);                                        // 0x52  Команда драйверу в буфер
-     Tools->txAdcAutoOffset();                                                      // 0x53  Команда драйверу в буфер
-
-    return new MTxsetFactorU(Tools);                                                // Перейти к следующему параметру
+    Tools->txPowerStop();                                                   // 0x21  Команда драйверу
+    return new MTxsetFactorV(Tools);
   };
 
   // Восстановление пользовательского (или заводского) коэфициента преобразования в милливольты.
-  MTxsetFactorU::MTxsetFactorU(MTools * Tools) : MState(Tools) {}
-  MState * MTxsetFactorU::fsm()
+  MTxsetFactorV::MTxsetFactorV(MTools * Tools) : MState(Tools) {}
+  MState * MTxsetFactorV::fsm()
   {
-    Tools->factorV = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorV, 0x2DA0);       // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetFactorU(Tools->factorV);                                            // 0x31  Команда драйверу
-    return new MTxSmoothU(Tools);                                                   // Перейти к следующему параметру
+    Tools->factorV = Tools->readNvsShort("device", "factorV", 0x2DA0);      // Взять сохраненное из nvs.
+    Tools->txSetFactorU(Tools->factorV);                                    // 0x31  Команда драйверу
+    return new MTxSmoothV(Tools);                                           // Перейти к следующему параметру
   };
 
   // Восстановление пользовательского (или заводского) коэффициента фильтрации по напряжению.
-  MTxSmoothU::MTxSmoothU(MTools * Tools) : MState(Tools) {}
-  MState * MTxSmoothU::fsm()
+  MTxSmoothV::MTxSmoothV(MTools * Tools) : MState(Tools) {}
+  MState * MTxSmoothV::fsm()
   {
-    Tools->smoothV = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothV, 0x0003);       // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetSmoothU(Tools->smoothV);                                            // 0x34  Команда драйверу
-    return new MTxShiftU(Tools);                                                    // Перейти к следующему параметру
+    Tools->smoothV = Tools->readNvsShort("device", "smoothV", 0x0003);      // Взять сохраненное из nvs.
+    Tools->txSetSmoothU(Tools->smoothV);                                    // 0x34  Команда драйверу
+    return new MTxShiftV(Tools);                                            // Перейти к следующему параметру
   };
 
   // Восстановление пользовательской (или заводской) настройки сдвига по напряжению.
-  MTxShiftU::MTxShiftU(MTools * Tools) : MState(Tools) {}
-  MState * MTxShiftU::fsm()
+  MTxShiftV::MTxShiftV(MTools * Tools) : MState(Tools) {}
+  MState * MTxShiftV::fsm()
   {
-    Tools->shiftV = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetV, 0x0000);       // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetShiftU(Tools->shiftV);                                             // 0x36  Команда драйверу
-    return new MTxFactorI(Tools);                                                  // Перейти к следующему параметру
+    Tools->shiftV = Tools->readNvsShort("device", "offsetV", 0x0000);       // Взять сохраненное из nvs.
+    Tools->txSetShiftU(Tools->shiftV);                                      // 0x36  Команда драйверу
+    return new MTxFactorI(Tools);                                           // Перейти к следующему параметру
   };
 
   // Восстановление пользовательского (или заводского) коэфициента преобразования в миллиамперы.
   MTxFactorI::MTxFactorI(MTools * Tools) : MState(Tools) {}
   MState * MTxFactorI::fsm()
   {
-    Tools->factorI = Tools->readNvsInt(MNvs::nQulon, MNvs::kFactorA, 0x030C);       // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetFactorI(Tools->factorI);                                            // 0x39  Команда драйверу
-    return new MTxSmoothI(Tools);                                                   // Перейти к следующему параметру
+    Tools->factorI = Tools->readNvsShort("device", "factorI", 0x030C);      // Взять сохраненное из nvs.
+    Tools->txSetFactorI(Tools->factorI);                                    // 0x39  Команда драйверу
+    return new MTxSmoothI(Tools);                                           // Перейти к следующему параметру
   };
 
   // Восстановление пользовательского (или заводского) коэффициента фильтрации по току.
   MTxSmoothI::MTxSmoothI(MTools * Tools) : MState(Tools) {}
   MState * MTxSmoothI::fsm()
   {
-    Tools->smoothI = Tools->readNvsInt(MNvs::nQulon, MNvs::kSmoothA, 0x0003);       // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetSmoothI(Tools->smoothI);                                            // 0x3C  Команда драйверу
-    return new MTxShiftI(Tools);                                                    // Перейти к следующему параметру
+    Tools->smoothI = Tools->readNvsShort("device", "smoothI", 0x0003); // Взять сохраненное из nvs.
+    Tools->txSetSmoothI(Tools->smoothI);                                    // 0x3C  Команда драйверу
+    return new MTxShiftI(Tools);                                            // Перейти к следующему параметру
   };
 
   // Восстановление пользовательской (или заводской) настройки сдвига по току.
   MTxShiftI::MTxShiftI(MTools * Tools) : MState(Tools) {}
   MState * MTxShiftI::fsm()
   {
-    Tools->shiftI = Tools->readNvsInt(MNvs::nQulon, MNvs::kOffsetA, 0x0000);        // Взять сохраненное из ЭНОЗУ.
-    Tools->txSetShiftI(Tools->shiftI);                                              // 0x3E  Команда драйверу
+    Tools->shiftI = Tools->readNvsShort("device", "offsetI", 0x0000);       // Взять сохраненное из nvs.
+    Tools->txSetShiftI(Tools->shiftI);                                      // 0x3E  Команда драйверу
     return new MExit(Tools);      //return new MTxPidConfigure(Tools); // Перейти к следующему параметру (Временно закончить)
   };
 

@@ -10,7 +10,6 @@
             "includePath": [
                 "f:/GitHub/MESP32/include",
                 "f:/GitHub/MESP32/src",
-                "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Update/src",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Preferences/src",
                 "f:/GitHub/MESP32/lib/TFT_eSPI",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/ESPmDNS/src",
@@ -105,6 +104,7 @@
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/SD_MMC/src",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/SimpleBLE/src",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Ticker/src",
+                "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Update/src",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/WiFiClientSecure/src",
                 "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/WiFiProv/src",
                 ""
@@ -114,7 +114,6 @@
                 "path": [
                     "f:/GitHub/MESP32/include",
                     "f:/GitHub/MESP32/src",
-                    "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Update/src",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Preferences/src",
                     "f:/GitHub/MESP32/lib/TFT_eSPI",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/ESPmDNS/src",
@@ -209,6 +208,7 @@
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/SD_MMC/src",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/SimpleBLE/src",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Ticker/src",
+                    "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/Update/src",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/WiFiClientSecure/src",
                     "C:/Users/olmor/.platformio/packages/framework-arduinoespressif32@3.10006.210326/libraries/WiFiProv/src",
                     ""

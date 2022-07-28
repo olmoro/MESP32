@@ -72,7 +72,7 @@ namespace MDevice
     между этими состояниями производится кнопкой "P". */
   MShiftV::MShiftV(MTools * Tools) : MState(Tools)
   {
-    shift = Tools->readNvsInt("qulon", "offsetV", fixed);
+    shift = Tools->readNvsShort("device", "offsetV", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nshiftV=0x"); Serial.print(shift, HEX);
     #endif
@@ -90,7 +90,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorV(Tools);
       // Сохранить и перейти к следующему состоянию
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "offsetV", shift);                      return new MFactorV(Tools);
+      Tools->writeNvsShort("device", "offsetV", shift);                      return new MFactorV(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       shift = Tools->updnInt(shift, below, above, +1); 
       #ifdef TESTDEVICE
@@ -117,7 +117,7 @@ namespace MDevice
     /*...*/
   MFactorV::MFactorV(MTools * Tools) : MState(Tools)
   {
-    factor = Tools->readNvsInt("qulon", "factorV", fixed);
+    factor = Tools->readNvsShort("device", "factorV", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nfactorV=0x"); Serial.print(factor, HEX);
     #endif
@@ -136,7 +136,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
       // Сохранить и перейти к следующему состоянию    
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "factorV", factor);                     return new MSmoothV(Tools);
+      Tools->writeNvsShort("device", "factorV", factor);                     return new MSmoothV(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       factor = Tools->updnInt(factor, below, above, +1); 
       #ifdef TESTDEVICE
@@ -162,7 +162,7 @@ namespace MDevice
     /*...*/
   MSmoothV::MSmoothV(MTools * Tools) : MState(Tools)
   {
-    smooth = Tools->readNvsInt("qulon", "smoothV", fixed);
+    smooth = Tools->readNvsShort("device", "smoothV", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nsmoothV=0x"); Serial.print(smooth, HEX);
     #endif
@@ -181,7 +181,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
       // Сохранить и перейти к следующему состоянию    
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "smoothV", smooth);                     return new MShiftI(Tools);
+      Tools->writeNvsShort("device", "smoothV", smooth);                     return new MShiftI(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       smooth = Tools->updnInt(smooth, below, above, +1); 
       #ifdef TESTDEVICE
@@ -207,7 +207,7 @@ namespace MDevice
     /*...*/
   MShiftI::MShiftI(MTools * Tools) : MState(Tools)
   {
-    shift = Tools->readNvsInt("qulon", "offsetA", fixed);
+    shift = Tools->readNvsShort("device", "offsetI", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nshiftI=0x"); Serial.print(shift, HEX);
     #endif
@@ -223,7 +223,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorI(Tools);
       // Сохранить и перейти к следующему состоянию
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "offsetA", shift);                      return new MFactorI(Tools);
+      Tools->writeNvsShort("device", "offsetI", shift);                      return new MFactorI(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       shift = Tools->updnInt(shift, below, above, +1); 
       #ifdef TESTDEVICE
@@ -250,7 +250,7 @@ namespace MDevice
     /*...*/
   MFactorI::MFactorI(MTools * Tools) : MState(Tools)
   {
-    factor = Tools->readNvsInt("qulon", "factorA", fixed);
+    factor = Tools->readNvsShort("device", "factorI", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nfactorI="); Serial.print(factor, HEX);
     #endif
@@ -269,7 +269,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
       // Сохранить и перейти к следующему состоянию    
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "factorA", factor);                     return new MSmoothI(Tools);
+      Tools->writeNvsShort("device", "factorI", factor);                     return new MSmoothI(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       factor = Tools->updnInt(factor, below, above, +1); 
       #ifdef TESTDEVICE
@@ -295,7 +295,7 @@ namespace MDevice
     /*...*/
   MSmoothI::MSmoothI(MTools * Tools) : MState(Tools)
   {
-    smooth = Tools->readNvsInt("qulon", "smoothA", fixed);
+    smooth = Tools->readNvsShort("device", "smoothI", fixed);
     #ifdef TESTDEVICE
       Serial.print("\nsmoothI=0x"); Serial.print(smooth, HEX);
     #endif
@@ -306,7 +306,7 @@ namespace MDevice
   }
   MState * MSmoothI::fsm()
   {
-      switch (Keyboard->getKey())
+    switch (Keyboard->getKey())
     {
       // Отказ от продолжения ввода параметров - стоп
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
@@ -314,7 +314,7 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
       // Сохранить и перейти к следующему состоянию    
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->saveInt("qulon", "smoothA", smooth);                     return new MExit(Tools);
+      Tools->writeNvsShort("device", "smoothI", smooth);                     return new MExit(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       smooth = Tools->updnInt(smooth, below, above, +1); 
       #ifdef TESTDEVICE
@@ -333,6 +333,56 @@ namespace MDevice
       Display->showVolt(Tools->getRealVoltage(), 3);
       Display->showAmp (Tools->getRealCurrent(), 3);                  return this;  
   };  //MSmoothI
+
+// C:\Users\olmor\.platformio\packages\framework-arduinoespressif32@3.10006.210326\libraries\Preferences
+  MClearAllKeys::MClearAllKeys(MTools * Tools) : MState(Tools)
+  {
+    
+  }
+  MState * MClearAllKeys::fsm()
+  {
+        switch (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MRemoveKey(Tools);
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      Tools->clearAllKeys("qulon");                      // delay???  
+      // Tools->clearAllKeys("template");                      // delay???  
+      // Tools->clearAllKeys("s-power");                      // delay???  
+      // Tools->clearAllKeys("cccv");                      // delay???  
+      // Tools->clearAllKeys("pidtest");                      // delay???  
+      // Tools->clearAllKeys("e-charge");                      // delay???  
+      // Tools->clearAllKeys("recovery");                      // delay???  
+      // Tools->clearAllKeys("storage");                      // delay???  
+      // Tools->clearAllKeys("service");                      // delay???  
+
+
+
+
+
+                                                                      return new MExit(Tools);
+
+
+
+    default:;
+    }
+
+    return new MRemoveKey(Tools);
+  };
+
+  MRemoveKey::MRemoveKey(MTools * Tools) : MState(Tools)
+  {
+
+  }
+  MState * MRemoveKey::fsm()
+  {
+
+    return new MExit(Tools);
+  };
+
+
+
+
 
   //===================================================================================== MStop
 

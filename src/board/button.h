@@ -7,11 +7,8 @@
 #ifndef _BUTTON_H_
 #define _BUTTON_H_
 
-//#include "Arduino.h"
-//#include <inttypes.h>
 #include "stdint.h"
 
-//#define DEBUG_BUTTON 1
 
 typedef enum {
   SB_NONE = 0,

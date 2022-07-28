@@ -24,9 +24,9 @@ namespace MNvs
     static constexpr const char* kSmoothV       = "smoothV";  // Коэффициент фильтрации
     static constexpr const char* kOffsetV       = "offsetV";  // Сдвиг adcV
 
-    static constexpr const char* kFactorA       = "factorA";  // Множитель преобразования
-    static constexpr const char* kSmoothA       = "smoothA";  // Коэффициент фильтрации
-    static constexpr const char* kOffsetA       = "offsetA";  // Сдвиг adcI
+    static constexpr const char* kFactorI       = "factorI";  // Множитель преобразования
+    static constexpr const char* kSmoothI       = "smoothI";  // Коэффициент фильтрации
+    static constexpr const char* kOffsetI       = "offsetI";  // Сдвиг adcI
 
 
 // старые, будут отменены --------------------------------------
@@ -55,9 +55,9 @@ namespace MNvs
     static constexpr const char* kDcImax         = "currMax";  //
 
   static constexpr const char* nCcCv          = "cccv";     // Заряд CC/CV
-    static constexpr const char* kKpU         = "kpU";  // PID kPU
-    static constexpr const char* kKiU         = "kiU";  // PID kiU
-    static constexpr const char* kKdU         = "kdU";  // PID kdU
+    static constexpr const char* kKpV         = "kpV";  // PID kPU
+    static constexpr const char* kKiV         = "kiV";  // PID kiU
+    static constexpr const char* kKdV         = "kdV";  // PID kdU
 
     static constexpr const char* kKpI         = "kpI";  // PID kPI
     static constexpr const char* kKiI         = "kiI";  // PID kiI

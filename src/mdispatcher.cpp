@@ -93,11 +93,11 @@ void MDispatcher::run()
         switch (modeSelection)
         {
           case BOOT:        State = new MBoot::MStart(Tools);       break;
-          case OPTIONS:     State = new OptionFsm::MStart(Tools);   break;
-            case PIDTEST:     State = new MPid::MStart(Tools);        break;
+          case OPTIONS:     State = new MOption::MStart(Tools);      break;
+          case PIDTEST:     State = new MPid::MStart(Tools);        break;
           case TEMPLATE:    State = new TemplateFsm::MStart(Tools); break;
           case DCSUPPLY:    State = new DcSupplyFsm::MStart(Tools); break; 
-          case CCCVCHARGE:  State = new Cccv::MStart(Tools);        break;
+          case CCCVCHARGE:  State = new MCccv::MStart(Tools);        break;
           case DEVICE:      State = new MDevice::MStart(Tools);     break;
           default:                                                  break;
         }

@@ -212,24 +212,27 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
 //    int   cycle;
 //    int   cycles;               // Всего задано циклов в имульсе заряда, разряда или паузы
-    int   postpone    =  0;      // Заданная задержка включения (отложенный старт), ч
-
+    short postpone = 0;      // Заданная задержка включения (отложенный старт), ч
+    void  setPostpone(short hour);
+    short getPostpone();
 
     bool getAP();
 
     void  zeroAhCounter();      // Обнуление счетчика ампер-часов заряда
 
 
-  int   readNvsBool  (const char * name, const char * key, const bool  defaultValue );
+  bool  readNvsBool  (const char * name, const char * key, const bool  defaultValue );
+  short readNvsShort (const char * name, const char * key, const short defaultValue );
   int   readNvsInt   (const char * name, const char * key, const int   defaultValue );
   float readNvsFloat (const char * name, const char * key, const float defaultValue );
 
-  void  writeNvsBool (const char * name, const char * key, const bool bValue );
-  void  writeNvsInt  (const char * name, const char * key, const int iValue );
-  void  writeNvsFloat(const char * name, const char * key, const float fValue );
+  void writeNvsBool  (const char * name, const char * key, const bool  bValue );
+  void writeNvsShort (const char * name, const char * key, const short sValue );
+  void writeNvsInt   (const char * name, const char * key, const int   iValue );
+  void writeNvsFloat (const char * name, const char * key, const float fValue );
 
 
-    void  clearAllKeys (const char * name);
+
 
 
     // void incBattery();
@@ -242,12 +245,14 @@ bool setPidCoefficients(float kp, float ki, float kd);
 
 
 
-      // 202207 read/write nvs
-    void  saveInt(const char * name, const char * key, const short value);
-    short readInt(const char * name, const char * key, const short defaultValue);
-    void  saveFloat(const char * name, const char * key, const float fvalue);
-    short readFloat(const char * name, const char * key, const short defaultValue);
+    //   // 202207 read/write nvs
+    // void  saveInt(const char * name, const char * key, const short value);
+    // short readInt(const char * name, const char * key, const short defaultValue);
+    // void  saveFloat(const char * name, const char * key, const float fvalue);
+    // short readFloat(const char * name, const char * key, const short defaultValue);
 
+  bool  clearAllKeys (const char * name);
+    void  removeKey(const char * name, const char * key);
 
     void activateExit(const char * s);
 

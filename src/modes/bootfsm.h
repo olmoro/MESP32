@@ -19,31 +19,24 @@ namespace MBoot
       MState * fsm() override;
   };
 
-  class MTxAdcOffset : public MState
+  class MTxsetFactorV : public MState
   {
     public:   
-      MTxAdcOffset(MTools * Tools);
-      MState * fsm() override;
-  };
-  
-  class MTxsetFactorU : public MState
-  {
-    public:   
-      MTxsetFactorU(MTools * Tools);
+      MTxsetFactorV(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MTxSmoothU : public MState
+  class MTxSmoothV : public MState
   {
     public:   
-      MTxSmoothU(MTools * Tools);
+      MTxSmoothV(MTools * Tools);
       MState * fsm() override;
   };
 
-  class MTxShiftU : public MState
+  class MTxShiftV : public MState
   {
     public:   
-      MTxShiftU(MTools * Tools);
+      MTxShiftV(MTools * Tools);
       MState * fsm() override;
   };
 

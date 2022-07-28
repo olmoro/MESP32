@@ -3,7 +3,7 @@
 
 #include "state/mstate.h"
 
-namespace Cccv
+namespace MCccv
 {
   struct MConst
   {
@@ -50,6 +50,21 @@ namespace Cccv
       static constexpr float currentMinFactor = 0.050f;    // 55ah * 0.05  = 2.75A
   };
 
+  class MClearCccvKeys : public MState
+  {
+    public:  
+      MClearCccvKeys(MTools * Tools);
+      MState * fsm() override;
+    private:
+      bool done;
+  };
+
+
+
+
+
+
+
   class MSetPidCoeffU : public MState
   {
     public:   
@@ -85,8 +100,8 @@ namespace Cccv
       MState * fsm() override;
     private:
         // Пределы регулирования max тока
-      static constexpr short above = 6.0f;
-      static constexpr short below = 0.2f;
+      static constexpr float above = 6.0f;
+      static constexpr float below = 0.2f;
   };
   
   class MSetVoltageMax : public MState
@@ -96,8 +111,8 @@ namespace Cccv
       MState * fsm() override;
     private:
         // Пределы регулирования max напряжения
-      static constexpr short above = 16.2f;
-      static constexpr short below = 10.0f;
+      static constexpr float above = 16.2f;
+      static constexpr float below = 10.0f;
   };
 
   class MSetCurrentMin : public MState
@@ -107,8 +122,8 @@ namespace Cccv
       MState * fsm() override;
     private:
         // Пределы регулирования min тока
-      static constexpr short above = 6.0f;
-      static constexpr short below = 0.2f;
+      static constexpr float above = 6.0f;
+      static constexpr float below = 0.2f;
   };
 
   class MSetVoltageMin : public MState
@@ -118,8 +133,8 @@ namespace Cccv
       MState * fsm() override;
     private:
         // Пределы регулирования min напряжения
-      static constexpr short above = 16.2f;
-      static constexpr short below = 10.0f;
+      static constexpr float above = 16.2f;
+      static constexpr float below = 10.0f;
   };
 
   class MPostpone : public MState

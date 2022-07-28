@@ -11,7 +11,7 @@
 */
 
 #include "modes/cccvfsm.h"
-#include "nvs.h"
+//#include "nvs.h"
 #include "mtools.h"
 #include "mcmd.h"
 #include "board/mboard.h"
@@ -21,7 +21,7 @@
 #include <Arduino.h>
 #include <string>
 
-namespace Cccv
+namespace MCccv
 {
   float maxV, minV, maxI, minI;
   
@@ -101,6 +101,36 @@ namespace Cccv
     return this;
   };
 
+    //===================================================================================== MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");  // В каком режиме
+    Display->showHelp((char*)"  P-NO     B-YES  ");  // Активные кнопки
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetCurrentMax(Tools);
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("cccv");                                    return new MSetCurrentMax(Tools);
+    
+    default:                                                          break;
+    }
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"    ...WAIT...    ");   // Активные кнопки - нет
+    Board->ledsBlue();                                // Подтверждение входа
+    return this;
+  };
+
+
+
+
+
+
+
     //===================================================================================== MSetCurrentMax
 
     // Состояние "Коррекция максимального тока заряда".
@@ -117,6 +147,7 @@ namespace Cccv
     // Индикация
     Display->showMode((char*)" MAX_I        +/- ");  // Регулируемый параметр
     Display->showHelp((char*)" B-SAVE      C-GO ");  // Активные кнопки
+    Board->ledsGreen();                                // Подтверждение входа
   }
   MState * MSetCurrentMax::fsm()
   {
@@ -130,7 +161,7 @@ namespace Cccv
 
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();       
-        Tools->saveFloat("cccv", "maxI", maxI);                         return new MSetVoltageMax(Tools);
+        Tools->writeNvsFloat("cccv", "maxI", maxI);                         return new MSetVoltageMax(Tools);
 
         // Увеличить значение на указанную величину
       case MKeyboard::UP_CLICK:  Board->buzzerOn(); 
@@ -170,7 +201,7 @@ namespace Cccv
 
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();
-        Tools->saveFloat("cccv", "maxV", maxV);                         return new MSetCurrentMin(Tools);
+        Tools->writeNvsFloat("cccv", "maxV", maxV);                         return new MSetCurrentMin(Tools);
 
         // Увеличить значение на указанную величину
       case MKeyboard::UP_CLICK: Board->buzzerOn();
@@ -210,7 +241,7 @@ namespace Cccv
 
         // Сохранить и перейти к следующему параметру
       case MKeyboard::B_CLICK: Board->buzzerOn();
-        Tools->saveFloat("cccv", "minI", minI);                         return new MSetVoltageMin(Tools);
+        Tools->writeNvsFloat("cccv", "minI", minI);                         return new MSetVoltageMin(Tools);
 
       case MKeyboard::UP_CLICK: Board->buzzerOn();
       case MKeyboard::UP_AUTO_CLICK:
@@ -247,7 +278,7 @@ namespace Cccv
 
         // Сохранить и перейти к исполнению
       case MKeyboard::B_CLICK: Board->buzzerOn();
-        Tools->saveFloat( "cccv", "minV", minV );                       return new MPostpone(Tools);
+        Tools->writeNvsFloat( "cccv", "minV", minV );                       return new MPostpone(Tools);
 
       case MKeyboard::UP_CLICK: Board->buzzerOn();
       case MKeyboard::UP_AUTO_CLICK:
@@ -270,7 +301,7 @@ namespace Cccv
   MPostpone::MPostpone(MTools * Tools) : MState(Tools)
   {
       // Параметр задержки начала заряда из энергонезависимой памяти, при первом включении - заводское
-    Tools->postpone = Tools->readNvsInt(MNvs::nQulon, MNvs::kQulonPostpone, 0);          
+    Tools->postpone = Tools->readNvsShort("option", "postpone", 0);          
       // Индикация помощи
     Display->showMode((char*)"  DELAYED START   ");
     Display->showHelp((char*)"     C-START      ");
@@ -305,9 +336,9 @@ namespace Cccv
   MState * MSetPidCoeffU::fsm()
   {
     //Взять сохраненные из ЭНОЗУ.
-    kp = Tools->readNvsFloat("cccv", "kpU", 0.06);
-    ki = Tools->readNvsFloat("cccv", "kiU", 0.02);
-    kd = Tools->readNvsFloat("cccv", "kdU", 0.00);
+    kp = Tools->readNvsFloat("cccv", "kpV", 0.06);
+    ki = Tools->readNvsFloat("cccv", "kiV", 0.02);
+    kd = Tools->readNvsFloat("cccv", "kdV", 0.00);
     Tools->txSetPidCoeffV(kp, ki, kd);                                  // 0x41  Команда драйверу
     return new MSetPidCoeffI(Tools);                                    // Перейти к следующему параметру
   };

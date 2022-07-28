@@ -65,7 +65,7 @@ namespace DcSupplyFsm
             case MKeyboard::C_CLICK :
                 return new MExecution(Tools);
             case MKeyboard::B_CLICK :
-                Tools->saveFloat( "s-power", "voltMax", Tools->getVoltageMax() ); 
+                Tools->writeNvsFloat( "s-power", "voltMax", Tools->getVoltageMax() ); 
                 return new MExecution(Tools);
             case MKeyboard::UP_CLICK :
                 //Tools->voltageMax = Tools->upfVal( Tools->voltageMax, MDcConst::v_l, MDcConst::v_h, 0.1f );
@@ -102,7 +102,7 @@ namespace DcSupplyFsm
             case MKeyboard::C_CLICK :
                 return new MExecution(Tools);
             case MKeyboard::B_CLICK :
-                Tools->saveFloat( "s-power", "currMax", Tools->getCurrentMax() ); 
+                Tools->writeNvsFloat( "s-power", "currMax", Tools->getCurrentMax() ); 
                 return new MSetVoltage(Tools);
             case MKeyboard::UP_CLICK :
                 //Tools->incCurrentMax( 0.1f, false );
@@ -184,7 +184,7 @@ namespace DcSupplyFsm
                 return new MExit(Tools);
 
             case MKeyboard::B_CLICK :
-                Tools->saveFloat( "s-power", "voltMax", Tools->getVoltageMax() );
+                Tools->writeNvsFloat( "s-power", "voltMax", Tools->getVoltageMax() );
 //                Oled->showLine3RealCurrent();
                 break;
 

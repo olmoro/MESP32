@@ -9,62 +9,8 @@
 
 #include "state/mstate.h"
 
-namespace OptionFsm
+namespace MOption
 {
-  // Константы, ограничивающие пользовательские регулировки
-  struct MOptConsts
-  {
-    // задержка включения (Отложенный старт)
-    static constexpr int ppone_l =  0;
-    static constexpr int ppone_h = 24;
-
-    // смещение АЦП
-    static constexpr short offset_adc_h =  100;
-    static constexpr short offset_adc_l = -100;
-
-    // смещение показаний по напряжению
-    static constexpr short offset_v_h =  100;
-    static constexpr short offset_v_l = -100;
-
-    // Коэффициент преобразования в милливольты
-    static constexpr short factor_v_h = 11600 + 200;
-    static constexpr short factor_v_l = 11600 - 200;    
-
-    // Показатель сглаживания по напряжению
-    static constexpr short smooth_v_h = 3 + 2;
-    static constexpr short smooth_v_l = 3 - 2;
-
-    // смещение показаний по току
-    static constexpr short offset_i_h =  100;
-    static constexpr short offset_i_l = -100;
-
-    // Коэффициент преобразования в миллиамперы
-    static constexpr short factor_i_h = 780 + 20;
-    static constexpr short factor_i_l = 780 - 20;
-
-    // Показатель сглаживания по току
-    static constexpr short smooth_i_h = 3 + 2;
-    static constexpr short smooth_i_l = 3 - 2;
-
-
-    //...
-  };
-
-  enum MODES
-  {
-    QULON = 0,         // 
-    TEMPLATE,               // шаблон режима 
-    DCSUPPLY,               // режим источника постоянного тока
-    PULSEGEN,               // режим источника импульсного тока
-    CCCVCHARGE,             // режим заряда "постоянный ток / постоянное напряжение"
-    PULSECHARGE,            // режим импульсного заряда
-    RECOVERY,               // режим восстановления
-    STORAGE,                // режим хранения
-    DEVICE,                 // режим заводских регулировок
-    SERVICE                // режим Сервис АКБ
-  };
-
-
   class MStart : public MState
   {       
     public:
@@ -77,128 +23,17 @@ namespace OptionFsm
     public:
       MSetPostpone(MTools * Tools);
       MState * fsm() override;
+    private:
+        // Пределы регулирования задержки пуска, час
+      static constexpr short fixed =  0;
+      static constexpr short above = 24;
+      static constexpr short below =  0;
+
+      short pp = fixed;
   };
 
-  // ===================== Пользовательские настройки АЦП =====================
-  class MUpDnAdcOffset : public MState
-  {
-    public:
-      MUpDnAdcOffset(MTools * Tools);
-      MState * fsm() override;
-  };
+ 
 
-  // ============ Пользовательские настройки измерителя напряжения ============
-  class MSetVoltageOffset : public MState
-  {
-    public:
-      MSetVoltageOffset(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  class MSetVoltageFactor : public MState
-  {
-    public:
-      MSetVoltageFactor(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  class MSetVoltageSmooth : public MState
-  {
-    public:
-      MSetVoltageSmooth(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  // ============ Пользовательские настройки измерителя тока ============
-  class MSetCurrentOffset : public MState
-  {
-    public:
-      MSetCurrentOffset(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  class MSetCurrentFactor : public MState
-  {
-    public:
-      MSetCurrentFactor(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  class MSetCurrentSmooth : public MState
-  {
-    public:
-      MSetCurrentSmooth(MTools * Tools);
-      MState * fsm() override;
-  };
-
-  // ====================================================================
-
-
-
-
-  // class MSetVoltageOffset : public MState
-  // {
-  //       public:
-  //         MSetVoltageOffset(MTools * Tools);
-  //         MState * fsm() override;
-  // };
-
-  class MNameSelection : public MState
-  {
-        public:
-          MNameSelection(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MSetFactory : public MState
-  {
-      public:
-          MSetFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-//***********
-  class MSetDCSupplyFactory : public MState
-  {
-      public:
-          MSetDCSupplyFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MSetCcCvChargeFactory : public MState
-  {
-      public:
-          MSetCcCvChargeFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MSetExChargeFactory : public MState
-  {
-      public:
-          MSetExChargeFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MSetRecoveryFactory : public MState
-  {
-      public:
-          MSetRecoveryFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MServiceFactory : public MState
-  {
-      public:
-          MServiceFactory(MTools * Tools);
-          MState * fsm() override;
-  };
-
-  class MSetQulonFactory : public MState
-  {
-      public:
-          MSetQulonFactory(MTools * Tools);
-          MState * fsm() override;
-  };
 //***************
 
   class MStop : public MState

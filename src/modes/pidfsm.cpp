@@ -37,7 +37,7 @@ namespace MPid
     /*...*/
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
-    m = Tools->readInt("pidtest", "mode", fixed);
+    m = Tools->readNvsShort("pidtest", "mode", fixed);
     Tools->txPowerStop();                               // 0x21  Команда драйверу перейти в безопасный режим
     Display->showMode((char*)"  PIDTEST START   ");     // Что регулируется
     Display->showHelp((char*)" CH/DECHAR.  +/-  ");     // Активные кнопки
@@ -83,8 +83,8 @@ namespace MPid
     // Состояние: "Ввод порога ПИД-регулятора напряжения".
   MSetPointV::MSetPointV(MTools * Tools) : MState(Tools)
   {
-    spV = Tools->readFloat("pidtest", "spV", fixedV);
-    spI = Tools->readFloat("pidtest", "spI", fixedI);
+    spV = Tools->readNvsFloat("pidtest", "spV", fixedV);
+    spI = Tools->readNvsFloat("pidtest", "spI", fixedI);
       // Индикация 
     Display->showMode((char*)" SET SP_V    +/-  ");
     Display->showHelp((char*)" B-SAVE     C-GO  ");
@@ -128,8 +128,8 @@ namespace MPid
     // Состояние: "Ввод порога ПИД-регулятора тока".
   MSetPointI::MSetPointI(MTools * Tools) : MState(Tools)
   {
-    spV = Tools->readFloat("pidtest", "spV", fixedV);
-    spI = Tools->readFloat("pidtest", "spI", fixedI);
+    spV = Tools->readNvsFloat("pidtest", "spV", fixedV);
+    spI = Tools->readNvsFloat("pidtest", "spI", fixedI);
       // Индикация 
     Display->showMode((char*)" SET SP_I    +/-  ");
     Display->showHelp((char*)" B-SAVE     C-GO  ");
@@ -179,7 +179,7 @@ namespace MPid
   MSelectKpV::MSelectKpV(MTools * Tools) : MState(Tools)
   {
 
-    kpV = Tools->readFloat("pidtest", "kpU", fixed);
+    kpV = Tools->readNvsFloat("pidtest", "kpU", fixed);
 
       // Индикация 
     Display->showMode((char*)" KP_V        +/-  ");
@@ -230,7 +230,7 @@ namespace MPid
 
   MSelectKiV::MSelectKiV(MTools * Tools) : MState(Tools)
   {
-    kiV = Tools->readFloat("pidtest", "kiV", fixed);
+    kiV = Tools->readNvsFloat("pidtest", "kiV", fixed);
       // Индикация 
     Display->showMode((char*)" KI_V        +/-  ");
     Display->showHelp((char*)" B-SAVE     C-GO  ");
@@ -281,7 +281,7 @@ namespace MPid
 
   MSelectKdV::MSelectKdV(MTools * Tools) : MState(Tools)
   {
-    kdV = Tools->readFloat("pidtest", "kdU", fixed);
+    kdV = Tools->readNvsFloat("pidtest", "kdU", fixed);
 
       // Индикация 
     Display->showMode((char*)" KD_V        +/-  ");
@@ -335,7 +335,7 @@ namespace MPid
 
   MSelectKpI::MSelectKpI(MTools * Tools) : MState(Tools)
   {
-    kpV = Tools->readFloat("pidtest", "kpI", fixed);
+    kpV = Tools->readNvsFloat("pidtest", "kpI", fixed);
 
       // Индикация 
     Display->showMode((char*)" KP_I        +/-  ");
@@ -386,7 +386,7 @@ namespace MPid
 
   MSelectKiI::MSelectKiI(MTools * Tools) : MState(Tools)
   {
-    kiI = Tools->readFloat("pidtest", "kiI", fixed);
+    kiI = Tools->readNvsFloat("pidtest", "kiI", fixed);
 
       // Индикация 
     Display->showMode((char*)" KI_I        +/-  ");
@@ -438,7 +438,7 @@ namespace MPid
 
   MSelectKdI::MSelectKdI(MTools * Tools) : MState(Tools)
   {
-    kdI = Tools->readFloat("pidtest", "kdI", fixed);
+    kdI = Tools->readNvsFloat("pidtest", "kdI", fixed);
       // Индикация 
     Display->showMode((char*)" KD_I        +/-  ");
     Display->showHelp((char*)" B-SAVE     C-GO  ");
