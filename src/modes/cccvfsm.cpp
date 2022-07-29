@@ -39,60 +39,47 @@ namespace MCccv
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
     //Отключить на всякий пожарный
-    Tools->txPowerStop();                                 // 0x21  Команда драйверу
+    Tools->txPowerStop();                                                   // 0x21  Команда драйверу
 
     maxV = Tools->readNvsFloat("cccv", "maxV", voltageNom * voltageMaxFactor);
-    #ifdef TESTCCCV 
-      Serial.print("\nmaxV="); Serial.print(maxV, 3);
-    #endif
-
     minV = Tools->readNvsFloat("cccv", "minV", voltageNom * voltageMinFactor);
-    #ifdef TESTCCCV 
-      Serial.print("\nminV="); Serial.print(minV, 3);
-    #endif
-
     maxI = Tools->readNvsFloat("cccv", "maxI", capacity * currentMaxFactor);
-    #ifdef TESTCCCV 
-      Serial.print("\nmaxI="); Serial.print(maxI, 3);
-    #endif
-
     minI = Tools->readNvsFloat("cccv", "minI", capacity * currentMinFactor);
-    #ifdef TESTCCCV 
+    #ifdef TESTCCCV
+      Serial.print("\nmaxV="); Serial.print(maxV, 3);
+      Serial.print("\nminV="); Serial.print(minV, 3);
+      Serial.print("\nmaxI="); Serial.print(maxI, 3);
       Serial.print("\nminI="); Serial.print(minI, 3);
     #endif
-
+    cnt = 7;
     // Индикация
-    Display->showMode( (char*)"       CC/CV      " );  // В каком режиме
-    Display->showHelp( (char*)"    P-ADJ   C-GO  " );  // Активные кнопки
+    Display->showMode((char*)"       CC/CV      ");  // В каком режиме
+    Display->showHelp((char*)"    P-ADJ   C-GO  ");  // Активные кнопки
     Display->barOff();
     Board->ledsOn();              // Подтверждение входа в настройки заряда белым свечением светодиода
   }
   MState * MStart::fsm()
   {
-    switch ( Keyboard->getKey() )    //Здесь так можно
+    switch (Keyboard->getKey())    //Здесь так можно
     {
+      case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                      return new MStop(Tools);
       case MKeyboard::C_CLICK: Board->buzzerOn(); 
         // Старт без уточнения параметров (здесь – для батарей типа AGM), 
         maxV = voltageNom * voltageMaxFactor;
-        #ifdef TESTCCCV 
-          Serial.print("\nmaxV="); Serial.print(maxV, 3);
-        #endif
         minV = voltageNom * voltageMinFactor;
-        #ifdef TESTCCCV 
-          Serial.print("\nminV="); Serial.print(minV, 3);
-        #endif
         maxI = capacity * currentMaxFactor;
-        #ifdef TESTCCCV 
-          Serial.print("\nmaxI="); Serial.print(maxI, 3);
-        #endif
         minI = capacity * currentMinFactor;
-        #ifdef TESTCCCV 
+        #ifdef TESTCCCV
+          Serial.print("\nmaxV="); Serial.print(maxV, 3);
+          Serial.print("\nminV="); Serial.print(minV, 3);
+          Serial.print("\nmaxI="); Serial.print(maxI, 3);
           Serial.print("\nminI="); Serial.print(minI, 3);
         #endif
-      return new MPostpone(Tools);
-
-      case MKeyboard::P_CLICK: Board->buzzerOn();
-      return new MSetCurrentMax(Tools);     // Выбрано уточнение настроек заряда, начать с установки maxI
+                                                                            return new MPostpone(Tools);
+      case MKeyboard::P_CLICK: Board->buzzerOn();                           return new MSetCurrentMax(Tools);
+      case MKeyboard::B_CLICK: Board->buzzerOn();
+        if(--cnt <= 0)                                                      return new MClearCccvKeys(Tools);
+        break;
       default:;
     }
     // Индикация текущих значений, указывается число знаков после запятой
@@ -101,12 +88,13 @@ namespace MCccv
     return this;
   };
 
-    //===================================================================================== MClearCccvKeys
+    //================================================================================ MClearCccvKeys
 
   MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
   {
     Display->showMode((char*)"      CLEAR?      ");  // В каком режиме
-    Display->showHelp((char*)"  P-NO     B-YES  ");  // Активные кнопки
+    Display->showHelp((char*)"  P-NO     C-YES  ");  // Активные кнопки
+    Board->ledsBlue();
   }
   MState * MClearCccvKeys::fsm()
   {
@@ -114,14 +102,24 @@ namespace MCccv
     {
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetCurrentMax(Tools);
-    case MKeyboard::B_CLICK: Board->buzzerOn();
-      done = Tools->clearAllKeys("cccv");                                    return new MSetCurrentMax(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      //done = Tools->clearAllKeys("cccv"); 
+      // done = Tools->clearAllKeys("qulon");                      // delayed  
+      done = Tools->clearAllKeys("template");                      // delay???  
+      // done = Tools->clearAllKeys("s-power");                      // delayed  
+      // Tools->clearAllKeys("cccv");                      // delayed 
+      // done = Tools->clearAllKeys("pidtest");                      // delayed  
+      // Tools->clearAllKeys("e-charge");                      // delayed  
+      // Tools->clearAllKeys("recovery");                      // delayed  
+      // done = Tools->clearAllKeys("storage");                      // delayed  
+      // done = Tools->clearAllKeys("service");                      // delayed 
+      Serial.print("\ndelayed ");        Serial.print("template = ");    Serial.print((short)done);               
+                                                                      return nullptr; //  new MStart(Tools); // Или RESET???
     
     default:                                                          break;
     }
     Display->showMode((char*)"     CLEARING     ");   // В каком режиме
     Display->showHelp((char*)"    ...WAIT...    ");   // Активные кнопки - нет
-    Board->ledsBlue();                                // Подтверждение входа
     return this;
   };
 
@@ -552,7 +550,7 @@ namespace MCccv
     //Tools->shutdownCharge();
     Display->showMode((char*)"  CC/CV MODE OFF  ");
     Display->showHelp((char*)" C-TO SELECT MODE ");                      // To select the mode
-    Board->ledsOff();
+    Board->ledsOn();
     Display->barOff();
   }    
   MState * MExit::fsm()
@@ -563,7 +561,7 @@ namespace MCccv
       return new MStart(Tools);                                             // Вернуться в начало
 
       case MKeyboard::C_CLICK:  Board->buzzerOn(); 
-        Tools->activateExit(" ");    // Можно сделать лучше, гасит светодиоды
+        Board->ledsOff();
         // Надо бы восстанавливать средствами диспетчера...
         Display->showMode( (char*) "   CC/CV CHARGE   " );
         Display->showHelp( (char*) "     B-SELECT     " );

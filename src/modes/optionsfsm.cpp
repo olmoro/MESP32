@@ -44,7 +44,7 @@ namespace MOption
 
 MSetPostpone::MSetPostpone(MTools * Tools) : MState(Tools) 
 {
-    pp = Tools->readNvsInt("qulon", "postp", fixed);
+//    pp = Tools->readNvsInt("qulon", "postp", fixed);
       // Подсказка
     Display->showMode((char*) "  POSTPONE      +/-  ");
     Display->showHelp((char*) "  P-DEFINE   C-EXIT  ");
@@ -60,7 +60,7 @@ MState * MSetPostpone::fsm()
     case MKeyboard::P_CLICK: Board->buzzerOn();                   return new MExit(Tools); // M...(Tools);
 
     case MKeyboard::B_CLICK: Board->buzzerOn();       
-      Tools->writeNvsShort("qulon", "postp", pp);                       return new MExit(Tools); //M...(Tools);
+//      Tools->writeNvsShort("qulon", "postp", pp);                       return new MExit(Tools); //M...(Tools);
 
     case MKeyboard::UP_CLICK: Board->buzzerOn();
     case MKeyboard::UP_AUTO_CLICK: 

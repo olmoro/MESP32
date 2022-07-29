@@ -242,19 +242,8 @@ bool setPidCoefficients(float kp, float ki, float kd);
     short updnInt(short value, short below, short above, short additives);
     float updnFloat(float value, float below, float above, float additives);
 
-
-
-
-    //   // 202207 read/write nvs
-    // void  saveInt(const char * name, const char * key, const short value);
-    // short readInt(const char * name, const char * key, const short defaultValue);
-    // void  saveFloat(const char * name, const char * key, const float fvalue);
-    // short readFloat(const char * name, const char * key, const short defaultValue);
-
   bool  clearAllKeys (const char * name);
     void  removeKey(const char * name, const char * key);
-
-    void activateExit(const char * s);
 
     void clrTimeCounter();
     void clrChargeTimeCounter();
@@ -409,7 +398,6 @@ bool setPidCoefficients(float kp, float ki, float kd);
     bool postponeCalculation();
 
     void chargeCalculations();
-    void showUpDn();                // " UP/DN, В-выбор "
 
 
     // Any constants - приборные ограничения

@@ -90,7 +90,13 @@ namespace MDevice
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MFactorV(Tools);
       // Сохранить и перейти к следующему состоянию
     case MKeyboard::B_CLICK: Board->buzzerOn();
-      Tools->writeNvsShort("device", "offsetV", shift);                      return new MFactorV(Tools);
+      Tools->writeNvsShort("device", "offsetV", shift);                
+    #ifdef TESTDEVICE
+      Serial.print("\nshiftVw=0x"); Serial.print(shift, HEX);
+      Serial.print("\nshiftVr=0x"); Serial.print(Tools->readNvsShort("device", "offsetV", fixed), HEX);
+    #endif      
+      
+            return new MFactorV(Tools);
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       shift = Tools->updnInt(shift, below, above, +1); 
       #ifdef TESTDEVICE

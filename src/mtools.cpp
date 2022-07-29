@@ -225,43 +225,45 @@ void MTools::chargeCalculations()
     ahCharge += current / 36000.0;     //    ((float)( 1000 / simpleChargerPeriod ) * 3600.0);
 }
 
-// ==================================== Nvs read/write ====================================
+// ==================================== Nvs read ====================================
 
 bool MTools::readNvsBool(const char * name, const char * key, const bool defaultValue)
 {
-  qPreferences->begin(name, false);                    // RW-mode (second parameter has to be false).
+  qPreferences->begin(name, true);                      // R-mode (second parameter has to be true).
   bool val = qPreferences->getBool(key, defaultValue);
-  qPreferences->end();                                // Close the Preferences
+  qPreferences->end();                                  // Close the Preferences
   return val;  
 }
 
 short MTools::readNvsShort(const char * name, const char * key, const short defaultValue)
 {
-  qPreferences->begin(name, false);                    // RW-mode (second parameter has to be false).
+  qPreferences->begin(name, true);
   short val = qPreferences->getShort(key, defaultValue);
-  qPreferences->end();                                // Close the Preferences
+  qPreferences->end();
   return val;  
 }
 
 int MTools::readNvsInt(const char * name, const char * key, const int defaultValue)
 {
-  qPreferences->begin(name, false);                    // RW-mode (second parameter has to be false).
+  qPreferences->begin(name, true);
   int val = qPreferences->getInt(key, defaultValue);
-  qPreferences->end();                                // Close the Preferences
+  qPreferences->end();
   return val;  
 }
 
 float MTools::readNvsFloat(const char * name, const char * key, const float defaultValue)
 {
-  qPreferences->begin(name, false);
+  qPreferences->begin(name, true);
   float val = qPreferences->getFloat(key, defaultValue);
   qPreferences->end();
   return val;
 }
 
+// ==================================== Nvs write ====================================
+
 void MTools::writeNvsBool(const char * name, const char * key, const bool bValue)
 {
-  qPreferences->begin(name, false);
+  qPreferences->begin(name, false);                     // RW-mode (second parameter has to be false).
   qPreferences->putBool(key, bValue);
   qPreferences->end();
 }
@@ -269,18 +271,18 @@ void MTools::writeNvsBool(const char * name, const char * key, const bool bValue
 void MTools::writeNvsShort(const char * name, const char * key, const short sValue)
 {
   qPreferences->begin(name, false);
-  qPreferences->putInt(key, sValue);
+  qPreferences->putShort(key, sValue);
   qPreferences->end();
 }
 
-void MTools::writeNvsInt(const char * name, const char * key, const int iValue )
+void MTools::writeNvsInt(const char * name, const char * key, const int iValue)
 {
   qPreferences->begin(name, false);
   qPreferences->putInt(key, iValue);
   qPreferences->end();
 }
 
-void MTools::writeNvsFloat(const char * name, const char * key, const float fValue )
+void MTools::writeNvsFloat(const char * name, const char * key, const float fValue)
 {
   qPreferences->begin(name, false);
   qPreferences->putFloat(key, fValue);
@@ -290,7 +292,7 @@ void MTools::writeNvsFloat(const char * name, const char * key, const float fVal
 // Clear all keys in opened preferences
 bool MTools::clearAllKeys(const char * name)
 {
-  qPreferences->begin(name, false);
+  qPreferences->begin(name, false);                     // RW-mode (second parameter has to be false).
   bool err = qPreferences->clear();
   qPreferences->end();
   return err;
@@ -304,41 +306,6 @@ void MTools::removeKey(const char * name, const char * key)
   qPreferences->end();
 }
 
-
-// // Read/write nvs 202207
-// void  MTools::saveInt(const char * name, const char * key, const short value ) {writeNvsInt(name, key, value );}
-
-// short MTools::readInt(const char * name, const char * key, const short defaultValue)
-// {
-//   qPreferences->begin(name, true);                    // RW-mode (second parameter has to be false).
-//   short value = qPreferences->getInt(key, defaultValue);
-//   qPreferences->end();                                // Close the Preferences
-//   return value;  
-// }
-
-// void  MTools::saveFloat(const char * name, const char * key, const float value) {writeNvsFloat( name, key, value);}
-
-// short MTools::readFloat(const char * name, const char * key, const short defaultValue)
-// {
-//   qPreferences->begin(name, true);
-//   float value = qPreferences->getFloat(key, defaultValue);
-//   qPreferences->end();
-//   return value;
-// }
-// //!Read/write nvs 202207
-
-
-
-
-void MTools::showUpDn() 
-{ 
-}
-
-
-void MTools::activateExit(const char * s)
-{
-    Board->ledsOff(); 
-}
 
 //==================== common ==========================
 
