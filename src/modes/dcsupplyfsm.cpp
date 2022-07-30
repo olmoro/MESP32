@@ -1,5 +1,5 @@
 /*
- * dcsupplyfsm.cpp
+ * dcsupplyfsm.cpp - Это из старого проекта.
  * Конечный автомат источника постоянного тока
  * В прототипе - Простой источник питания
  * 2019.05.10 2019.12.23
@@ -12,7 +12,7 @@
 #include "display/mdisplay.h"
 #include <Arduino.h>
 
-namespace DcSupplyFsm
+namespace DcSupply
 {
     // Состояние "Старт", инициализация выбранного режима работы (простой источник).
     MStart::MStart(MTools * Tools) : MState(Tools) 
@@ -27,8 +27,9 @@ namespace DcSupplyFsm
         #endif
 
         // Индикация
-//        Display->getTextMode( (char*) " DC SUPPLY SELECTED  " );
-        Display->showHelp( (char*) "  P-DEFINE  C-START  " );
+        cnt = 7;
+        Display->showMode((char*)" DC SUPPLY SELECT ");
+        Display->showHelp((char*)" P-DEF   C-START  ");
         Display->barOff();
     }
     MState * MStart::fsm()
@@ -40,10 +41,11 @@ namespace DcSupplyFsm
                 // максимальный ток и напряжение - в соответствии с выбором (см таблицу в/А)
                 // Восстановленные на предыдущем шаге данные заменяются (кроме индекса)
                 Tools->setVoltageMax( Tools->pows[Tools->powInd][0] );
-                Tools->setCurrentMax( Tools->pows[Tools->powInd][1] );
-                return new MExecution(Tools);
-            case MKeyboard::P_CLICK :
-                return new MSetVoltage(Tools);
+                Tools->setCurrentMax( Tools->pows[Tools->powInd][1] );                return new MExecution(Tools);
+            case MKeyboard::P_CLICK :                return new MSetVoltage(Tools);
+            case MKeyboard::B_CLICK: Board->buzzerOn();
+                if(--cnt <= 0)                                                      return new MClearCccvKeys(Tools);
+                break;
             default:;
         }
         Display->showVolt( Tools->getRealVoltage(), 2 );
@@ -51,6 +53,39 @@ namespace DcSupplyFsm
 
         return this;
     };
+
+    //================================================================================ MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
+    Board->ledsBlue();
+    cnt = 50;                                         // 5с 
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MExit(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetVoltage(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("dcsupply");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"dcsupply\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
+    default:                                                          break;
+    }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"    ___WAIT___    ");   // Активные кнопки - нет
+    return this;
+  };
+
+
 
     MSetVoltage::MSetVoltage(MTools * Tools) : MState(Tools)
     {

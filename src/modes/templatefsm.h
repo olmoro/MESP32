@@ -7,7 +7,7 @@
 #include "state/mstate.h"           // Методы управления конечным автоматом
 
 // Переименуйте поле имен для вашего режима.
-namespace TemplateFsm
+namespace Template
 {
   // Какие-то константы для этого режима могут быть определены здесь, например
   struct MTemplateConsts
@@ -34,6 +34,18 @@ namespace TemplateFsm
     public:
       MStart(MTools * Tools);    
       MState * fsm() override;
+    private:
+      short cnt;
+  };
+
+  class MClearCccvKeys : public MState
+  {
+    public:  
+      MClearCccvKeys(MTools * Tools);
+      MState * fsm() override;
+    private:
+      short cnt;
+      bool done;
   };
 
   class MYellow : public MState

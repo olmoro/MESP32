@@ -4,7 +4,7 @@
 */
 
 #include "modes/optionsfsm.h"
-#include "nvs.h"
+//#include "nvs.h"
 #include "mtools.h"
 #include "mcmd.h"
 #include "board/mboard.h"
@@ -22,6 +22,7 @@ namespace MOption
     #ifdef DEBUG_OPTIONS
       Serial.println("Options: Start");
     #endif
+    cnt = 7;
       // Индикация
     Display->showMode( (char*) " OPTIONS SELECTED " );
     Display->showHelp( (char*) "            C-GO  " );
@@ -34,12 +35,51 @@ namespace MOption
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();            return new MStop(Tools);
 
       case MKeyboard::C_CLICK: Board->buzzerOn();                 return new MSetPostpone(Tools);
+
+      case MKeyboard::B_CLICK: Board->buzzerOn();
+        if(--cnt <= 0)                                                      return new MClearCccvKeys(Tools);
+        break;
+
       default:;
     }
 
     Display->showVolt(Tools->getRealVoltage(), 3);
     Display->showAmp (Tools->getRealCurrent(), 3);                return this;
   };
+
+    //================================================================================ MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
+    Board->ledsBlue();
+    cnt = 50;                                         // 5с 
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetPostpone(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("options");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"options\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
+    default:                                                          break;
+    }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"    ___WAIT___    ");   // Активные кнопки - нет
+    return this;
+  };
+
+
+
 
 
 MSetPostpone::MSetPostpone(MTools * Tools) : MState(Tools) 

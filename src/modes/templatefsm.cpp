@@ -9,7 +9,7 @@
 */
 
 #include "modes/templatefsm.h"
-#include "nvs.h"
+//#include "nvs.h"
 #include "mtools.h"
     #include "driver/mcommands.h"
 #include "board/mboard.h"
@@ -20,7 +20,7 @@
 #include <string>
 
 // Переименуйте поле имен для вашего режима.
-namespace TemplateFsm
+namespace Template
 {
       // Старт
   MStart::MStart(MTools * Tools) : MState(Tools) 
@@ -28,7 +28,7 @@ namespace TemplateFsm
     // Здесь, в конструкторе класса для этого состояния, разместите код инициализации 
     // состояния MStart, который будет исполняться всякий раз при активации этого режима.
     // Для других состояний - при входе из иного состояния.
-
+    cnt = 7;
         // Индикация
     Display->showMode( (char*) "     TEMPLATE     " );
     Display->showHelp( (char*) "  P-YELL B-BLUE   " );    // Подсказка какие кнопки активны
@@ -42,18 +42,51 @@ namespace TemplateFsm
     switch ( Keyboard->getKey() )
     {
       case MKeyboard::C_CLICK:        // Досрочное прекращение заряда оператором
-      case MKeyboard::C_LONG_CLICK: Board->buzzerOn();
-      return new MStop(Tools);
+      case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                      return new MStop(Tools);
 
-      case MKeyboard::P_CLICK: Board->buzzerOn();
-      return new MYellow(Tools);      // Выбран желтый
+      case MKeyboard::P_CLICK: Board->buzzerOn();                           return new MYellow(Tools);      // Выбран желтый
+
+      // case MKeyboard::B_CLICK: Board->buzzerOn();
+      // return new MBlue(Tools);        // Выбран синий
 
       case MKeyboard::B_CLICK: Board->buzzerOn();
-      return new MBlue(Tools);        // Выбран синий
+        if(--cnt <= 0)                                                      return new MClearCccvKeys(Tools);
+        break;
       default:;
     }
     
     return this;             // Ничего не выбрано, через 100мс проверять снова.
+  };
+
+    //================================================================================ MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
+    Board->ledsBlue();
+    cnt = 50;                                         // 5с 
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MYellow(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("template");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"template\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
+    default:                                                          break;
+    }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"    ___WAIT___    ");   // Активные кнопки - нет
+    return this;
   };
 
       // Желтый

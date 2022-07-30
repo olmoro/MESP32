@@ -17,23 +17,22 @@ namespace MPid
       MStart(MTools * Tools);
       MState * fsm() override;
     private:
+      short cnt;
       short m = fixed;
       static constexpr short fixed = 0;
       static constexpr short above = 1;
       static constexpr short below = 0;
   };
 
-  // class MMode : public MState
-  // {       
-  //   public:
-  //     MMode(MTools * Tools);
-  //     MState * fsm() override;
-  //   private:
-  //     short m;
-  //     static constexpr short fixed = 0;
-  //     static constexpr short above = 1;
-  //     static constexpr short below = 0;
-  // };
+  class MClearCccvKeys : public MState
+  {
+    public:  
+      MClearCccvKeys(MTools * Tools);
+      MState * fsm() override;
+    private:
+      short cnt;
+      bool done;
+  };
 
   class MSetPointV : public MState
   {

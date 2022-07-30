@@ -35,6 +35,7 @@ namespace MDevice
   {
       //Отключить на всякий пожарный
     Tools->txPowerStop();                                               // 0x21 Команда драйверу
+    cnt = 7;
       // Индикация
     Display->showMode((char*)"   DEVICE START   ");                     // Что регулируется
     Display->showHelp((char*)" P-ADJ_I  C-ADJ_V ");                     // Активные кнопки
@@ -50,12 +51,47 @@ namespace MDevice
       case MKeyboard::C_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
         // Коррекция смещения по току
       case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftI(Tools);
+      case MKeyboard::B_CLICK: Board->buzzerOn();
+        if(--cnt <= 0)                                                  return new MClearCccvKeys(Tools);
+        break;
       default:;
     }
     // Индикация текущих значений, указывается число знаков после запятой
     Display->showVolt(Tools->getRealVoltage(), 3);
     Display->showAmp (Tools->getRealCurrent(), 3);                      return this;
   };
+
+    //================================================================================ MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
+    Board->ledsBlue();
+    cnt = 50;                                         // 5с 
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MShiftV(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("device");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"device\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
+    default:                                                          break;
+    }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"  ___C-CLEAR___   ");   // Активные кнопки - нет
+    return this;
+  };
+
 
   //===================================================================================== MShiftV
 

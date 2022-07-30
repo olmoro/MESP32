@@ -16,6 +16,18 @@ namespace MDevice
     public:
       MStart(MTools * Tools);
       MState * fsm() override;
+    private:
+      short cnt;
+  };
+
+  class MClearCccvKeys : public MState
+  {
+    public:  
+      MClearCccvKeys(MTools * Tools);
+      MState * fsm() override;
+    private:
+      short cnt;
+      bool done;
   };
 
   class MShiftV : public MState

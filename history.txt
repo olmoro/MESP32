@@ -67,4 +67,10 @@ Flash: [==        ]  16.2% (used 1061858 bytes from 6553600 bytes)
 RAM:   [=         ]  13.4% (used 43768 bytes from 327680 bytes)
 Flash: [==        ]  16.2% (used 1060098 bytes from 6553600 bytes)
 
+29.07
+Удалены все ключи в:
 "qulon" "e-charge" "recovery" "storage" "storage" "service" "s-power" "pidtest" "template"
+Надобность в nvs.h отпала.
+Удаление ключей реализовано пока только в CCCV.
+30.07
+Удаление ключей реализовано во всех режимах.

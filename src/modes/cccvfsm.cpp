@@ -45,7 +45,9 @@ namespace MCccv
     minV = Tools->readNvsFloat("cccv", "minV", voltageNom * voltageMinFactor);
     maxI = Tools->readNvsFloat("cccv", "maxI", capacity * currentMaxFactor);
     minI = Tools->readNvsFloat("cccv", "minI", capacity * currentMinFactor);
+    vTaskDelay(2 / portTICK_PERIOD_MS);
     #ifdef TESTCCCV
+      Serial.print("\nПользовательские, а если нет, то разработчика:");
       Serial.print("\nmaxV="); Serial.print(maxV, 3);
       Serial.print("\nminV="); Serial.print(minV, 3);
       Serial.print("\nmaxI="); Serial.print(maxI, 3);
@@ -64,16 +66,18 @@ namespace MCccv
     {
       case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                      return new MStop(Tools);
       case MKeyboard::C_CLICK: Board->buzzerOn(); 
-        // Старт без уточнения параметров (здесь – для батарей типа AGM), 
+        // Старт без уточнения параметров
         maxV = voltageNom * voltageMaxFactor;
         minV = voltageNom * voltageMinFactor;
         maxI = capacity * currentMaxFactor;
         minI = capacity * currentMinFactor;
         #ifdef TESTCCCV
+          Serial.print("\n\nПредустановленные разработчиком:");
           Serial.print("\nmaxV="); Serial.print(maxV, 3);
           Serial.print("\nminV="); Serial.print(minV, 3);
           Serial.print("\nmaxI="); Serial.print(maxI, 3);
           Serial.print("\nminI="); Serial.print(minI, 3);
+          Serial.println();
         #endif
                                                                             return new MPostpone(Tools);
       case MKeyboard::P_CLICK: Board->buzzerOn();                           return new MSetCurrentMax(Tools);
@@ -92,9 +96,10 @@ namespace MCccv
 
   MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
   {
-    Display->showMode((char*)"      CLEAR?      ");  // В каком режиме
-    Display->showHelp((char*)"  P-NO     C-YES  ");  // Активные кнопки
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
     Board->ledsBlue();
+    cnt = 50;                                         // 5с 
   }
   MState * MClearCccvKeys::fsm()
   {
@@ -103,23 +108,18 @@ namespace MCccv
     case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
     case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetCurrentMax(Tools);
     case MKeyboard::C_CLICK: Board->buzzerOn();
-      //done = Tools->clearAllKeys("cccv"); 
-      // done = Tools->clearAllKeys("qulon");                      // delayed  
-      done = Tools->clearAllKeys("template");                      // delay???  
-      // done = Tools->clearAllKeys("s-power");                      // delayed  
-      // Tools->clearAllKeys("cccv");                      // delayed 
-      // done = Tools->clearAllKeys("pidtest");                      // delayed  
-      // Tools->clearAllKeys("e-charge");                      // delayed  
-      // Tools->clearAllKeys("recovery");                      // delayed  
-      // done = Tools->clearAllKeys("storage");                      // delayed  
-      // done = Tools->clearAllKeys("service");                      // delayed 
-      Serial.print("\ndelayed ");        Serial.print("template = ");    Serial.print((short)done);               
-                                                                      return nullptr; //  new MStart(Tools); // Или RESET???
-    
+      done = Tools->clearAllKeys("cccv");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"cccv\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
     default:                                                          break;
     }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
     Display->showMode((char*)"     CLEARING     ");   // В каком режиме
-    Display->showHelp((char*)"    ...WAIT...    ");   // Активные кнопки - нет
+    Display->showHelp((char*)"    ___WAIT___    ");   // Активные кнопки - нет
     return this;
   };
 

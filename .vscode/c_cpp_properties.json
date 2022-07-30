@@ -231,6 +231,7 @@
                 "CLOCK=1",
                 "UART2=1",
                 "TESTCCCV=1",
+                "TEST_KEYS_CLEAR=1",
                 ""
             ],
             "cStandard": "c99",

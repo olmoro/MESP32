@@ -51,11 +51,9 @@ namespace MCccv
       MClearCccvKeys(MTools * Tools);
       MState * fsm() override;
     private:
+      short cnt;
       bool done;
   };
-
-
-
 
   class MSetPidCoeffU : public MState
   {

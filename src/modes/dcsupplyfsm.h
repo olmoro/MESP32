@@ -3,7 +3,7 @@
 
 #include "state/mstate.h"
 
-namespace DcSupplyFsm
+namespace DcSupply
 {
     //Any constants of DC supply
     struct MDcConst
@@ -30,10 +30,22 @@ namespace DcSupplyFsm
 
     class MStart : public MState
     {       
-        public:
-            MStart(MTools * Tools);
-            MState * fsm() override;
+      public:
+        MStart(MTools * Tools);
+        MState * fsm() override;
+      private:
+        short cnt;
     };
+
+  class MClearCccvKeys : public MState
+  {
+    public:  
+      MClearCccvKeys(MTools * Tools);
+      MState * fsm() override;
+    private:
+      short cnt;
+      bool done;
+  };
 
     class MSetVoltage : public MState
     {

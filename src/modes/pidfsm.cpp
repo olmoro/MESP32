@@ -38,6 +38,7 @@ namespace MPid
   MStart::MStart(MTools * Tools) : MState(Tools)
   {
     m = Tools->readNvsShort("pidtest", "mode", fixed);
+    cnt = 7;
     Tools->txPowerStop();                               // 0x21  Команда драйверу перейти в безопасный режим
     Display->showMode((char*)"  PIDTEST START   ");     // Что регулируется
     Display->showHelp((char*)" CH/DECHAR.  +/-  ");     // Активные кнопки
@@ -54,7 +55,13 @@ namespace MPid
       // Tools->saveInt("pidtest", "mode", m);
       if(m == 0)                                        return new MSetPointV(Tools);
       else                                              return new MSetPointD(Tools);
-    
+
+    case MKeyboard::B_CLICK: Board->buzzerOn();
+      if(--cnt <= 0)                                                      return new MClearCccvKeys(Tools);
+      break;    
+
+
+
     case MKeyboard::UP_CLICK: Board->buzzerOn();
       m = Tools->updnInt(m, below, above, +1); 
       #ifdef TESTPID
@@ -78,6 +85,38 @@ namespace MPid
     Display->showVolt(Tools->getRealVoltage(), 2);
     Display->showAmp (Tools->getRealCurrent(), 2);                return this;
   };
+
+    //================================================================================ MClearCccvKeys
+
+  MClearCccvKeys::MClearCccvKeys(MTools * Tools) : MState(Tools)
+  {
+    Display->showMode((char*)"      CLEAR?      ");   // В каком режиме
+    Display->showHelp((char*)"  P-NO     C-YES  ");   // Активные кнопки
+    Board->ledsBlue();
+    cnt = 50;                                         // 5с 
+  }
+  MState * MClearCccvKeys::fsm()
+  {
+    switch  (Keyboard->getKey())
+    {
+    case MKeyboard::C_LONG_CLICK: Board->buzzerOn();                  return new MStop(Tools);
+    case MKeyboard::P_CLICK: Board->buzzerOn();                       return new MSetPointV(Tools);
+    case MKeyboard::C_CLICK: Board->buzzerOn();
+      done = Tools->clearAllKeys("pidtest");
+      vTaskDelay(2 / portTICK_PERIOD_MS);
+      #ifdef TEST_KEYS_CLEAR
+        Serial.print("\nAll keys \"pidtest\": ");
+        (done) ? Serial.println("cleared") : Serial.println("err");
+      #endif
+      break;
+    default:                                                          break;
+    }
+    if(--cnt <= 0)                                                    return new MStart(Tools);
+    Display->showMode((char*)"     CLEARING     ");   // В каком режиме
+    Display->showHelp((char*)"  ___C-CLEAR___   ");   // Активные кнопки - нет
+    return this;
+  };
+
 
 //===================================================================================== MSetPointV
     // Состояние: "Ввод порога ПИД-регулятора напряжения".
